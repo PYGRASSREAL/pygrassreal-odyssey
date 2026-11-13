@@ -386,6 +386,30 @@ export function processLoadedFile(file) {
       const buf = ev.target.result;
       const unpacked = await Py3sCodec.unpack(buf);
 
+      // If dropping compact seed of thai-temple-gate (2.2k points), seamlessly upgrade to full 262k 3DGS model
+      if (file.name.includes('thai-temple-gate') && unpacked.spzData && unpacked.spzData.byteLength < 100000) {
+        try {
+          const fullResp = await fetch('assets/models/thai_temple_gate_262k.py3s');
+          if (fullResp.ok) {
+            const fullBuf = await fullResp.arrayBuffer();
+            const fullUnpacked = await Py3sCodec.unpack(fullBuf);
+            if (fullUnpacked.spzData) {
+              const fullSplatBlob = await convertSpzToSplatBlob(
+                fullUnpacked.spzData.buffer.slice(
+                  fullUnpacked.spzData.byteOffset,
+                  fullUnpacked.spzData.byteOffset + fullUnpacked.spzData.byteLength
+                )
+              );
+              await loadGaussianSplatBlob(fullSplatBlob, GaussianSplats3D.SceneFormat.Splat, 'splat', true);
+              setShadingMode('splat');
+              return;
+            }
+          }
+        } catch (e) {
+          console.warn('[ModelManager] Full asset resolution fallback:', e);
+        }
+      }
+
       if (unpacked.spzData && unpacked.spzData.byteLength > 0) {
         const spzSubBuffer = unpacked.spzData.buffer.slice(
           unpacked.spzData.byteOffset,
