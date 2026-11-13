@@ -294,3 +294,4 @@ export function createProceduralLanderSplats() {
   geo.computeBoundingSphere();
   return geo;
 }
+

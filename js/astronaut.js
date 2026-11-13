@@ -250,3 +250,4 @@ export function updateAstronautPhysics(delta, getTerrainHeight, camera, controls
     hudAstroPos.innerText = `X: ${astroPos.x.toFixed(1)}, Z: ${astroPos.z.toFixed(1)} (${isMoving ? 'Walking' : isGrounded ? 'Standing' : 'Airborne'})`;
   }
 }
+

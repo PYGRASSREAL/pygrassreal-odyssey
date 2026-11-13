@@ -301,3 +301,4 @@ function setupDropZone() {
 export function exportPrint3D() {
   alert("🖨️ 3D Print Extractor:\nExtracted watertight solid model from .py3s container (0 sec export ready)!\nFile: mars_spacecraft_print3d.3mf");
 }
+

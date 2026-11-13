@@ -93,3 +93,4 @@ window.handleFileSelect = (e) => {
     processLoadedFile(e.target.files[0]);
   }
 };
+
