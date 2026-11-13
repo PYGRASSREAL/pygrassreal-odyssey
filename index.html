@@ -57,7 +57,6 @@
       background: #020408;
     }
 
-    /* 2D Scroll Canvas Layer */
     #scroll-canvas-layer {
       position: absolute;
       inset: 0;
@@ -81,7 +80,6 @@
     }
     #loop-overlay.active { opacity: 1; }
 
-    /* 3D Three.js WebGL Canvas Layer */
     #threejs-layer {
       position: absolute;
       inset: 0;
@@ -97,7 +95,6 @@
       pointer-events: auto;
     }
 
-    /* Cinematic Vignette Overlay */
     .vignette {
       position: absolute;
       inset: 0;
@@ -146,7 +143,7 @@
       letter-spacing: -0.02em;
     }
 
-    /* Quick Jump Pills (ปุ่มสุดง่ายสุด) */
+    /* Quick Jump Bar */
     .quick-jump-bar {
       display: flex;
       background: rgba(10, 15, 26, 0.95);
@@ -182,7 +179,7 @@
       box-shadow: 0 0 14px var(--mars-glow);
     }
 
-    /* Clip Switcher Pills */
+    /* Clip Switcher */
     .clip-selector {
       display: flex;
       gap: 0.35rem;
@@ -337,6 +334,74 @@
       box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
     }
 
+    /* On-Screen WASD HUD Controller */
+    .wasd-controller-hud {
+      position: fixed;
+      bottom: 2rem;
+      left: 1.5rem;
+      z-index: 50;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      transform: translateY(20px);
+    }
+    .wasd-controller-hud.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    .wasd-grid {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+      margin-top: 0.5rem;
+    }
+
+    .wasd-row {
+      display: flex;
+      gap: 0.35rem;
+    }
+
+    .wasd-key {
+      width: 42px;
+      height: 42px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: monospace;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--accent);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.1s ease;
+    }
+    .wasd-key:hover { background: rgba(56, 189, 248, 0.2); }
+    .wasd-key.pressed {
+      background: var(--accent);
+      color: #05070d;
+      box-shadow: 0 0 14px var(--accent-glow);
+      transform: scale(0.94);
+    }
+
+    .wasd-space {
+      width: 134px;
+      height: 32px;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+    }
+
     /* Bottom-Right HUD Diagnostics Card */
     .hud-card {
       position: fixed;
@@ -450,15 +515,14 @@
       100% { background: rgba(0, 0, 0, 0.5); }
     }
 
-    /* Continuous Scroll Height Container (หน้าจอเดียว เลื่อนได้ลื่นไหล) */
+    /* Continuous Scroll Track */
     .continuous-scroll-track {
       position: relative;
       z-index: 10;
-      height: 600vh; /* ความสูงสำหรับ Timeline ทั้งหมดในหน้าเดียว */
+      height: 600vh;
       pointer-events: none;
     }
 
-    /* Scroll Prompt Indicator */
     .scroll-hint-bar {
       position: fixed;
       bottom: 2.2rem;
@@ -496,7 +560,7 @@
       <span class="brand-title">Space Mission Simulator</span>
     </div>
 
-    <!-- Quick Jump Bar (ปุ่มสุดง่ายสุด: กดครั้งเดียวถึง 3D ทันที หรือเลื่อน Scroll ก็ได้) -->
+    <!-- Quick Jump Bar -->
     <div class="quick-jump-bar">
       <button class="jump-btn active" id="btn-jump-scroll" onclick="jumpToPhase('scroll')">
         <span>🎬</span><span>1. WebP Scroll</span>
@@ -509,7 +573,7 @@
       </button>
     </div>
 
-    <!-- Clip Switcher (เลือกดูได้ครบ 10 คลิป) -->
+    <!-- Clip Switcher -->
     <div class="clip-selector">
       <button class="clip-btn active" onclick="switchClip(1)">Clip 1 (Start)</button>
       <button class="clip-btn" onclick="switchClip(2)">Clip 2 (Ascend)</button>
@@ -524,24 +588,17 @@
     </div>
   </header>
 
-  <!-- Single Master Viewport (บรรจุทั้ง 2D Scroll และ 3D WebGL ในหน้าจอเดียว) -->
+  <!-- Single Master Viewport -->
   <div class="master-viewport">
-    <!-- Layer 1: 2D WebP Scroll Canvas -->
     <canvas id="scroll-canvas-layer" width="1280" height="720"></canvas>
-
-    <!-- Layer 2: Seamless Anime Loop Video Overlay -->
     <img id="loop-overlay" src="assets/loops/loop_clip_01_gantry_pulse.webp" alt="Anime Loop" />
-
-    <!-- Layer 3: Interactive 3D Three.js WebGL Canvas -->
     <div id="threejs-layer">
       <canvas id="threejs-canvas"></canvas>
     </div>
-
-    <!-- Layer 4: Vignette Glow -->
     <div class="vignette"></div>
   </div>
 
-  <!-- 3D Top Floating Toolbar (Active เมื่อ Scroll ถึงส่วน 3D) -->
+  <!-- 3D Top Floating Mode Bar -->
   <div class="viewer3d-topbar" id="v3d-topbar">
     <button class="ctrl-btn active" id="btn-shade-solid" onclick="setShadingMode('solid')">
       <span>🎨</span><span>Solid Visual</span>
@@ -551,6 +608,9 @@
     </button>
     <button class="ctrl-btn" id="btn-shade-splat" onclick="setShadingMode('splat')">
       <span>✨</span><span>Splat Points</span>
+    </button>
+    <button class="ctrl-btn" id="btn-cam-follow" onclick="toggleCameraFollow()">
+      <span>🎥</span><span id="cam-follow-text">Follow Astronaut</span>
     </button>
     <button class="ctrl-btn" id="btn-env-toggle" onclick="toggleEnvironment()">
       <span>🪐</span><span>Mars Surface</span>
@@ -563,13 +623,12 @@
     </button>
   </div>
 
-  <!-- 3D Left Model Loader Panel (Active เมื่อ Scroll ถึงส่วน 3D) -->
+  <!-- 3D Left Model Loader Panel -->
   <div class="viewer3d-leftpanel" id="v3d-leftpanel">
     <div class="panel-title">
       <span>📦</span><span>NASA Model & Asset Loader</span>
     </div>
 
-    <!-- Dropzone สำหรับวางโมเดล NASA หรือคาแรคเตอร์ดาวอังคาร -->
     <div class="dropzone" id="drop-zone" onclick="document.getElementById('model-file-input').click()">
       <div class="dropzone-icon">🚀</div>
       <div class="dropzone-text"><strong>วางโมเดล NASA หรือคลิกเลือกไฟล์</strong></div>
@@ -580,8 +639,8 @@
     <div class="panel-title" style="margin-top: 1rem;">
       <span>🎯</span><span>Presets</span>
     </div>
-    <button class="btn-action" onclick="loadPresetMarsCraft()">
-      <span>🛸</span><span>Mars Lander (Procedural Craft)</span>
+    <button class="btn-action" onclick="resetAstronautToLander()">
+      <span>👨‍🚀</span><span>Reset Astronaut to Lander</span>
     </button>
     <button class="btn-action" onclick="loadSamplePy3s('matchanu_micro_53kb.py3s')">
       <span>⚡</span><span>NASA Sample Seed (53 KB .py3s)</span>
@@ -598,7 +657,26 @@
     </button>
   </div>
 
-  <!-- Bottom-Right HUD Diagnostics Card (อัปเดตอัตโนมัติทั้งตอน Scroll และ 3D) -->
+  <!-- On-Screen WASD Controller HUD (Interactive for Keyboard & Touch) -->
+  <div class="wasd-controller-hud" id="v3d-wasd-hud">
+    <div class="panel-title" style="margin-bottom: 0.25rem;">
+      <span>🎮</span><span>Character Controls</span>
+    </div>
+    <p style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.35rem;">
+      กดปุ่มคีย์บอร์ด <strong>W A S D</strong> หรือคลิกปุ่มบนจอ
+    </p>
+    <div class="wasd-grid">
+      <div class="wasd-key" id="key-w" onmousedown="setVirtualKey('w', true)" onmouseup="setVirtualKey('w', false)" onmouseleave="setVirtualKey('w', false)" ontouchstart="setVirtualKey('w', true)" ontouchend="setVirtualKey('w', false)">W</div>
+      <div class="wasd-row">
+        <div class="wasd-key" id="key-a" onmousedown="setVirtualKey('a', true)" onmouseup="setVirtualKey('a', false)" onmouseleave="setVirtualKey('a', false)" ontouchstart="setVirtualKey('a', true)" ontouchend="setVirtualKey('a', false)">A</div>
+        <div class="wasd-key" id="key-s" onmousedown="setVirtualKey('s', true)" onmouseup="setVirtualKey('s', false)" onmouseleave="setVirtualKey('s', false)" ontouchstart="setVirtualKey('s', true)" ontouchend="setVirtualKey('s', false)">S</div>
+        <div class="wasd-key" id="key-d" onmousedown="setVirtualKey('d', true)" onmouseup="setVirtualKey('d', false)" onmouseleave="setVirtualKey('d', false)" ontouchstart="setVirtualKey('d', true)" ontouchend="setVirtualKey('d', false)">D</div>
+      </div>
+      <div class="wasd-key wasd-space" id="key-space" onmousedown="setVirtualKey('space', true)" onmouseup="setVirtualKey('space', false)" onmouseleave="setVirtualKey('space', false)" ontouchstart="setVirtualKey('space', true)" ontouchend="setVirtualKey('space', false)">SPACE: HOP</div>
+    </div>
+  </div>
+
+  <!-- Bottom-Right HUD Diagnostics Card -->
   <div class="hud-card">
     <div class="hud-header">
       <span id="hud-title">1. WEBP SCROLL PHASE</span>
@@ -615,15 +693,14 @@
     </div>
 
     <div class="telemetry-row">
-      <span>Active Mode:</span>
-      <span class="telemetry-val" id="hud-mode-text">2D WebP Video Scrubbing</span>
+      <span>Astronaut Position:</span>
+      <span class="telemetry-val" id="hud-astro-pos" style="color: var(--accent);">X: 2.5, Z: 2.5 (Standing)</span>
     </div>
     <div class="telemetry-row">
-      <span>Format / Container:</span>
-      <span class="telemetry-val" id="hud-format-text">WebP 720p / .py3s Ready</span>
+      <span>Mars Gravity:</span>
+      <span class="telemetry-val">0.38g (Low-Gravity Jump)</span>
     </div>
 
-    <!-- Impact Simulation Alert Box -->
     <div class="impact-box" id="impact-log">
       <strong>⚠️ IMPACT HIT DETECTED!</strong><br/>
       Velocity: 14.2 km/s | Raycast: Outer Shield Hull<br/>
@@ -631,7 +708,7 @@
     </div>
 
     <div class="tip-box" id="hud-tip">
-      👇 <strong>หน้าเดียวจบ:</strong> เลื่อนเมาส์ Scroll ลงมาเรื่อย ๆ วิดีโอจะเล่น ➡️ สลับเข้า Anime Loop ➡️ และเลื่อนต่อจะเข้าสู่ <strong>Live 3D Mars Simulation</strong> ให้หมุนยาน 360° ทันที หรือกดปุ่ม <strong>[3. 3D Simulation]</strong> ด้านบนเพื่อวาร์ปทันทีได้เลยครับ!
+      👨‍🚀 <strong>โหมดเดินสำรวจ:</strong> เมื่อเลื่อนมาที่ส่วน 3D คุณสามารถกด <strong>W A S D</strong> เพื่อบังคับให้นักบินอวกาศเดินสำรวจรอบยานและพื้นผิวดาวอังคาร และกด <strong>Spacebar</strong> เพื่อกระโดดลอยตัวตามแรงโน้มถ่วงดาวอังคารได้ทันทีครับ!
     </div>
   </div>
 
@@ -641,7 +718,7 @@
     <span style="font-size: 1.1rem;">&darr;</span>
   </div>
 
-  <!-- Continuous Scroll Height Container (ขับเคลื่อน Scroll ในหน้าเดียว) -->
+  <!-- Continuous Scroll Height Container -->
   <div class="continuous-scroll-track"></div>
 
   <!-- Instant Fast First Frame Loader -->
@@ -666,12 +743,8 @@
     import { Py3sCodec } from './libs/py3s/py3sCodec.js';
 
     // ==========================================
-    // 1. TIMELINE & SEAMLESS SCROLL PHASES
+    // 1. TIMELINE & CONTINUOUS SCROLL
     // ==========================================
-    // Phase 1 (0% - 40%): Video Scrubbing
-    // Phase 2 (40% - 55%): Seamless Anime Loop
-    // Phase 3 (55% - 100%): Live 3D Mars & Spacecraft Simulation
-
     let currentClip = 1;
     const totalFrames = 119;
     const images = [];
@@ -682,13 +755,13 @@
     const threejsLayer = document.getElementById('threejs-layer');
     const v3dTopbar = document.getElementById('v3d-topbar');
     const v3dLeftpanel = document.getElementById('v3d-leftpanel');
+    const v3dWasdHud = document.getElementById('v3d-wasd-hud');
 
     const progressBar = document.getElementById('hud-progress-bar');
     const framePosText = document.getElementById('hud-frame-pos');
     const statusBadge = document.getElementById('hud-status-badge');
     const hudTitle = document.getElementById('hud-title');
-    const hudModeText = document.getElementById('hud-mode-text');
-    const hudFormatText = document.getElementById('hud-format-text');
+    const hudAstroPos = document.getElementById('hud-astro-pos');
     const scrollHint = document.getElementById('scroll-hint');
 
     const btnJumpScroll = document.getElementById('btn-jump-scroll');
@@ -719,84 +792,69 @@
       }
     }
 
-    // Scroll Handler that coordinates both 2D and 3D
     function onUnifiedScroll() {
       const scrollY = window.scrollY;
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
       const totalProgress = Math.min(Math.max(scrollY / (maxScroll || 1), 0), 1);
 
       progressBar.style.width = (totalProgress * 100).toFixed(1) + '%';
+      if (scrollY > 50) scrollHint.style.opacity = '0';
+      else scrollHint.style.opacity = '1';
 
-      if (scrollY > 50) {
-        scrollHint.style.opacity = '0';
-      } else {
-        scrollHint.style.opacity = '1';
-      }
-
-      // ---------------------------------------------
-      // PHASE 1: VIDEO SCRUB (0.00 - 0.45)
-      // ---------------------------------------------
+      // Phase 1: Scroll Scrub (0.00 - 0.45)
       if (totalProgress < 0.45) {
         const subProgress = totalProgress / 0.45;
         const frameIndex = Math.min(Math.floor(subProgress * totalFrames), totalFrames - 1);
-        
         renderScrollFrame(frameIndex);
+
         scrollCanvas.style.opacity = '1';
         loopOverlay.classList.remove('active');
         threejsLayer.classList.remove('active');
         v3dTopbar.classList.remove('active');
         v3dLeftpanel.classList.remove('active');
+        v3dWasdHud.classList.remove('active');
 
         hudTitle.innerText = "1. WEBP SCROLL PHASE";
         statusBadge.innerText = "SCROLL SCRUB";
         statusBadge.className = "status-pill status-scrubbing";
-        hudModeText.innerText = "2D WebP Video Scrubbing";
-        hudFormatText.innerText = "WebP 720p (1280x720)";
         framePosText.innerText = `${String(frameIndex).padStart(4, '0')} / ${String(totalFrames - 1).padStart(4, '0')} (${(subProgress * 100).toFixed(1)}%)`;
 
         btnJumpScroll.classList.add('active');
         btnJumpLoop.classList.remove('active');
         btnJump3D.classList.remove('active');
       }
-      // ---------------------------------------------
-      // PHASE 2: ANIME SEAMLESS LOOP (0.45 - 0.58)
-      // ---------------------------------------------
+      // Phase 2: Anime Loop (0.45 - 0.58)
       else if (totalProgress >= 0.45 && totalProgress < 0.58) {
         scrollCanvas.style.opacity = '1';
         loopOverlay.classList.add('active');
         threejsLayer.classList.remove('active');
         v3dTopbar.classList.remove('active');
         v3dLeftpanel.classList.remove('active');
+        v3dWasdHud.classList.remove('active');
 
         hudTitle.innerText = "2. ANIME LOOP PHASE";
         statusBadge.innerText = "ANIME LOOP ACTIVE";
         statusBadge.className = "status-pill status-looping";
-        hudModeText.innerText = "Infinite HUD Gantry Loop";
-        hudFormatText.innerText = "Seamless Breathing Animation";
         framePosText.innerText = `Looping at 100% (Stage Climax)`;
 
         btnJumpScroll.classList.remove('active');
         btnJumpLoop.classList.add('active');
         btnJump3D.classList.remove('active');
       }
-      // ---------------------------------------------
-      // PHASE 3: LIVE 3D MARS & SPACECRAFT (0.58 - 1.00)
-      // ---------------------------------------------
+      // Phase 3: 3D Mars & Character Walk (0.58 - 1.00)
       else {
         scrollCanvas.style.opacity = '0';
         loopOverlay.classList.remove('active');
         threejsLayer.classList.add('active');
         v3dTopbar.classList.add('active');
         v3dLeftpanel.classList.add('active');
+        v3dWasdHud.classList.add('active');
 
         const subProgress = (totalProgress - 0.58) / 0.42;
-
-        hudTitle.innerText = "3. 3D SIMULATION PHASE";
-        statusBadge.innerText = "LIVE 3D ENGINE";
+        hudTitle.innerText = "3. 3D MARS & CHARACTER PHASE";
+        statusBadge.innerText = "WASD WALKING ACTIVE";
         statusBadge.className = "status-pill status-3d";
-        hudModeText.innerText = "Interactive Three.js WebGL";
-        hudFormatText.innerText = ".py3s / NASA GLB / Mesh Collider";
-        framePosText.innerText = `3D Viewport Active (${(subProgress * 100).toFixed(1)}%)`;
+        framePosText.innerText = `3D Viewport (${(subProgress * 100).toFixed(1)}%)`;
 
         btnJumpScroll.classList.remove('active');
         btnJumpLoop.classList.remove('active');
@@ -808,24 +866,20 @@
 
     window.addEventListener('scroll', onUnifiedScroll, { passive: true });
 
-    // Quick Jump to Phase (ปุ่มวาร์ปใน 1 คลิก)
     window.jumpToPhase = function(phase) {
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
       let targetY = 0;
       if (phase === 'scroll') targetY = 0;
       else if (phase === 'loop') targetY = maxScroll * 0.48;
       else if (phase === '3d') targetY = maxScroll * 0.85;
-
       window.scrollTo({ top: targetY, behavior: 'smooth' });
     };
 
-    // Clip Switcher
     window.switchClip = function(clipId) {
       currentClip = clipId;
       document.querySelectorAll('.clip-btn').forEach((btn, idx) => {
         btn.classList.toggle('active', idx + 1 === clipId);
       });
-      // Scroll to top to restart clip
       window.scrollTo({ top: 0, behavior: 'smooth' });
       loadClipFrames(clipId);
     };
@@ -833,7 +887,7 @@
     loadClipFrames(1);
 
     // ==========================================
-    // 2. THREE.JS 3D ENGINE (MARS & SPACECRAFT)
+    // 2. 3D ENGINE & ASTRONAUT WASD CHARACTER
     // ==========================================
     let scene, camera, renderer, controls;
     let currentModelGroup = new THREE.Group();
@@ -846,36 +900,79 @@
     let isWindActive = false;
     let isMarsEnvActive = true;
     let activeShading = 'solid';
+    let isCameraFollow = true;
+
+    // Character State
+    let astronaut = null;
+    let astroLimbs = { lLeg: null, rLeg: null, lArm: null, rArm: null, torso: null };
+    let astroPos = new THREE.Vector3(2.5, 0, 2.5);
+    let astroVelocity = new THREE.Vector3(0, 0, 0);
+    let astroRotation = 0;
+    let isGrounded = true;
+    let walkAnimTime = 0;
+
+    // Input State
+    const keyState = { w: false, a: false, s: false, d: false, space: false };
+
+    window.setVirtualKey = function(key, isDown) {
+      keyState[key] = isDown;
+      const el = document.getElementById(`key-${key}`);
+      if (el) el.classList.toggle('pressed', isDown);
+    };
+
+    window.addEventListener('keydown', (e) => {
+      const k = e.key.toLowerCase();
+      if (k === 'w' || k === 'arrowup') setVirtualKey('w', true);
+      else if (k === 'a' || k === 'arrowleft') setVirtualKey('a', true);
+      else if (k === 's' || k === 'arrowdown') setVirtualKey('s', true);
+      else if (k === 'd' || k === 'arrowright') setVirtualKey('d', true);
+      else if (k === ' ') {
+        e.preventDefault();
+        setVirtualKey('space', true);
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      const k = e.key.toLowerCase();
+      if (k === 'w' || k === 'arrowup') setVirtualKey('w', false);
+      else if (k === 'a' || k === 'arrowleft') setVirtualKey('a', false);
+      else if (k === 's' || k === 'arrowdown') setVirtualKey('s', false);
+      else if (k === 'd' || k === 'arrowright') setVirtualKey('d', false);
+      else if (k === ' ') setVirtualKey('space', false);
+    });
 
     const canvas3D = document.getElementById('threejs-canvas');
 
+    function getTerrainHeight(x, z) {
+      const dist = Math.sqrt(x * x + z * z);
+      if (dist > 4.5) {
+        return Math.sin(x * 0.2) * Math.cos(z * 0.2) * 0.8 + Math.sin(x * 0.5) * 0.3 - 0.25;
+      }
+      return -0.05;
+    }
+
     function init3D() {
-      // Scene
       scene = new THREE.Scene();
       scene.background = new THREE.Color(0x020408);
       scene.fog = new THREE.FogExp2(0x180b07, 0.025);
 
-      // Camera
       camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-      camera.position.set(6, 4, 8);
+      camera.position.set(2.5, 4, 8);
 
-      // Renderer
       renderer = new THREE.WebGLRenderer({ canvas: canvas3D, antialias: true, alpha: true });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.shadowMap.enabled = true;
       renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-      // Controls
       controls = new OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
       controls.dampingFactor = 0.05;
       controls.maxPolarAngle = Math.PI / 2 + 0.02;
       controls.minDistance = 1.5;
       controls.maxDistance = 50;
-      controls.target.set(0, 1.2, 0);
+      controls.target.set(2.5, 1.0, 2.5);
 
-      // Lights
       const ambient = new THREE.AmbientLight(0xffeedd, 0.8);
       scene.add(ambient);
 
@@ -890,25 +987,20 @@
       cyanRim.position.set(-10, 8, -10);
       scene.add(cyanRim);
 
-      // Grid
       gridHelper = new THREE.GridHelper(30, 30, 0x38bdf8, 0x1e293b);
       gridHelper.position.y = 0;
       scene.add(gridHelper);
 
-      // Mars Terrain
       createMarsTerrain();
-
-      // Wind Particles
       createWindSimulation();
 
-      // Model Groups
       currentModelGroup.add(visualMeshGroup);
       currentModelGroup.add(colliderMeshGroup);
       currentModelGroup.add(splatPointsGroup);
       scene.add(currentModelGroup);
 
-      // Create Mars Lander Spacecraft
       createProceduralMarsCraft();
+      createAstronautCharacter();
 
       window.addEventListener('resize', onWindowResize3D);
       setupDropZone();
@@ -929,13 +1021,7 @@
       for (let i = 0; i < pos.count; i++) {
         const x = pos.getX(i);
         const z = pos.getZ(i);
-        const dist = Math.sqrt(x * x + z * z);
-        if (dist > 4.5) {
-          const y = Math.sin(x * 0.2) * Math.cos(z * 0.2) * 0.8 + Math.sin(x * 0.5) * 0.3;
-          pos.setY(i, y - 0.25);
-        } else {
-          pos.setY(i, -0.05);
-        }
+        pos.setY(i, getTerrainHeight(x, z));
       }
       geo.computeVertexNormals();
 
@@ -966,10 +1052,10 @@
       scene.add(windParticles);
     }
 
+    // Procedural Mars Lander Craft
     function createProceduralMarsCraft() {
       clearCurrentModel();
 
-      // VISUAL LAYER
       const craftGroup = new THREE.Group();
 
       const hullGeo = new THREE.CylinderGeometry(1.4, 1.8, 1.2, 8);
@@ -1016,7 +1102,7 @@
       }
       visualMeshGroup.add(craftGroup);
 
-      // COLLIDER LAYER
+      // Collider
       const colliderGroup = new THREE.Group();
       const colHullGeo = new THREE.CylinderGeometry(1.5, 1.9, 1.3, 8);
       const colMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.8 });
@@ -1030,7 +1116,7 @@
       colliderGroup.add(colWings);
       colliderMeshGroup.add(colliderGroup);
 
-      // SPLAT POINTS LAYER
+      // Splat Points
       const splatGeo = new THREE.BufferGeometry();
       const pCount = 3500;
       const pPos = new Float32Array(pCount * 3);
@@ -1048,6 +1134,228 @@
       applyShadingMode();
     }
 
+    // ==========================================
+    // 3. SCI-FI ASTRONAUT CHARACTER WITH RIG
+    // ==========================================
+    function createAstronautCharacter() {
+      if (astronaut) scene.remove(astronaut);
+
+      astronaut = new THREE.Group();
+
+      const suitMat = new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.35, metalness: 0.2 });
+      const darkMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.6, metalness: 0.4 });
+      const visorMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.05, metalness: 0.95 });
+      const cyanMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x38bdf8, emissiveIntensity: 0.6 });
+
+      // Torso
+      const torsoGeo = new THREE.BoxGeometry(0.5, 0.65, 0.35);
+      const torso = new THREE.Mesh(torsoGeo, suitMat);
+      torso.position.y = 0.95;
+      torso.castShadow = true;
+      astronaut.add(torso);
+      astroLimbs.torso = torso;
+
+      // Chest Control Box
+      const chestGeo = new THREE.BoxGeometry(0.3, 0.25, 0.08);
+      const chest = new THREE.Mesh(chestGeo, darkMat);
+      chest.position.set(0, 0.05, 0.2);
+      torso.add(chest);
+
+      // Chest Indicator Light
+      const lightGeo = new THREE.BoxGeometry(0.18, 0.06, 0.02);
+      const light = new THREE.Mesh(lightGeo, cyanMat);
+      light.position.set(0, 0.05, 0.05);
+      chest.add(light);
+
+      // Life Support Backpack
+      const packGeo = new THREE.BoxGeometry(0.42, 0.55, 0.22);
+      const pack = new THREE.Mesh(packGeo, suitMat);
+      pack.position.set(0, 0.05, -0.25);
+      pack.castShadow = true;
+      torso.add(pack);
+
+      // Helmet
+      const helmetGeo = new THREE.SphereGeometry(0.24, 16, 16);
+      const helmet = new THREE.Mesh(helmetGeo, suitMat);
+      helmet.position.set(0, 0.52, 0);
+      helmet.castShadow = true;
+      torso.add(helmet);
+
+      // Visor
+      const visorGeo = new THREE.SphereGeometry(0.20, 16, 16, -Math.PI / 2.5, Math.PI / 1.25, 0, Math.PI / 1.3);
+      const visor = new THREE.Mesh(visorGeo, visorMat);
+      visor.position.set(0, 0.52, 0.07);
+      torso.add(visor);
+
+      // Left Arm
+      const lArmPivot = new THREE.Group();
+      lArmPivot.position.set(0.34, 0.25, 0);
+      const armGeo = new THREE.CylinderGeometry(0.08, 0.07, 0.5, 8);
+      const lArmMesh = new THREE.Mesh(armGeo, suitMat);
+      lArmMesh.position.y = -0.22;
+      lArmMesh.castShadow = true;
+      lArmPivot.add(lArmMesh);
+      torso.add(lArmPivot);
+      astroLimbs.lArm = lArmPivot;
+
+      // Right Arm
+      const rArmPivot = new THREE.Group();
+      rArmPivot.position.set(-0.34, 0.25, 0);
+      const rArmMesh = new THREE.Mesh(armGeo, suitMat);
+      rArmMesh.position.y = -0.22;
+      rArmMesh.castShadow = true;
+      rArmPivot.add(rArmMesh);
+      torso.add(rArmPivot);
+      astroLimbs.rArm = rArmPivot;
+
+      // Left Leg
+      const lLegPivot = new THREE.Group();
+      lLegPivot.position.set(0.16, 0.65, 0);
+      const legGeo = new THREE.CylinderGeometry(0.09, 0.08, 0.65, 8);
+      const lLegMesh = new THREE.Mesh(legGeo, suitMat);
+      lLegMesh.position.y = -0.32;
+      lLegMesh.castShadow = true;
+      lLegPivot.add(lLegMesh);
+
+      const bootGeo = new THREE.BoxGeometry(0.18, 0.12, 0.26);
+      const lBoot = new THREE.Mesh(bootGeo, darkMat);
+      lBoot.position.set(0, -0.62, 0.05);
+      lBoot.castShadow = true;
+      lLegPivot.add(lBoot);
+      astronaut.add(lLegPivot);
+      astroLimbs.lLeg = lLegPivot;
+
+      // Right Leg
+      const rLegPivot = new THREE.Group();
+      rLegPivot.position.set(-0.16, 0.65, 0);
+      const rLegMesh = new THREE.Mesh(legGeo, suitMat);
+      rLegMesh.position.y = -0.32;
+      rLegMesh.castShadow = true;
+      rLegPivot.add(rLegMesh);
+
+      const rBoot = new THREE.Mesh(bootGeo, darkMat);
+      rBoot.position.set(0, -0.62, 0.05);
+      rBoot.castShadow = true;
+      rLegPivot.add(rBoot);
+      astronaut.add(rLegPivot);
+      astroLimbs.rLeg = rLegPivot;
+
+      // Position in world
+      astroPos.set(2.5, getTerrainHeight(2.5, 2.5), 2.5);
+      astronaut.position.copy(astroPos);
+      scene.add(astronaut);
+    }
+
+    window.resetAstronautToLander = function() {
+      astroPos.set(2.5, getTerrainHeight(2.5, 2.5), 2.5);
+      astroVelocity.set(0, 0, 0);
+      astroRotation = Math.PI * 0.75;
+      if (astronaut) {
+        astronaut.position.copy(astroPos);
+        astronaut.rotation.y = astroRotation;
+      }
+    };
+
+    function updateAstronautPhysics(delta) {
+      if (!astronaut) return;
+
+      const moveSpeed = 4.0;
+      let moveX = 0;
+      let moveZ = 0;
+
+      // Compute camera relative forward/right vectors
+      const camForward = new THREE.Vector3();
+      camera.getWorldDirection(camForward);
+      camForward.y = 0;
+      camForward.normalize();
+
+      const camRight = new THREE.Vector3();
+      camRight.crossVectors(camForward, new THREE.Vector3(0, 1, 0)).normalize();
+
+      if (keyState.w) {
+        moveX += camForward.x;
+        moveZ += camForward.z;
+      }
+      if (keyState.s) {
+        moveX -= camForward.x;
+        moveZ -= camForward.z;
+      }
+      if (keyState.a) {
+        moveX -= camRight.x;
+        moveZ -= camRight.z;
+      }
+      if (keyState.d) {
+        moveX += camRight.x;
+        moveZ += camRight.z;
+      }
+
+      const inputLen = Math.sqrt(moveX * moveX + moveZ * moveZ);
+      const isMoving = inputLen > 0.01;
+
+      if (isMoving) {
+        moveX /= inputLen;
+        moveZ /= inputLen;
+        astroPos.x += moveX * moveSpeed * delta;
+        astroPos.z += moveZ * moveSpeed * delta;
+
+        // Rotate astronaut to face moving direction
+        const targetAngle = Math.atan2(moveX, moveZ);
+        astroRotation = THREE.MathUtils.lerp(astroRotation, targetAngle, 0.18);
+        astronaut.rotation.y = astroRotation;
+
+        // Walk cycle animation
+        walkAnimTime += delta * 9.0;
+        const swing = Math.sin(walkAnimTime) * 0.55;
+        if (astroLimbs.lLeg) astroLimbs.lLeg.rotation.x = swing;
+        if (astroLimbs.rLeg) astroLimbs.rLeg.rotation.x = -swing;
+        if (astroLimbs.lArm) astroLimbs.lArm.rotation.x = -swing * 0.8;
+        if (astroLimbs.rArm) astroLimbs.rArm.rotation.x = swing * 0.8;
+        if (astroLimbs.torso) astroLimbs.torso.position.y = 0.95 + Math.abs(Math.sin(walkAnimTime * 2)) * 0.04;
+      } else {
+        // Idle return to neutral
+        if (astroLimbs.lLeg) astroLimbs.lLeg.rotation.x *= 0.85;
+        if (astroLimbs.rLeg) astroLimbs.rLeg.rotation.x *= 0.85;
+        if (astroLimbs.lArm) astroLimbs.lArm.rotation.x *= 0.85;
+        if (astroLimbs.rArm) astroLimbs.rArm.rotation.x *= 0.85;
+        if (astroLimbs.torso) astroLimbs.torso.position.y = 0.95 + Math.sin(performance.now() * 0.003) * 0.015;
+      }
+
+      // Jump & Gravity (Mars ~0.38g)
+      const groundY = getTerrainHeight(astroPos.x, astroPos.z);
+      const marsGravity = 9.8 * 0.38;
+
+      if (keyState.space && isGrounded) {
+        astroVelocity.y = 3.6; // initial jump burst
+        isGrounded = false;
+      }
+
+      astroVelocity.y -= marsGravity * delta;
+      astroPos.y += astroVelocity.y * delta;
+
+      if (astroPos.y <= groundY) {
+        astroPos.y = groundY;
+        astroVelocity.y = 0;
+        isGrounded = true;
+      }
+
+      astronaut.position.copy(astroPos);
+
+      // Camera Follow Logic
+      if (isCameraFollow && controls) {
+        const targetLook = new THREE.Vector3(astroPos.x, astroPos.y + 1.2, astroPos.z);
+        controls.target.lerp(targetLook, 0.1);
+      }
+
+      // Update HUD Coordinates
+      hudAstroPos.innerText = `X: ${astroPos.x.toFixed(1)}, Z: ${astroPos.z.toFixed(1)} (${isMoving ? 'Walking' : isGrounded ? 'Standing' : 'Airborne'})`;
+    }
+
+    window.toggleCameraFollow = function() {
+      isCameraFollow = !isCameraFollow;
+      document.getElementById('btn-cam-follow').classList.toggle('active', isCameraFollow);
+      document.getElementById('cam-follow-text').innerText = isCameraFollow ? 'Follow Astronaut' : 'Free Camera';
+    };
+
     function clearCurrentModel() {
       while(visualMeshGroup.children.length > 0) visualMeshGroup.remove(visualMeshGroup.children[0]);
       while(colliderMeshGroup.children.length > 0) colliderMeshGroup.remove(colliderMeshGroup.children[0]);
@@ -1062,27 +1370,12 @@
         const header = Py3sCodec.inspectHeader(buf);
         const unpacked = await Py3sCodec.unpack(buf);
 
-        // Check if unpacked has collider GLB bytes
         if (unpacked.colliderData && unpacked.colliderData.byteLength > 0) {
           const loader = new GLTFLoader();
           loader.parse(unpacked.colliderData.buffer, '', (gltf) => {
-            const model = gltf.scene;
-            visualMeshGroup.add(model.clone());
-
-            const colMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true });
-            model.traverse((child) => {
-              if (child.isMesh) child.material = colMat;
-            });
-            colliderMeshGroup.add(model);
+            visualMeshGroup.add(gltf.scene);
             applyShadingMode();
           });
-        } else {
-          const boxGeo = new THREE.BoxGeometry(2, 2, 2);
-          const boxMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, metalness: 0.8 });
-          visualMeshGroup.add(new THREE.Mesh(boxGeo, boxMat));
-          const colMat = new THREE.MeshBasicMaterial({ color: 0x10b981, wireframe: true });
-          colliderMeshGroup.add(new THREE.Mesh(boxGeo, colMat));
-          applyShadingMode();
         }
       } catch (err) {
         console.error("Failed to load .py3s:", err);
@@ -1137,8 +1430,8 @@
     };
 
     window.reset3DCamera = function() {
-      camera.position.set(6, 4, 8);
-      controls.target.set(0, 1.2, 0);
+      camera.position.set(astroPos.x + 3.5, astroPos.y + 3.5, astroPos.z + 5.5);
+      controls.target.set(astroPos.x, astroPos.y + 1.2, astroPos.z);
       controls.update();
     };
 
@@ -1163,9 +1456,8 @@
         const elapsed = performance.now() - startTime;
         const t = Math.min(elapsed / duration, 1);
         meteor.position.lerpVectors(startPos, targetPos, t);
-        if (t < 1) {
-          requestAnimationFrame(animateMeteor);
-        } else {
+        if (t < 1) requestAnimationFrame(animateMeteor);
+        else {
           scene.remove(meteor);
           createImpactShockwave(targetPos);
         }
@@ -1240,14 +1532,6 @@
             clearCurrentModel();
             const model = gltf.scene;
             visualMeshGroup.add(model);
-
-            const bbox = new THREE.Box3().setFromObject(model);
-            const size = bbox.getSize(new THREE.Vector3());
-            const boxGeo = new THREE.BoxGeometry(size.x, size.y, size.z);
-            const colMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true });
-            const colMesh = new THREE.Mesh(boxGeo, colMat);
-            colMesh.position.copy(bbox.getCenter(new THREE.Vector3()));
-            colliderMeshGroup.add(colMesh);
             applyShadingMode();
           });
         };
@@ -1265,12 +1549,21 @@
       }
     }
 
+    let lastTime = performance.now();
     function animate3D() {
       requestAnimationFrame(animate3D);
+
+      const now = performance.now();
+      const delta = Math.min((now - lastTime) / 1000, 0.1);
+      lastTime = now;
+
+      // Update Character Physics & Walking
+      updateAstronautPhysics(delta);
+
       controls.update();
 
       if (currentModelGroup) {
-        currentModelGroup.rotation.y += 0.002;
+        currentModelGroup.rotation.y += 0.001;
       }
 
       if (isWindActive && windParticles) {
