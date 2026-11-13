@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SpaceApps 2026 | Single-Page WebP Scroll & 3D Mars Simulator</title>
+  <title>SpaceApps 2026 | Space Mission Game (1➡️6, 2➡️7, 3➡️8, 4➡️9, 5➡️10)</title>
 
   <!-- Self-Contained Three.js Addons & Codec -->
   <script type="importmap">
@@ -63,7 +63,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transition: opacity 0.6s ease;
+      transition: opacity 0.5s ease;
       z-index: 2;
     }
 
@@ -88,7 +88,7 @@
       z-index: 4;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.6s ease;
+      transition: opacity 0.5s ease;
     }
     #threejs-layer.active {
       opacity: 1;
@@ -111,19 +111,21 @@
       left: 0;
       width: 100%;
       z-index: 50;
-      padding: 0.75rem 1.5rem;
+      padding: 0.65rem 1.25rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
       background: linear-gradient(to bottom, rgba(5, 7, 13, 0.95), rgba(5, 7, 13, 0.6));
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 0.5rem;
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.6rem;
     }
 
     .badge-nasa {
@@ -138,67 +140,47 @@
     }
 
     .brand-title {
-      font-size: 1.05rem;
+      font-size: 1rem;
       font-weight: 700;
       letter-spacing: -0.02em;
     }
 
-    /* Quick Jump Bar */
-    .quick-jump-bar {
+    /* 5 Stage Sequence Selector (1->6, 2->7, 3->8, 4->9, 5->10) */
+    .stage-selector {
       display: flex;
+      gap: 0.35rem;
+      flex-wrap: wrap;
       background: rgba(10, 15, 26, 0.95);
       border: 1px solid var(--border);
       border-radius: 9999px;
-      padding: 0.25rem;
-      gap: 0.25rem;
+      padding: 0.25rem 0.4rem;
     }
 
-    .jump-btn {
+    .stage-btn {
       background: transparent;
       border: none;
       color: var(--text-muted);
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: 600;
-      padding: 0.4rem 1rem;
+      padding: 0.35rem 0.75rem;
       border-radius: 9999px;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 0.4rem;
-      transition: all 0.25s ease;
+      gap: 0.35rem;
+      transition: all 0.2s ease;
     }
-    .jump-btn:hover { color: var(--text); }
-    .jump-btn.active {
+    .stage-btn:hover { color: var(--text); background: rgba(255, 255, 255, 0.08); }
+    .stage-btn.active {
       background: var(--accent);
       color: #05070d;
       box-shadow: 0 0 12px var(--accent-glow);
     }
-    .jump-btn.active.mars {
+    .stage-btn.mars-btn.active {
       background: var(--mars);
       color: #fff;
       box-shadow: 0 0 14px var(--mars-glow);
     }
-
-    /* Clip Switcher */
-    .clip-selector {
-      display: flex;
-      gap: 0.35rem;
-      flex-wrap: wrap;
-    }
-
-    .clip-btn {
-      background: rgba(13, 19, 33, 0.85);
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      font-size: 0.72rem;
-      font-weight: 600;
-      padding: 0.25rem 0.6rem;
-      border-radius: 9999px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    .clip-btn:hover { color: var(--text); background: rgba(255, 255, 255, 0.1); }
-    .clip-btn.active { background: var(--accent); color: #05070d; border-color: var(--accent); }
 
     /* 3D Top Floating Mode Bar */
     .viewer3d-topbar {
@@ -377,7 +359,6 @@
       border: 1px solid var(--border);
       border-radius: 8px;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
       font-family: monospace;
@@ -389,10 +370,7 @@
       transition: all 0.08s ease;
       touch-action: manipulation;
     }
-    .wasd-key:hover {
-      background: rgba(56, 189, 248, 0.2);
-      border-color: var(--accent);
-    }
+    .wasd-key:hover { background: rgba(56, 189, 248, 0.2); border-color: var(--accent); }
     .wasd-key.pressed {
       background: var(--accent) !important;
       color: #05070d !important;
@@ -412,7 +390,7 @@
       position: fixed;
       bottom: 2rem;
       right: 2rem;
-      width: 380px;
+      width: 400px;
       z-index: 50;
       background: var(--card-bg);
       border: 1px solid var(--border);
@@ -565,38 +543,33 @@
       <span class="brand-title">Space Mission Simulator</span>
     </div>
 
-    <!-- Quick Jump Bar -->
-    <div class="quick-jump-bar">
-      <button class="jump-btn active" id="btn-jump-scroll" onclick="jumpToPhase('scroll')">
-        <span>🎬</span><span>1. WebP Scroll</span>
+    <!-- 5 Stage Sequence Selector (1->6, 2->7, 3->8, 4->9, 5->10) -->
+    <div class="stage-selector">
+      <button class="stage-btn active" id="stage-btn-1" onclick="selectStage(1)">
+        <span>🚀</span><span>Stage 1 (1 ➡️ 6)</span>
       </button>
-      <button class="jump-btn" id="btn-jump-loop" onclick="jumpToPhase('loop')">
-        <span>🔄</span><span>2. Anime Loop</span>
+      <button class="stage-btn" id="stage-btn-2" onclick="selectStage(2)">
+        <span>🛰️</span><span>Stage 2 (2 ➡️ 7)</span>
       </button>
-      <button class="jump-btn mars" id="btn-jump-3d" onclick="jumpToPhase('3d')">
-        <span>🪐</span><span>3. 3D Simulation</span>
+      <button class="stage-btn" id="stage-btn-3" onclick="selectStage(3)">
+        <span>🛡️</span><span>Stage 3 (3 ➡️ 8)</span>
       </button>
-    </div>
-
-    <!-- Clip Switcher -->
-    <div class="clip-selector">
-      <button class="clip-btn active" onclick="switchClip(1)">Clip 1 (Start)</button>
-      <button class="clip-btn" onclick="switchClip(2)">Clip 2 (Ascend)</button>
-      <button class="clip-btn" onclick="switchClip(3)">Clip 3 (Shield)</button>
-      <button class="clip-btn" onclick="switchClip(4)">Clip 4 (Plasma)</button>
-      <button class="clip-btn" onclick="switchClip(5)">Clip 5 (Landing)</button>
-      <button class="clip-btn" onclick="switchClip(6)">Clip 6 (Gantry Loop)</button>
-      <button class="clip-btn" onclick="switchClip(7)">Clip 7 (Orbit Loop)</button>
-      <button class="clip-btn" onclick="switchClip(8)">Clip 8 (Shield Loop)</button>
-      <button class="clip-btn" onclick="switchClip(9)">Clip 9 (Laser Loop)</button>
-      <button class="clip-btn" onclick="switchClip(10)">Clip 10 (Mars Loop)</button>
+      <button class="stage-btn" id="stage-btn-4" onclick="selectStage(4)">
+        <span>📡</span><span>Stage 4 (4 ➡️ 9)</span>
+      </button>
+      <button class="stage-btn" id="stage-btn-5" onclick="selectStage(5)">
+        <span>🔴</span><span>Stage 5 (5 ➡️ 10)</span>
+      </button>
+      <button class="stage-btn mars-btn" id="stage-btn-3d" onclick="jumpTo3D()">
+        <span>🪐</span><span>3D Simulation</span>
+      </button>
     </div>
   </header>
 
   <!-- Single Master Viewport -->
   <div class="master-viewport">
     <canvas id="scroll-canvas-layer" width="1280" height="720"></canvas>
-    <img id="loop-overlay" src="assets/loops/loop_clip_01_gantry_pulse.webp" alt="Anime Loop" />
+    <img id="loop-overlay" src="assets/loops/loop_clip_06.webp" alt="Anime Loop" />
     <div id="threejs-layer">
       <canvas id="threejs-canvas"></canvas>
     </div>
@@ -662,7 +635,7 @@
     </button>
   </div>
 
-  <!-- On-Screen WASD Controller HUD (Interactive for Keyboard & Touch) -->
+  <!-- On-Screen WASD HUD Controller -->
   <div class="wasd-controller-hud" id="v3d-wasd-hud">
     <div class="panel-title" style="margin-bottom: 0.25rem;">
       <span>🎮</span><span>Character Controls</span>
@@ -684,7 +657,7 @@
   <!-- Bottom-Right HUD Diagnostics Card -->
   <div class="hud-card">
     <div class="hud-header">
-      <span id="hud-title">1. WEBP SCROLL PHASE</span>
+      <span id="hud-title">STAGE 1: LAUNCH PLATFORM (1 ➡️ 6)</span>
       <span id="hud-status-badge" class="status-pill status-scrubbing">SCROLL SCRUB</span>
     </div>
 
@@ -698,12 +671,16 @@
     </div>
 
     <div class="telemetry-row">
-      <span>Astronaut Position:</span>
-      <span class="telemetry-val" id="hud-astro-pos" style="color: var(--accent);">X: 2.5, Z: 2.5 (Standing)</span>
+      <span>Current Stage Sequence:</span>
+      <span class="telemetry-val" id="hud-sequence-text" style="color: var(--accent);">Clip 01 (Scroll) ➡️ Clip 06 (Loop)</span>
     </div>
     <div class="telemetry-row">
-      <span>Active Key Telemetry:</span>
-      <span class="telemetry-val" id="hud-active-keys" style="color: var(--success);">NONE</span>
+      <span>Active Media:</span>
+      <span class="telemetry-val" id="hud-media-text">Clip 01 (WebP 720p Scrubbing)</span>
+    </div>
+    <div class="telemetry-row">
+      <span>Astronaut Position:</span>
+      <span class="telemetry-val" id="hud-astro-pos" style="color: var(--success);">X: 2.5, Z: 2.5 (Standing)</span>
     </div>
 
     <div class="impact-box" id="impact-log">
@@ -713,7 +690,7 @@
     </div>
 
     <div class="tip-box" id="hud-tip">
-      👨‍🚀 <strong>เดินสำรวจดาวอังคาร:</strong> กดปุ่ม <strong>W A S D</strong> บนคีย์บอร์ด (รองรับทั้งแป้นพิมพ์ภาษาไทยและอังกฤษ) เพื่อบังคับให้นักบินอวกาศเดินสำรวจรอบยาน และกด <strong>Spacebar</strong> เพื่อกระโดดลอยตัวตามแรงโน้มถ่วงดาวอังคารครับ!
+      🎬 <strong>คู่ลำดับด่าน:</strong> เลื่อน Scroll ช่วงแรกเพื่อเล่นคลิป Transition ➡️ เมื่อเลื่อนถึงท้ายคลิปจะเข้าสู่ <strong>Loop วนลูปไร้รอยต่อ</strong> ประจำด่านทันที (1 ➡️ 6, 2 ➡️ 7, 3 ➡️ 8, 4 ➡️ 9, 5 ➡️ 10) และเลื่อนต่อจะเข้าสู่ <strong>3D Simulation</strong> ครับ!
     </div>
   </div>
 
@@ -747,10 +724,48 @@
     import { PLYLoader } from 'three/addons/loaders/PLYLoader.js';
     import { Py3sCodec } from './libs/py3s/py3sCodec.js';
 
-    // ==========================================
-    // 1. TIMELINE & CONTINUOUS SCROLL
-    // ==========================================
-    let currentClip = 1;
+    // ========================================================
+    // 1. 5-STAGE PAIR SEQUENCER (1->6, 2->7, 3->8, 4->9, 5->10)
+    // ========================================================
+    const STAGE_CONFIG = {
+      1: {
+        title: "STAGE 1: LAUNCH PLATFORM (1 ➡️ 6)",
+        scrollClip: 1,
+        loopClip: 6,
+        loopFile: "assets/loops/loop_clip_06.webp",
+        desc: "Clip 01 (Scroll) ➡️ Clip 06 (Gantry Pulse Loop)"
+      },
+      2: {
+        title: "STAGE 2: ASCEND INTO ORBIT (2 ➡️ 7)",
+        scrollClip: 2,
+        loopClip: 7,
+        loopFile: "assets/loops/loop_clip_07.webp",
+        desc: "Clip 02 (Scroll) ➡️ Clip 07 (Earth Orbit Loop)"
+      },
+      3: {
+        title: "STAGE 3: DEFLECTOR SHIELD (3 ➡️ 8)",
+        scrollClip: 3,
+        loopClip: 8,
+        loopFile: "assets/loops/loop_clip_08.webp",
+        desc: "Clip 03 (Scroll) ➡️ Clip 08 (Shield Pulse Loop)"
+      },
+      4: {
+        title: "STAGE 4: SOLAR PLASMA CRUISE (4 ➡️ 9)",
+        scrollClip: 4,
+        loopClip: 9,
+        loopFile: "assets/loops/loop_clip_09.webp",
+        desc: "Clip 04 (Scroll) ➡️ Clip 09 (Interplanetary Laser Loop)"
+      },
+      5: {
+        title: "STAGE 5: MARS TOUCHDOWN (5 ➡️ 10)",
+        scrollClip: 5,
+        loopClip: 10,
+        loopFile: "assets/loops/loop_clip_10.webp",
+        desc: "Clip 05 (Scroll) ➡️ Clip 10 (Mars Canyon Retro Thruster Loop)"
+      }
+    };
+
+    let activeStageId = 1;
     const totalFrames = 119;
     const images = [];
 
@@ -766,20 +781,21 @@
     const framePosText = document.getElementById('hud-frame-pos');
     const statusBadge = document.getElementById('hud-status-badge');
     const hudTitle = document.getElementById('hud-title');
+    const hudSequenceText = document.getElementById('hud-sequence-text');
+    const hudMediaText = document.getElementById('hud-media-text');
     const hudAstroPos = document.getElementById('hud-astro-pos');
-    const hudActiveKeys = document.getElementById('hud-active-keys');
     const scrollHint = document.getElementById('scroll-hint');
-
-    const btnJumpScroll = document.getElementById('btn-jump-scroll');
-    const btnJumpLoop = document.getElementById('btn-jump-loop');
-    const btnJump3D = document.getElementById('btn-jump-3d');
 
     let currentPhase = 'scroll'; // 'scroll' | 'loop' | '3d'
 
-    function loadClipFrames(clipId) {
+    function loadStageFrames(stageId) {
       images.length = 0;
-      const padClip = String(clipId).padStart(2, '0');
+      const cfg = STAGE_CONFIG[stageId];
+      const padClip = String(cfg.scrollClip).padStart(2, '0');
       let loadedCount = 0;
+
+      // Update Loop Image Source
+      loopOverlay.src = cfg.loopFile;
 
       for (let i = 0; i < totalFrames; i++) {
         const padFrame = String(i).padStart(4, '0');
@@ -809,7 +825,9 @@
       if (scrollY > 50) scrollHint.style.opacity = '0';
       else scrollHint.style.opacity = '1';
 
-      // Phase 1: Scroll Scrub (0.00 - 0.45)
+      const cfg = STAGE_CONFIG[activeStageId];
+
+      // Phase 1: Scroll Scrub (0.00 - 0.45) -> คลิปเลขเดี่ยว (1, 2, 3, 4, 5)
       if (totalProgress < 0.45) {
         currentPhase = 'scroll';
         const subProgress = totalProgress / 0.45;
@@ -823,17 +841,18 @@
         v3dLeftpanel.classList.remove('active');
         v3dWasdHud.classList.remove('active');
 
-        hudTitle.innerText = "1. WEBP SCROLL PHASE";
+        hudTitle.innerText = cfg.title;
         statusBadge.innerText = "SCROLL SCRUB";
         statusBadge.className = "status-pill status-scrubbing";
+        hudSequenceText.innerText = cfg.desc;
+        hudMediaText.innerText = `Clip ${String(cfg.scrollClip).padStart(2, '0')} (Scrubbing Frame ${frameIndex}/${totalFrames - 1})`;
         framePosText.innerText = `${String(frameIndex).padStart(4, '0')} / ${String(totalFrames - 1).padStart(4, '0')} (${(subProgress * 100).toFixed(1)}%)`;
 
-        btnJumpScroll.classList.add('active');
-        btnJumpLoop.classList.remove('active');
-        btnJump3D.classList.remove('active');
+        document.getElementById(`stage-btn-${activeStageId}`).classList.add('active');
+        document.getElementById('stage-btn-3d').classList.remove('active');
       }
-      // Phase 2: Anime Loop (0.45 - 0.58)
-      else if (totalProgress >= 0.45 && totalProgress < 0.58) {
+      // Phase 2: Anime Loop (0.45 - 0.65) -> คลิปวนลูปคู่ (6, 7, 8, 9, 10)
+      else if (totalProgress >= 0.45 && totalProgress < 0.65) {
         currentPhase = 'loop';
         scrollCanvas.style.opacity = '1';
         loopOverlay.classList.add('active');
@@ -842,16 +861,17 @@
         v3dLeftpanel.classList.remove('active');
         v3dWasdHud.classList.remove('active');
 
-        hudTitle.innerText = "2. ANIME LOOP PHASE";
-        statusBadge.innerText = "ANIME LOOP ACTIVE";
+        hudTitle.innerText = cfg.title;
+        statusBadge.innerText = `ANIME LOOP: CLIP ${String(cfg.loopClip).padStart(2, '0')}`;
         statusBadge.className = "status-pill status-looping";
-        framePosText.innerText = `Looping at 100% (Stage Climax)`;
+        hudSequenceText.innerText = cfg.desc;
+        hudMediaText.innerText = `Clip ${String(cfg.loopClip).padStart(2, '0')} (Infinite Breathing Loop Active)`;
+        framePosText.innerText = `Looping Seamlessly (Stage Climax)`;
 
-        btnJumpScroll.classList.remove('active');
-        btnJumpLoop.classList.add('active');
-        btnJump3D.classList.remove('active');
+        document.getElementById(`stage-btn-${activeStageId}`).classList.add('active');
+        document.getElementById('stage-btn-3d').classList.remove('active');
       }
-      // Phase 3: 3D Mars & Character Walk (0.58 - 1.00)
+      // Phase 3: 3D Mars Simulation & Character Walking (0.65 - 1.00)
       else {
         currentPhase = '3d';
         scrollCanvas.style.opacity = '0';
@@ -861,15 +881,16 @@
         v3dLeftpanel.classList.add('active');
         v3dWasdHud.classList.add('active');
 
-        const subProgress = (totalProgress - 0.58) / 0.42;
-        hudTitle.innerText = "3. 3D MARS & CHARACTER PHASE";
+        const subProgress = (totalProgress - 0.65) / 0.35;
+        hudTitle.innerText = "STAGE 6: 3D MARS SIMULATION & WALK";
         statusBadge.innerText = "WASD WALKING ACTIVE";
         statusBadge.className = "status-pill status-3d";
+        hudSequenceText.innerText = "Live 3D Mars Environment + Spacecraft";
+        hudMediaText.innerText = "Astronaut Character (WASD Controls)";
         framePosText.innerText = `3D Viewport (${(subProgress * 100).toFixed(1)}%)`;
 
-        btnJumpScroll.classList.remove('active');
-        btnJumpLoop.classList.remove('active');
-        btnJump3D.classList.add('active');
+        document.querySelectorAll('.stage-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('stage-btn-3d').classList.add('active');
 
         onWindowResize3D();
       }
@@ -877,25 +898,31 @@
 
     window.addEventListener('scroll', onUnifiedScroll, { passive: true });
 
-    window.jumpToPhase = function(phase) {
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      let targetY = 0;
-      if (phase === 'scroll') targetY = 0;
-      else if (phase === 'loop') targetY = maxScroll * 0.48;
-      else if (phase === '3d') targetY = maxScroll * 0.85;
-      window.scrollTo({ top: targetY, behavior: 'smooth' });
-    };
-
-    window.switchClip = function(clipId) {
-      currentClip = clipId;
-      document.querySelectorAll('.clip-btn').forEach((btn, idx) => {
-        btn.classList.toggle('active', idx + 1 === clipId);
+    // Select Stage (1 to 5)
+    window.selectStage = function(stageId) {
+      activeStageId = stageId;
+      document.querySelectorAll('.stage-selector .stage-btn').forEach((btn, idx) => {
+        btn.classList.toggle('active', idx + 1 === stageId);
       });
+      document.getElementById('stage-btn-3d').classList.remove('active');
+
+      const cfg = STAGE_CONFIG[stageId];
+      hudTitle.innerText = cfg.title;
+      hudSequenceText.innerText = cfg.desc;
+
+      // Scroll smoothly to top to restart stage sequence
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      loadClipFrames(clipId);
+      loadStageFrames(stageId);
     };
 
-    loadClipFrames(1);
+    // Jump directly to 3D
+    window.jumpTo3D = function() {
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      window.scrollTo({ top: maxScroll * 0.88, behavior: 'smooth' });
+    };
+
+    // Initialize with Stage 1 (1 -> 6)
+    loadStageFrames(1);
 
     // ==========================================
     // 2. 3D ENGINE & ASTRONAUT CHARACTER
@@ -913,7 +940,6 @@
     let activeShading = 'solid';
     let isCameraFollow = true;
 
-    // Character Rig & State
     let astronaut = null;
     let astroLimbs = { lLeg: null, rLeg: null, lArm: null, rArm: null, torso: null };
     let astroPos = new THREE.Vector3(2.5, 0, 2.5);
@@ -922,53 +948,31 @@
     let isGrounded = true;
     let walkAnimTime = 0;
 
-    // Input State
     const keyState = { w: false, a: false, s: false, d: false, space: false };
 
     window.setVirtualKey = function(key, isDown) {
       keyState[key] = isDown;
       const el = document.getElementById(`key-${key}`);
       if (el) el.classList.toggle('pressed', isDown);
-      updateActiveKeysBadge();
     };
 
-    function updateActiveKeysBadge() {
-      const active = [];
-      if (keyState.w) active.push('W');
-      if (keyState.a) active.push('A');
-      if (keyState.s) active.push('S');
-      if (keyState.d) active.push('D');
-      if (keyState.space) active.push('SPACE');
-      hudActiveKeys.innerText = active.length > 0 ? active.join(' + ') : 'NONE';
-    }
-
-    // Comprehensive Key Event Handler (Supports Physical Codes & Thai Keyboard Layouts)
     function handleKeyEvent(e, isDown) {
       const code = e.code;
       const key = (e.key || '').toLowerCase();
 
-      // Check Physical KeyW, or English 'w', or Thai 'ไ', or ArrowUp
       if (code === 'KeyW' || key === 'w' || key === 'ไ' || code === 'ArrowUp') {
         setVirtualKey('w', isDown);
         if (currentPhase === '3d') e.preventDefault();
-      }
-      // Check Physical KeyA, or English 'a', or Thai 'ฟ', or ArrowLeft
-      else if (code === 'KeyA' || key === 'a' || key === 'ฟ' || code === 'ArrowLeft') {
+      } else if (code === 'KeyA' || key === 'a' || key === 'ฟ' || code === 'ArrowLeft') {
         setVirtualKey('a', isDown);
         if (currentPhase === '3d') e.preventDefault();
-      }
-      // Check Physical KeyS, or English 's', or Thai 'ห', or ArrowDown
-      else if (code === 'KeyS' || key === 's' || key === 'ห' || code === 'ArrowDown') {
+      } else if (code === 'KeyS' || key === 's' || key === 'ห' || code === 'ArrowDown') {
         setVirtualKey('s', isDown);
         if (currentPhase === '3d') e.preventDefault();
-      }
-      // Check Physical KeyD, or English 'd', or Thai 'ก', or ArrowRight
-      else if (code === 'KeyD' || key === 'd' || key === 'ก' || code === 'ArrowRight') {
+      } else if (code === 'KeyD' || key === 'd' || key === 'ก' || code === 'ArrowRight') {
         setVirtualKey('d', isDown);
         if (currentPhase === '3d') e.preventDefault();
-      }
-      // Check Physical Space
-      else if (code === 'Space' || key === ' ') {
+      } else if (code === 'Space' || key === ' ') {
         setVirtualKey('space', isDown);
         if (currentPhase === '3d') e.preventDefault();
       }
@@ -1137,7 +1141,6 @@
       }
       visualMeshGroup.add(craftGroup);
 
-      // Collider
       const colliderGroup = new THREE.Group();
       const colHullGeo = new THREE.CylinderGeometry(1.5, 1.9, 1.3, 8);
       const colMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.8 });
@@ -1151,7 +1154,6 @@
       colliderGroup.add(colWings);
       colliderMeshGroup.add(colliderGroup);
 
-      // Splat Points
       const splatGeo = new THREE.BufferGeometry();
       const pCount = 3500;
       const pPos = new Float32Array(pCount * 3);
@@ -1169,7 +1171,6 @@
       applyShadingMode();
     }
 
-    // Procedural Sci-Fi Astronaut Character
     function createAstronautCharacter() {
       if (astronaut) scene.remove(astronaut);
 
@@ -1180,7 +1181,6 @@
       const visorMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.05, metalness: 0.95 });
       const cyanMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x38bdf8, emissiveIntensity: 0.6 });
 
-      // Torso
       const torsoGeo = new THREE.BoxGeometry(0.5, 0.65, 0.35);
       const torso = new THREE.Mesh(torsoGeo, suitMat);
       torso.position.y = 0.95;
@@ -1188,39 +1188,33 @@
       astronaut.add(torso);
       astroLimbs.torso = torso;
 
-      // Chest Control Box
       const chestGeo = new THREE.BoxGeometry(0.3, 0.25, 0.08);
       const chest = new THREE.Mesh(chestGeo, darkMat);
       chest.position.set(0, 0.05, 0.2);
       torso.add(chest);
 
-      // Chest Indicator Light
       const lightGeo = new THREE.BoxGeometry(0.18, 0.06, 0.02);
       const light = new THREE.Mesh(lightGeo, cyanMat);
       light.position.set(0, 0.05, 0.05);
       chest.add(light);
 
-      // Life Support Backpack
       const packGeo = new THREE.BoxGeometry(0.42, 0.55, 0.22);
       const pack = new THREE.Mesh(packGeo, suitMat);
       pack.position.set(0, 0.05, -0.25);
       pack.castShadow = true;
       torso.add(pack);
 
-      // Helmet
       const helmetGeo = new THREE.SphereGeometry(0.24, 16, 16);
       const helmet = new THREE.Mesh(helmetGeo, suitMat);
       helmet.position.set(0, 0.52, 0);
       helmet.castShadow = true;
       torso.add(helmet);
 
-      // Visor
       const visorGeo = new THREE.SphereGeometry(0.20, 16, 16, -Math.PI / 2.5, Math.PI / 1.25, 0, Math.PI / 1.3);
       const visor = new THREE.Mesh(visorGeo, visorMat);
       visor.position.set(0, 0.52, 0.07);
       torso.add(visor);
 
-      // Left Arm
       const lArmPivot = new THREE.Group();
       lArmPivot.position.set(0.34, 0.25, 0);
       const armGeo = new THREE.CylinderGeometry(0.08, 0.07, 0.5, 8);
@@ -1231,7 +1225,6 @@
       torso.add(lArmPivot);
       astroLimbs.lArm = lArmPivot;
 
-      // Right Arm
       const rArmPivot = new THREE.Group();
       rArmPivot.position.set(-0.34, 0.25, 0);
       const rArmMesh = new THREE.Mesh(armGeo, suitMat);
@@ -1241,7 +1234,6 @@
       torso.add(rArmPivot);
       astroLimbs.rArm = rArmPivot;
 
-      // Left Leg
       const lLegPivot = new THREE.Group();
       lLegPivot.position.set(0.16, 0.65, 0);
       const legGeo = new THREE.CylinderGeometry(0.09, 0.08, 0.65, 8);
@@ -1258,7 +1250,6 @@
       astronaut.add(lLegPivot);
       astroLimbs.lLeg = lLegPivot;
 
-      // Right Leg
       const rLegPivot = new THREE.Group();
       rLegPivot.position.set(-0.16, 0.65, 0);
       const rLegMesh = new THREE.Mesh(legGeo, suitMat);
@@ -1296,7 +1287,6 @@
       let moveX = 0;
       let moveZ = 0;
 
-      // Compute camera relative forward/right vectors
       const camForward = new THREE.Vector3();
       camera.getWorldDirection(camForward);
       camForward.y = 0;
@@ -1331,12 +1321,10 @@
         astroPos.x += moveX * moveSpeed * delta;
         astroPos.z += moveZ * moveSpeed * delta;
 
-        // Smooth rotation to facing direction
         const targetAngle = Math.atan2(moveX, moveZ);
         astroRotation = THREE.MathUtils.lerp(astroRotation, targetAngle, 0.22);
         astronaut.rotation.y = astroRotation;
 
-        // Walk cycle
         walkAnimTime += delta * 10.0;
         const swing = Math.sin(walkAnimTime) * 0.65;
         if (astroLimbs.lLeg) astroLimbs.lLeg.rotation.x = swing;
@@ -1345,7 +1333,6 @@
         if (astroLimbs.rArm) astroLimbs.rArm.rotation.x = swing * 0.85;
         if (astroLimbs.torso) astroLimbs.torso.position.y = 0.95 + Math.abs(Math.sin(walkAnimTime * 2)) * 0.05;
       } else {
-        // Idle return to neutral
         if (astroLimbs.lLeg) astroLimbs.lLeg.rotation.x *= 0.82;
         if (astroLimbs.rLeg) astroLimbs.rLeg.rotation.x *= 0.82;
         if (astroLimbs.lArm) astroLimbs.lArm.rotation.x *= 0.82;
@@ -1353,7 +1340,6 @@
         if (astroLimbs.torso) astroLimbs.torso.position.y = 0.95 + Math.sin(performance.now() * 0.003) * 0.015;
       }
 
-      // Jump & Gravity (Mars ~0.38g)
       const groundY = getTerrainHeight(astroPos.x, astroPos.z);
       const marsGravity = 9.8 * 0.38;
 
@@ -1373,7 +1359,6 @@
 
       astronaut.position.copy(astroPos);
 
-      // Camera Follow
       if (isCameraFollow && controls) {
         const targetLook = new THREE.Vector3(astroPos.x, astroPos.y + 1.2, astroPos.z);
         controls.target.lerp(targetLook, 0.12);
@@ -1588,7 +1573,6 @@
       const delta = Math.min((now - lastTime) / 1000, 0.1);
       lastTime = now;
 
-      // Update Character Physics & Walking
       updateAstronautPhysics(delta);
 
       controls.update();
