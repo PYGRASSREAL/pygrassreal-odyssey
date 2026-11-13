@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SpaceApps 2026 | Space Mission Game (1➡️6, 2➡️7, 3➡️8, 4➡️9, 5➡️10)</title>
+  <title>SpaceApps 2026 | Full Story Sequence (1➡️6, 2➡️7, 3➡️8, 4➡️9, 5➡️10 ➡️ 3D Mars)</title>
 
   <!-- Self-Contained Three.js Addons & Codec -->
   <script type="importmap">
@@ -145,7 +145,7 @@
       letter-spacing: -0.02em;
     }
 
-    /* 5 Stage Sequence Selector (1->6, 2->7, 3->8, 4->9, 5->10) */
+    /* Story Timeline Quick Jump Selector */
     .stage-selector {
       display: flex;
       gap: 0.35rem;
@@ -182,7 +182,7 @@
       box-shadow: 0 0 14px var(--mars-glow);
     }
 
-    /* 3D Top Floating Mode Bar */
+    /* 3D Top Floating Mode Bar (Only visible at Stage 6 Final 3D) */
     .viewer3d-topbar {
       position: fixed;
       top: 4.5rem;
@@ -233,7 +233,7 @@
       box-shadow: 0 0 10px var(--accent-glow);
     }
 
-    /* 3D Left Floating Tools Panel */
+    /* 3D Left Floating Tools Panel (Only visible at Stage 6 Final 3D) */
     .viewer3d-leftpanel {
       position: fixed;
       top: 5rem;
@@ -316,7 +316,7 @@
       box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
     }
 
-    /* On-Screen WASD HUD Controller */
+    /* On-Screen WASD HUD Controller (Only visible at Stage 6 Final 3D) */
     .wasd-controller-hud {
       position: fixed;
       bottom: 2rem;
@@ -390,7 +390,7 @@
       position: fixed;
       bottom: 2rem;
       right: 2rem;
-      width: 400px;
+      width: 420px;
       z-index: 50;
       background: var(--card-bg);
       border: 1px solid var(--border);
@@ -498,11 +498,11 @@
       100% { background: rgba(0, 0, 0, 0.5); }
     }
 
-    /* Continuous Scroll Track */
+    /* Continuous Scroll Track (Long Track for all 5 stages + final 3D) */
     .continuous-scroll-track {
       position: relative;
       z-index: 10;
-      height: 600vh;
+      height: 1200vh;
       pointer-events: none;
     }
 
@@ -543,25 +543,25 @@
       <span class="brand-title">Space Mission Simulator</span>
     </div>
 
-    <!-- 5 Stage Sequence Selector (1->6, 2->7, 3->8, 4->9, 5->10) -->
+    <!-- 5 Stage Sequence Selector (1->6, 2->7, 3->8, 4->9, 5->10 ➡️ 3D Final) -->
     <div class="stage-selector">
-      <button class="stage-btn active" id="stage-btn-1" onclick="selectStage(1)">
+      <button class="stage-btn active" id="btn-stage-1" onclick="jumpToTimeline(0.00)">
         <span>🚀</span><span>Stage 1 (1 ➡️ 6)</span>
       </button>
-      <button class="stage-btn" id="stage-btn-2" onclick="selectStage(2)">
+      <button class="stage-btn" id="btn-stage-2" onclick="jumpToTimeline(0.18)">
         <span>🛰️</span><span>Stage 2 (2 ➡️ 7)</span>
       </button>
-      <button class="stage-btn" id="stage-btn-3" onclick="selectStage(3)">
+      <button class="stage-btn" id="btn-stage-3" onclick="jumpToTimeline(0.35)">
         <span>🛡️</span><span>Stage 3 (3 ➡️ 8)</span>
       </button>
-      <button class="stage-btn" id="stage-btn-4" onclick="selectStage(4)">
+      <button class="stage-btn" id="btn-stage-4" onclick="jumpToTimeline(0.52)">
         <span>📡</span><span>Stage 4 (4 ➡️ 9)</span>
       </button>
-      <button class="stage-btn" id="stage-btn-5" onclick="selectStage(5)">
+      <button class="stage-btn" id="btn-stage-5" onclick="jumpToTimeline(0.69)">
         <span>🔴</span><span>Stage 5 (5 ➡️ 10)</span>
       </button>
-      <button class="stage-btn mars-btn" id="stage-btn-3d" onclick="jumpTo3D()">
-        <span>🪐</span><span>3D Simulation</span>
+      <button class="stage-btn mars-btn" id="btn-stage-3d" onclick="jumpToTimeline(0.88)">
+        <span>🪐</span><span>Final 3D Simulation</span>
       </button>
     </div>
   </header>
@@ -576,7 +576,7 @@
     <div class="vignette"></div>
   </div>
 
-  <!-- 3D Top Floating Mode Bar -->
+  <!-- 3D Top Floating Mode Bar (Visible ONLY at final 3D stage) -->
   <div class="viewer3d-topbar" id="v3d-topbar">
     <button class="ctrl-btn active" id="btn-shade-solid" onclick="setShadingMode('solid')">
       <span>🎨</span><span>Solid Visual</span>
@@ -601,7 +601,7 @@
     </button>
   </div>
 
-  <!-- 3D Left Model Loader Panel -->
+  <!-- 3D Left Model Loader Panel (Visible ONLY at final 3D stage) -->
   <div class="viewer3d-leftpanel" id="v3d-leftpanel">
     <div class="panel-title">
       <span>📦</span><span>NASA Model & Asset Loader</span>
@@ -635,7 +635,7 @@
     </button>
   </div>
 
-  <!-- On-Screen WASD HUD Controller -->
+  <!-- On-Screen WASD HUD Controller (Visible ONLY at final 3D stage) -->
   <div class="wasd-controller-hud" id="v3d-wasd-hud">
     <div class="panel-title" style="margin-bottom: 0.25rem;">
       <span>🎮</span><span>Character Controls</span>
@@ -662,8 +662,8 @@
     </div>
 
     <div class="telemetry-row">
-      <span>Timeline Position:</span>
-      <span class="telemetry-val" id="hud-frame-pos">0000 / 0118 (0.0%)</span>
+      <span>Mission Story Progress:</span>
+      <span class="telemetry-val" id="hud-frame-pos">Stage 1 of 5 (0.0%)</span>
     </div>
 
     <div class="progress-track">
@@ -671,16 +671,16 @@
     </div>
 
     <div class="telemetry-row">
-      <span>Current Stage Sequence:</span>
+      <span>Story Stage Sequence:</span>
       <span class="telemetry-val" id="hud-sequence-text" style="color: var(--accent);">Clip 01 (Scroll) ➡️ Clip 06 (Loop)</span>
     </div>
     <div class="telemetry-row">
-      <span>Active Media:</span>
-      <span class="telemetry-val" id="hud-media-text">Clip 01 (WebP 720p Scrubbing)</span>
+      <span>Active Screen:</span>
+      <span class="telemetry-val" id="hud-media-text">Clip 01 (Scrubbing Frame 0 / 118)</span>
     </div>
     <div class="telemetry-row">
-      <span>Astronaut Position:</span>
-      <span class="telemetry-val" id="hud-astro-pos" style="color: var(--success);">X: 2.5, Z: 2.5 (Standing)</span>
+      <span>Astronaut Telemetry:</span>
+      <span class="telemetry-val" id="hud-astro-pos" style="color: var(--success);">Waiting at Final Stage (Mars Surface)</span>
     </div>
 
     <div class="impact-box" id="impact-log">
@@ -690,17 +690,17 @@
     </div>
 
     <div class="tip-box" id="hud-tip">
-      🎬 <strong>คู่ลำดับด่าน:</strong> เลื่อน Scroll ช่วงแรกเพื่อเล่นคลิป Transition ➡️ เมื่อเลื่อนถึงท้ายคลิปจะเข้าสู่ <strong>Loop วนลูปไร้รอยต่อ</strong> ประจำด่านทันที (1 ➡️ 6, 2 ➡️ 7, 3 ➡️ 8, 4 ➡️ 9, 5 ➡️ 10) และเลื่อนต่อจะเข้าสู่ <strong>3D Simulation</strong> ครับ!
+      🌌 <strong>การเดินทางต่อเนื่อง:</strong> เลื่อน Scroll ลงมาตามลำดับครบทั้ง 5 ด่าน: <strong>1 ➡️ 6</strong>, <strong>2 ➡️ 7</strong>, <strong>3 ➡️ 8</strong>, <strong>4 ➡️ 9</strong>, <strong>5 ➡️ 10</strong> และเมื่อถึงท้ายสุด จะเข้าสู่ <strong>3D Mars Simulation & Astronaut Walk</strong> ครับ!
     </div>
   </div>
 
   <!-- Floating Scroll Down Hint -->
   <div class="scroll-hint-bar" id="scroll-hint">
-    <span>Scroll to Progress</span>
+    <span>Scroll Down Story</span>
     <span style="font-size: 1.1rem;">&darr;</span>
   </div>
 
-  <!-- Continuous Scroll Height Container -->
+  <!-- Continuous Scroll Height Container (12 screens) -->
   <div class="continuous-scroll-track"></div>
 
   <!-- Instant Fast First Frame Loader -->
@@ -724,50 +724,70 @@
     import { PLYLoader } from 'three/addons/loaders/PLYLoader.js';
     import { Py3sCodec } from './libs/py3s/py3sCodec.js';
 
-    // ========================================================
-    // 1. 5-STAGE PAIR SEQUENCER (1->6, 2->7, 3->8, 4->9, 5->10)
-    // ========================================================
-    const STAGE_CONFIG = {
-      1: {
+    // =========================================================================
+    // 1. GRAND 5-STAGE CONTINUOUS SCROLL TIMELINE (1->6, 2->7, 3->8, 4->9, 5->10 -> 3D)
+    // =========================================================================
+    const TIMELINE_STAGES = [
+      {
+        id: 1,
         title: "STAGE 1: LAUNCH PLATFORM (1 ➡️ 6)",
         scrollClip: 1,
         loopClip: 6,
         loopFile: "assets/loops/loop_clip_06.webp",
-        desc: "Clip 01 (Scroll) ➡️ Clip 06 (Gantry Pulse Loop)"
+        desc: "Clip 01 (Scroll) ➡️ Clip 06 (Gantry Pulse Loop)",
+        start: 0.00,
+        loopStart: 0.13,
+        end: 0.17
       },
-      2: {
+      {
+        id: 2,
         title: "STAGE 2: ASCEND INTO ORBIT (2 ➡️ 7)",
         scrollClip: 2,
         loopClip: 7,
         loopFile: "assets/loops/loop_clip_07.webp",
-        desc: "Clip 02 (Scroll) ➡️ Clip 07 (Earth Orbit Loop)"
+        desc: "Clip 02 (Scroll) ➡️ Clip 07 (Earth Orbit Loop)",
+        start: 0.17,
+        loopStart: 0.30,
+        end: 0.34
       },
-      3: {
+      {
+        id: 3,
         title: "STAGE 3: DEFLECTOR SHIELD (3 ➡️ 8)",
         scrollClip: 3,
         loopClip: 8,
         loopFile: "assets/loops/loop_clip_08.webp",
-        desc: "Clip 03 (Scroll) ➡️ Clip 08 (Shield Pulse Loop)"
+        desc: "Clip 03 (Scroll) ➡️ Clip 08 (Shield Pulse Loop)",
+        start: 0.34,
+        loopStart: 0.47,
+        end: 0.51
       },
-      4: {
+      {
+        id: 4,
         title: "STAGE 4: SOLAR PLASMA CRUISE (4 ➡️ 9)",
         scrollClip: 4,
         loopClip: 9,
         loopFile: "assets/loops/loop_clip_09.webp",
-        desc: "Clip 04 (Scroll) ➡️ Clip 09 (Interplanetary Laser Loop)"
+        desc: "Clip 04 (Scroll) ➡️ Clip 09 (Interplanetary Laser Loop)",
+        start: 0.51,
+        loopStart: 0.64,
+        end: 0.68
       },
-      5: {
+      {
+        id: 5,
         title: "STAGE 5: MARS TOUCHDOWN (5 ➡️ 10)",
         scrollClip: 5,
         loopClip: 10,
         loopFile: "assets/loops/loop_clip_10.webp",
-        desc: "Clip 05 (Scroll) ➡️ Clip 10 (Mars Canyon Retro Thruster Loop)"
+        desc: "Clip 05 (Scroll) ➡️ Clip 10 (Mars Canyon Retro Thrusters Loop)",
+        start: 0.68,
+        loopStart: 0.81,
+        end: 0.85
       }
-    };
+    ];
+    // Final 3D Simulation Phase: 0.85 -> 1.00
 
-    let activeStageId = 1;
     const totalFrames = 119;
-    const images = [];
+    const stageFramesCache = { 1: [], 2: [], 3: [], 4: [], 5: [] };
 
     const scrollCanvas = document.getElementById('scroll-canvas-layer');
     const scrollCtx = scrollCanvas.getContext('2d');
@@ -786,93 +806,71 @@
     const hudAstroPos = document.getElementById('hud-astro-pos');
     const scrollHint = document.getElementById('scroll-hint');
 
-    let currentPhase = 'scroll'; // 'scroll' | 'loop' | '3d'
+    let currentPhase = '2d'; // '2d' | '3d'
+    let currentRenderedClip = 1;
+    let currentRenderedFrame = 0;
 
-    function loadStageFrames(stageId) {
-      images.length = 0;
-      const cfg = STAGE_CONFIG[stageId];
-      const padClip = String(cfg.scrollClip).padStart(2, '0');
-      let loadedCount = 0;
+    // Preload frames for all 5 stages in background
+    function preloadAllStages() {
+      // Stage 1 first
+      preloadStage(1, () => {
+        // Render first frame immediately
+        renderSpecificFrame(1, 0);
+        // Then preload stages 2, 3, 4, 5 in sequence
+        preloadStage(2, () => {
+          preloadStage(3, () => {
+            preloadStage(4, () => {
+              preloadStage(5, () => {
+                console.log("All 5 stages preloaded successfully!");
+              });
+            });
+          });
+        });
+      });
+    }
 
-      // Update Loop Image Source
-      loopOverlay.src = cfg.loopFile;
+    function preloadStage(stageId, onComplete) {
+      const arr = stageFramesCache[stageId];
+      arr.length = 0;
+      const padClip = String(stageId).padStart(2, '0');
+      let loaded = 0;
 
       for (let i = 0; i < totalFrames; i++) {
         const padFrame = String(i).padStart(4, '0');
         const img = new Image();
         img.src = `assets/scroll_webp/clip_${padClip}/frame_${padFrame}.webp`;
         img.onload = () => {
-          loadedCount++;
-          if (loadedCount === 1) renderScrollFrame(0);
+          loaded++;
+          if (loaded === totalFrames && onComplete) onComplete();
         };
-        images.push(img);
+        arr.push(img);
       }
     }
 
-    function renderScrollFrame(index) {
-      if (images[index] && images[index].complete) {
+    function renderSpecificFrame(clipId, frameIndex) {
+      currentRenderedClip = clipId;
+      currentRenderedFrame = frameIndex;
+      const arr = stageFramesCache[clipId];
+      if (arr && arr[frameIndex] && arr[frameIndex].complete) {
         scrollCtx.clearRect(0, 0, scrollCanvas.width, scrollCanvas.height);
-        scrollCtx.drawImage(images[index], 0, 0, scrollCanvas.width, scrollCanvas.height);
+        scrollCtx.drawImage(arr[frameIndex], 0, 0, scrollCanvas.width, scrollCanvas.height);
       }
     }
 
-    function onUnifiedScroll() {
+    // Master Continuous Scroll Handler
+    function onMasterScroll() {
       const scrollY = window.scrollY;
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      const totalProgress = Math.min(Math.max(scrollY / (maxScroll || 1), 0), 1);
+      const progress = Math.min(Math.max(scrollY / (maxScroll || 1), 0), 1);
 
-      progressBar.style.width = (totalProgress * 100).toFixed(1) + '%';
-      if (scrollY > 50) scrollHint.style.opacity = '0';
+      progressBar.style.width = (progress * 100).toFixed(1) + '%';
+      if (scrollY > 60) scrollHint.style.opacity = '0';
       else scrollHint.style.opacity = '1';
 
-      const cfg = STAGE_CONFIG[activeStageId];
-
-      // Phase 1: Scroll Scrub (0.00 - 0.45) -> คลิปเลขเดี่ยว (1, 2, 3, 4, 5)
-      if (totalProgress < 0.45) {
-        currentPhase = 'scroll';
-        const subProgress = totalProgress / 0.45;
-        const frameIndex = Math.min(Math.floor(subProgress * totalFrames), totalFrames - 1);
-        renderScrollFrame(frameIndex);
-
-        scrollCanvas.style.opacity = '1';
-        loopOverlay.classList.remove('active');
-        threejsLayer.classList.remove('active');
-        v3dTopbar.classList.remove('active');
-        v3dLeftpanel.classList.remove('active');
-        v3dWasdHud.classList.remove('active');
-
-        hudTitle.innerText = cfg.title;
-        statusBadge.innerText = "SCROLL SCRUB";
-        statusBadge.className = "status-pill status-scrubbing";
-        hudSequenceText.innerText = cfg.desc;
-        hudMediaText.innerText = `Clip ${String(cfg.scrollClip).padStart(2, '0')} (Scrubbing Frame ${frameIndex}/${totalFrames - 1})`;
-        framePosText.innerText = `${String(frameIndex).padStart(4, '0')} / ${String(totalFrames - 1).padStart(4, '0')} (${(subProgress * 100).toFixed(1)}%)`;
-
-        document.getElementById(`stage-btn-${activeStageId}`).classList.add('active');
-        document.getElementById('stage-btn-3d').classList.remove('active');
-      }
-      // Phase 2: Anime Loop (0.45 - 0.65) -> คลิปวนลูปคู่ (6, 7, 8, 9, 10)
-      else if (totalProgress >= 0.45 && totalProgress < 0.65) {
-        currentPhase = 'loop';
-        scrollCanvas.style.opacity = '1';
-        loopOverlay.classList.add('active');
-        threejsLayer.classList.remove('active');
-        v3dTopbar.classList.remove('active');
-        v3dLeftpanel.classList.remove('active');
-        v3dWasdHud.classList.remove('active');
-
-        hudTitle.innerText = cfg.title;
-        statusBadge.innerText = `ANIME LOOP: CLIP ${String(cfg.loopClip).padStart(2, '0')}`;
-        statusBadge.className = "status-pill status-looping";
-        hudSequenceText.innerText = cfg.desc;
-        hudMediaText.innerText = `Clip ${String(cfg.loopClip).padStart(2, '0')} (Infinite Breathing Loop Active)`;
-        framePosText.innerText = `Looping Seamlessly (Stage Climax)`;
-
-        document.getElementById(`stage-btn-${activeStageId}`).classList.add('active');
-        document.getElementById('stage-btn-3d').classList.remove('active');
-      }
-      // Phase 3: 3D Mars Simulation & Character Walking (0.65 - 1.00)
-      else {
+      // -------------------------------------------------------------
+      // FINAL PHASE: 3D MARS SIMULATION & WASD CHARACTER (0.85 - 1.00)
+      // -------------------------------------------------------------
+      if (progress >= 0.85) {
         currentPhase = '3d';
         scrollCanvas.style.opacity = '0';
         loopOverlay.classList.remove('active');
@@ -881,48 +879,90 @@
         v3dLeftpanel.classList.add('active');
         v3dWasdHud.classList.add('active');
 
-        const subProgress = (totalProgress - 0.65) / 0.35;
-        hudTitle.innerText = "STAGE 6: 3D MARS SIMULATION & WALK";
+        const subProgress = (progress - 0.85) / 0.15;
+        hudTitle.innerText = "FINAL STAGE: 3D MARS SIMULATION & WALK";
         statusBadge.innerText = "WASD WALKING ACTIVE";
         statusBadge.className = "status-pill status-3d";
-        hudSequenceText.innerText = "Live 3D Mars Environment + Spacecraft";
-        hudMediaText.innerText = "Astronaut Character (WASD Controls)";
-        framePosText.innerText = `3D Viewport (${(subProgress * 100).toFixed(1)}%)`;
+        hudSequenceText.innerText = "Interactive Mars Surface + Spacecraft Lander";
+        hudMediaText.innerText = "Astronaut Character (WASD Controls Active)";
+        framePosText.innerText = `Final 3D Viewport (${(subProgress * 100).toFixed(1)}%)`;
 
-        document.querySelectorAll('.stage-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('stage-btn-3d').classList.add('active');
+        document.querySelectorAll('.stage-selector .stage-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('btn-stage-3d').classList.add('active');
 
         onWindowResize3D();
+        return;
+      }
+
+      // -------------------------------------------------------------
+      // 2D PHASES: STAGES 1, 2, 3, 4, 5 (0.00 - 0.85)
+      // -------------------------------------------------------------
+      currentPhase = '2d';
+      threejsLayer.classList.remove('active');
+      v3dTopbar.classList.remove('active');
+      v3dLeftpanel.classList.remove('active');
+      v3dWasdHud.classList.remove('active');
+      scrollCanvas.style.opacity = '1';
+
+      // Find which of the 5 stages we are in
+      let activeStage = TIMELINE_STAGES[0];
+      for (const st of TIMELINE_STAGES) {
+        if (progress >= st.start && progress < st.end) {
+          activeStage = st;
+          break;
+        }
+      }
+
+      // Highlight active stage pill
+      document.querySelectorAll('.stage-selector .stage-btn').forEach((b, idx) => {
+        b.classList.toggle('active', idx + 1 === activeStage.id);
+      });
+      document.getElementById('btn-stage-3d').classList.remove('active');
+
+      hudTitle.innerText = activeStage.title;
+      hudSequenceText.innerText = activeStage.desc;
+
+      // Are we in the transition scroll portion OR the anime loop portion of this stage?
+      const stageRange = activeStage.end - activeStage.start;
+      const scrubRange = activeStage.loopStart - activeStage.start;
+      const stageProgress = progress - activeStage.start;
+
+      if (progress < activeStage.loopStart) {
+        // Scroll Scrubbing Portion
+        loopOverlay.classList.remove('active');
+
+        const subFraction = Math.min(Math.max(stageProgress / scrubRange, 0), 1);
+        const frameIndex = Math.min(Math.floor(subFraction * totalFrames), totalFrames - 1);
+        renderSpecificFrame(activeStage.scrollClip, frameIndex);
+
+        statusBadge.innerText = "SCROLL SCRUB";
+        statusBadge.className = "status-pill status-scrubbing";
+        hudMediaText.innerText = `Clip 0${activeStage.scrollClip} (Scrubbing Frame ${frameIndex} / ${totalFrames - 1})`;
+        framePosText.innerText = `Stage ${activeStage.id} of 5 (${(subFraction * 100).toFixed(1)}%)`;
+      } else {
+        // Anime Loop Portion of this Stage!
+        if (loopOverlay.src.indexOf(activeStage.loopFile) === -1) {
+          loopOverlay.src = activeStage.loopFile;
+        }
+        loopOverlay.classList.add('active');
+
+        statusBadge.innerText = `ANIME LOOP: CLIP 0${activeStage.loopClip}`;
+        statusBadge.className = "status-pill status-looping";
+        hudMediaText.innerText = `Clip 0${activeStage.loopClip} (Infinite Breathing Loop Active)`;
+        framePosText.innerText = `Stage ${activeStage.id} Climax (Looping Seamlessly)`;
       }
     }
 
-    window.addEventListener('scroll', onUnifiedScroll, { passive: true });
+    window.addEventListener('scroll', onMasterScroll, { passive: true });
 
-    // Select Stage (1 to 5)
-    window.selectStage = function(stageId) {
-      activeStageId = stageId;
-      document.querySelectorAll('.stage-selector .stage-btn').forEach((btn, idx) => {
-        btn.classList.toggle('active', idx + 1 === stageId);
-      });
-      document.getElementById('stage-btn-3d').classList.remove('active');
-
-      const cfg = STAGE_CONFIG[stageId];
-      hudTitle.innerText = cfg.title;
-      hudSequenceText.innerText = cfg.desc;
-
-      // Scroll smoothly to top to restart stage sequence
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      loadStageFrames(stageId);
-    };
-
-    // Jump directly to 3D
-    window.jumpTo3D = function() {
+    // Quick Jump button on the top nav
+    window.jumpToTimeline = function(targetProgress) {
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      window.scrollTo({ top: maxScroll * 0.88, behavior: 'smooth' });
+      window.scrollTo({ top: maxScroll * targetProgress, behavior: 'smooth' });
     };
 
-    // Initialize with Stage 1 (1 -> 6)
-    loadStageFrames(1);
+    // Start preloading
+    preloadAllStages();
 
     // ==========================================
     // 2. 3D ENGINE & ASTRONAUT CHARACTER
