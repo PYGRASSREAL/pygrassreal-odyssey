@@ -66,10 +66,6 @@ function animate3D() {
 
   if (controls) controls.update();
 
-  if (currentModelGroup) {
-    currentModelGroup.rotation.y += 0.001;
-  }
-
   updateWindSim();
 
   if (renderer && scene && camera) {

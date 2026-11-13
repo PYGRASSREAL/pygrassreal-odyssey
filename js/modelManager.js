@@ -325,14 +325,15 @@ export async function loadSamplePy3s(filename) {
     const buf = await resp.arrayBuffer();
     const unpacked = await Py3sCodec.unpack(buf);
 
-    // 1. Decode SPZ to Authentic 3DGS Binary Blob & Load (default upright flip for 3DGS assets)
+    // 1. Decode SPZ to Authentic 3DGS Binary Blob with Auto-Hydration (UE5 py3s densification)
     if (unpacked.spzData && unpacked.spzData.byteLength > 0) {
       const spzSubBuffer = unpacked.spzData.buffer.slice(
         unpacked.spzData.byteOffset,
         unpacked.spzData.byteOffset + unpacked.spzData.byteLength
       );
-      const splatBlob = await convertSpzToSplatBlob(spzSubBuffer);
-      await loadGaussianSplatBlob(splatBlob, GaussianSplats3D.SceneFormat.Splat, 'splat', true);
+      const targetPoints = unpacked.metadata?.telemetryProfile?.targetHydratedPoints || 100000;
+      const splatBlob = await convertSpzToSplatBlob(spzSubBuffer, targetPoints);
+      await loadGaussianSplatBlob(splatBlob, GaussianSplats3D.SceneFormat.Splat, 'splat', false);
     }
 
     // 2. Unpack & Render Physics Collider / Mesh
@@ -390,8 +391,9 @@ export function processLoadedFile(file) {
           unpacked.spzData.byteOffset,
           unpacked.spzData.byteOffset + unpacked.spzData.byteLength
         );
-        const splatBlob = await convertSpzToSplatBlob(spzSubBuffer);
-        await loadGaussianSplatBlob(splatBlob, GaussianSplats3D.SceneFormat.Splat, 'splat', true);
+        const targetPoints = unpacked.metadata?.telemetryProfile?.targetHydratedPoints || 100000;
+        const splatBlob = await convertSpzToSplatBlob(spzSubBuffer, targetPoints);
+        await loadGaussianSplatBlob(splatBlob, GaussianSplats3D.SceneFormat.Splat, 'splat', false);
       }
 
       if (unpacked.colliderData && unpacked.colliderData.byteLength > 0) {
@@ -430,21 +432,21 @@ export function processLoadedFile(file) {
     reader.onload = async (ev) => {
       clearCurrentModel();
       const splatBlob = new Blob([ev.target.result], { type: 'application/octet-stream' });
-      await loadGaussianSplatBlob(splatBlob, GaussianSplats3D.SceneFormat.Splat, 'splat', true);
+      await loadGaussianSplatBlob(splatBlob, GaussianSplats3D.SceneFormat.Splat, 'splat', false);
     };
     reader.readAsArrayBuffer(file);
   } else if (ext === 'spz') {
     reader.onload = async (ev) => {
       clearCurrentModel();
-      const splatBlob = await convertSpzToSplatBlob(ev.target.result);
-      await loadGaussianSplatBlob(splatBlob, GaussianSplats3D.SceneFormat.Splat, 'splat', true);
+      const splatBlob = await convertSpzToSplatBlob(ev.target.result, 100000);
+      await loadGaussianSplatBlob(splatBlob, GaussianSplats3D.SceneFormat.Splat, 'splat', false);
     };
     reader.readAsArrayBuffer(file);
   } else if (ext === 'ply') {
     reader.onload = async (ev) => {
       clearCurrentModel();
       const plyBlob = new Blob([ev.target.result], { type: 'application/octet-stream' });
-      await loadGaussianSplatBlob(plyBlob, GaussianSplats3D.SceneFormat.Ply, 'ply', true);
+      await loadGaussianSplatBlob(plyBlob, GaussianSplats3D.SceneFormat.Ply, 'ply', false);
     };
     reader.readAsArrayBuffer(file);
   } else if (ext === 'glb' || ext === 'gltf') {

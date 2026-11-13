@@ -23,7 +23,7 @@ export function initMarsScene(canvasElement) {
   scene.fog = new THREE.FogExp2(0x180b07, 0.025);
 
   camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-  camera.position.set(2.5, 3.8, 7.5);
+  camera.position.set(1.5, 3.2, 7.8);
 
   renderer = new THREE.WebGLRenderer({ canvas: canvasElement, antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -37,7 +37,7 @@ export function initMarsScene(canvasElement) {
   controls.maxPolarAngle = Math.PI / 2 + 0.02;
   controls.minDistance = 1.2;
   controls.maxDistance = 50;
-  controls.target.set(2.5, 1.0, 2.5);
+  controls.target.set(0.6, 1.3, 0.6);
 
   const ambient = new THREE.AmbientLight(0xffeedd, 0.8);
   scene.add(ambient);

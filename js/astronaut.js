@@ -2,9 +2,9 @@ import * as THREE from 'three';
 
 let astronaut = null;
 const astroLimbs = { lLeg: null, rLeg: null, lArm: null, rArm: null, torso: null };
-export const astroPos = new THREE.Vector3(2.5, 0, 2.5);
+export const astroPos = new THREE.Vector3(1.2, 0, 3.2);
 const astroVelocity = new THREE.Vector3(0, 0, 0);
-let astroRotation = Math.PI * 0.75;
+let astroRotation = Math.PI;
 let isGrounded = true;
 let walkAnimTime = 0;
 
@@ -152,9 +152,9 @@ export function createAstronautCharacter(scene, getTerrainHeight) {
 }
 
 export function resetAstronautToLander(getTerrainHeight) {
-  astroPos.set(2.5, getTerrainHeight(2.5, 2.5), 2.5);
+  astroPos.set(1.2, getTerrainHeight(1.2, 3.2), 3.2);
   astroVelocity.set(0, 0, 0);
-  astroRotation = Math.PI * 0.75;
+  astroRotation = Math.PI;
   if (astronaut) {
     astronaut.position.copy(astroPos);
     astronaut.rotation.y = astroRotation;
@@ -241,7 +241,7 @@ export function updateAstronautPhysics(delta, getTerrainHeight, camera, controls
   astronaut.position.copy(astroPos);
 
   if (isCameraFollow && controls) {
-    const targetLook = new THREE.Vector3(astroPos.x, astroPos.y + 1.2, astroPos.z);
+    const targetLook = new THREE.Vector3(astroPos.x * 0.45, astroPos.y + 1.2, astroPos.z * 0.45);
     controls.target.lerp(targetLook, 0.12);
   }
 
