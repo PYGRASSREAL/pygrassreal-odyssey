@@ -371,33 +371,38 @@
     }
 
     .wasd-key {
-      width: 42px;
-      height: 42px;
+      width: 44px;
+      height: 44px;
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid var(--border);
       border-radius: 8px;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       font-family: monospace;
-      font-size: 1rem;
+      font-size: 1.05rem;
       font-weight: 700;
       color: var(--accent);
       cursor: pointer;
       user-select: none;
-      transition: all 0.1s ease;
+      transition: all 0.08s ease;
+      touch-action: manipulation;
     }
-    .wasd-key:hover { background: rgba(56, 189, 248, 0.2); }
+    .wasd-key:hover {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: var(--accent);
+    }
     .wasd-key.pressed {
-      background: var(--accent);
-      color: #05070d;
-      box-shadow: 0 0 14px var(--accent-glow);
-      transform: scale(0.94);
+      background: var(--accent) !important;
+      color: #05070d !important;
+      box-shadow: 0 0 16px var(--accent-glow) !important;
+      transform: scale(0.92);
     }
 
     .wasd-space {
-      width: 134px;
-      height: 32px;
+      width: 140px;
+      height: 34px;
       font-size: 0.75rem;
       letter-spacing: 0.05em;
     }
@@ -609,7 +614,7 @@
     <button class="ctrl-btn" id="btn-shade-splat" onclick="setShadingMode('splat')">
       <span>✨</span><span>Splat Points</span>
     </button>
-    <button class="ctrl-btn" id="btn-cam-follow" onclick="toggleCameraFollow()">
+    <button class="ctrl-btn active" id="btn-cam-follow" onclick="toggleCameraFollow()">
       <span>🎥</span><span id="cam-follow-text">Follow Astronaut</span>
     </button>
     <button class="ctrl-btn" id="btn-env-toggle" onclick="toggleEnvironment()">
@@ -663,16 +668,16 @@
       <span>🎮</span><span>Character Controls</span>
     </div>
     <p style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.35rem;">
-      กดปุ่มคีย์บอร์ด <strong>W A S D</strong> หรือคลิกปุ่มบนจอ
+      กดปุ่มคีย์บอร์ด <strong>W A S D</strong> (หรือคลิกปุ่มบนจอ)
     </p>
     <div class="wasd-grid">
-      <div class="wasd-key" id="key-w" onmousedown="setVirtualKey('w', true)" onmouseup="setVirtualKey('w', false)" onmouseleave="setVirtualKey('w', false)" ontouchstart="setVirtualKey('w', true)" ontouchend="setVirtualKey('w', false)">W</div>
+      <div class="wasd-key" id="key-w" onpointerdown="setVirtualKey('w', true)" onpointerup="setVirtualKey('w', false)" onpointerleave="setVirtualKey('w', false)">W</div>
       <div class="wasd-row">
-        <div class="wasd-key" id="key-a" onmousedown="setVirtualKey('a', true)" onmouseup="setVirtualKey('a', false)" onmouseleave="setVirtualKey('a', false)" ontouchstart="setVirtualKey('a', true)" ontouchend="setVirtualKey('a', false)">A</div>
-        <div class="wasd-key" id="key-s" onmousedown="setVirtualKey('s', true)" onmouseup="setVirtualKey('s', false)" onmouseleave="setVirtualKey('s', false)" ontouchstart="setVirtualKey('s', true)" ontouchend="setVirtualKey('s', false)">S</div>
-        <div class="wasd-key" id="key-d" onmousedown="setVirtualKey('d', true)" onmouseup="setVirtualKey('d', false)" onmouseleave="setVirtualKey('d', false)" ontouchstart="setVirtualKey('d', true)" ontouchend="setVirtualKey('d', false)">D</div>
+        <div class="wasd-key" id="key-a" onpointerdown="setVirtualKey('a', true)" onpointerup="setVirtualKey('a', false)" onpointerleave="setVirtualKey('a', false)">A</div>
+        <div class="wasd-key" id="key-s" onpointerdown="setVirtualKey('s', true)" onpointerup="setVirtualKey('s', false)" onpointerleave="setVirtualKey('s', false)">S</div>
+        <div class="wasd-key" id="key-d" onpointerdown="setVirtualKey('d', true)" onpointerup="setVirtualKey('d', false)" onpointerleave="setVirtualKey('d', false)">D</div>
       </div>
-      <div class="wasd-key wasd-space" id="key-space" onmousedown="setVirtualKey('space', true)" onmouseup="setVirtualKey('space', false)" onmouseleave="setVirtualKey('space', false)" ontouchstart="setVirtualKey('space', true)" ontouchend="setVirtualKey('space', false)">SPACE: HOP</div>
+      <div class="wasd-key wasd-space" id="key-space" onpointerdown="setVirtualKey('space', true)" onpointerup="setVirtualKey('space', false)" onpointerleave="setVirtualKey('space', false)">SPACE: HOP</div>
     </div>
   </div>
 
@@ -697,8 +702,8 @@
       <span class="telemetry-val" id="hud-astro-pos" style="color: var(--accent);">X: 2.5, Z: 2.5 (Standing)</span>
     </div>
     <div class="telemetry-row">
-      <span>Mars Gravity:</span>
-      <span class="telemetry-val">0.38g (Low-Gravity Jump)</span>
+      <span>Active Key Telemetry:</span>
+      <span class="telemetry-val" id="hud-active-keys" style="color: var(--success);">NONE</span>
     </div>
 
     <div class="impact-box" id="impact-log">
@@ -708,7 +713,7 @@
     </div>
 
     <div class="tip-box" id="hud-tip">
-      👨‍🚀 <strong>โหมดเดินสำรวจ:</strong> เมื่อเลื่อนมาที่ส่วน 3D คุณสามารถกด <strong>W A S D</strong> เพื่อบังคับให้นักบินอวกาศเดินสำรวจรอบยานและพื้นผิวดาวอังคาร และกด <strong>Spacebar</strong> เพื่อกระโดดลอยตัวตามแรงโน้มถ่วงดาวอังคารได้ทันทีครับ!
+      👨‍🚀 <strong>เดินสำรวจดาวอังคาร:</strong> กดปุ่ม <strong>W A S D</strong> บนคีย์บอร์ด (รองรับทั้งแป้นพิมพ์ภาษาไทยและอังกฤษ) เพื่อบังคับให้นักบินอวกาศเดินสำรวจรอบยาน และกด <strong>Spacebar</strong> เพื่อกระโดดลอยตัวตามแรงโน้มถ่วงดาวอังคารครับ!
     </div>
   </div>
 
@@ -762,11 +767,14 @@
     const statusBadge = document.getElementById('hud-status-badge');
     const hudTitle = document.getElementById('hud-title');
     const hudAstroPos = document.getElementById('hud-astro-pos');
+    const hudActiveKeys = document.getElementById('hud-active-keys');
     const scrollHint = document.getElementById('scroll-hint');
 
     const btnJumpScroll = document.getElementById('btn-jump-scroll');
     const btnJumpLoop = document.getElementById('btn-jump-loop');
     const btnJump3D = document.getElementById('btn-jump-3d');
+
+    let currentPhase = 'scroll'; // 'scroll' | 'loop' | '3d'
 
     function loadClipFrames(clipId) {
       images.length = 0;
@@ -803,6 +811,7 @@
 
       // Phase 1: Scroll Scrub (0.00 - 0.45)
       if (totalProgress < 0.45) {
+        currentPhase = 'scroll';
         const subProgress = totalProgress / 0.45;
         const frameIndex = Math.min(Math.floor(subProgress * totalFrames), totalFrames - 1);
         renderScrollFrame(frameIndex);
@@ -825,6 +834,7 @@
       }
       // Phase 2: Anime Loop (0.45 - 0.58)
       else if (totalProgress >= 0.45 && totalProgress < 0.58) {
+        currentPhase = 'loop';
         scrollCanvas.style.opacity = '1';
         loopOverlay.classList.add('active');
         threejsLayer.classList.remove('active');
@@ -843,6 +853,7 @@
       }
       // Phase 3: 3D Mars & Character Walk (0.58 - 1.00)
       else {
+        currentPhase = '3d';
         scrollCanvas.style.opacity = '0';
         loopOverlay.classList.remove('active');
         threejsLayer.classList.add('active');
@@ -887,7 +898,7 @@
     loadClipFrames(1);
 
     // ==========================================
-    // 2. 3D ENGINE & ASTRONAUT WASD CHARACTER
+    // 2. 3D ENGINE & ASTRONAUT CHARACTER
     // ==========================================
     let scene, camera, renderer, controls;
     let currentModelGroup = new THREE.Group();
@@ -902,12 +913,12 @@
     let activeShading = 'solid';
     let isCameraFollow = true;
 
-    // Character State
+    // Character Rig & State
     let astronaut = null;
     let astroLimbs = { lLeg: null, rLeg: null, lArm: null, rArm: null, torso: null };
     let astroPos = new THREE.Vector3(2.5, 0, 2.5);
     let astroVelocity = new THREE.Vector3(0, 0, 0);
-    let astroRotation = 0;
+    let astroRotation = Math.PI * 0.75;
     let isGrounded = true;
     let walkAnimTime = 0;
 
@@ -918,28 +929,53 @@
       keyState[key] = isDown;
       const el = document.getElementById(`key-${key}`);
       if (el) el.classList.toggle('pressed', isDown);
+      updateActiveKeysBadge();
     };
 
-    window.addEventListener('keydown', (e) => {
-      const k = e.key.toLowerCase();
-      if (k === 'w' || k === 'arrowup') setVirtualKey('w', true);
-      else if (k === 'a' || k === 'arrowleft') setVirtualKey('a', true);
-      else if (k === 's' || k === 'arrowdown') setVirtualKey('s', true);
-      else if (k === 'd' || k === 'arrowright') setVirtualKey('d', true);
-      else if (k === ' ') {
-        e.preventDefault();
-        setVirtualKey('space', true);
-      }
-    });
+    function updateActiveKeysBadge() {
+      const active = [];
+      if (keyState.w) active.push('W');
+      if (keyState.a) active.push('A');
+      if (keyState.s) active.push('S');
+      if (keyState.d) active.push('D');
+      if (keyState.space) active.push('SPACE');
+      hudActiveKeys.innerText = active.length > 0 ? active.join(' + ') : 'NONE';
+    }
 
-    window.addEventListener('keyup', (e) => {
-      const k = e.key.toLowerCase();
-      if (k === 'w' || k === 'arrowup') setVirtualKey('w', false);
-      else if (k === 'a' || k === 'arrowleft') setVirtualKey('a', false);
-      else if (k === 's' || k === 'arrowdown') setVirtualKey('s', false);
-      else if (k === 'd' || k === 'arrowright') setVirtualKey('d', false);
-      else if (k === ' ') setVirtualKey('space', false);
-    });
+    // Comprehensive Key Event Handler (Supports Physical Codes & Thai Keyboard Layouts)
+    function handleKeyEvent(e, isDown) {
+      const code = e.code;
+      const key = (e.key || '').toLowerCase();
+
+      // Check Physical KeyW, or English 'w', or Thai 'ไ', or ArrowUp
+      if (code === 'KeyW' || key === 'w' || key === 'ไ' || code === 'ArrowUp') {
+        setVirtualKey('w', isDown);
+        if (currentPhase === '3d') e.preventDefault();
+      }
+      // Check Physical KeyA, or English 'a', or Thai 'ฟ', or ArrowLeft
+      else if (code === 'KeyA' || key === 'a' || key === 'ฟ' || code === 'ArrowLeft') {
+        setVirtualKey('a', isDown);
+        if (currentPhase === '3d') e.preventDefault();
+      }
+      // Check Physical KeyS, or English 's', or Thai 'ห', or ArrowDown
+      else if (code === 'KeyS' || key === 's' || key === 'ห' || code === 'ArrowDown') {
+        setVirtualKey('s', isDown);
+        if (currentPhase === '3d') e.preventDefault();
+      }
+      // Check Physical KeyD, or English 'd', or Thai 'ก', or ArrowRight
+      else if (code === 'KeyD' || key === 'd' || key === 'ก' || code === 'ArrowRight') {
+        setVirtualKey('d', isDown);
+        if (currentPhase === '3d') e.preventDefault();
+      }
+      // Check Physical Space
+      else if (code === 'Space' || key === ' ') {
+        setVirtualKey('space', isDown);
+        if (currentPhase === '3d') e.preventDefault();
+      }
+    }
+
+    window.addEventListener('keydown', (e) => handleKeyEvent(e, true), { passive: false });
+    window.addEventListener('keyup', (e) => handleKeyEvent(e, false), { passive: false });
 
     const canvas3D = document.getElementById('threejs-canvas');
 
@@ -957,7 +993,7 @@
       scene.fog = new THREE.FogExp2(0x180b07, 0.025);
 
       camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-      camera.position.set(2.5, 4, 8);
+      camera.position.set(2.5, 3.8, 7.5);
 
       renderer = new THREE.WebGLRenderer({ canvas: canvas3D, antialias: true, alpha: true });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -969,7 +1005,7 @@
       controls.enableDamping = true;
       controls.dampingFactor = 0.05;
       controls.maxPolarAngle = Math.PI / 2 + 0.02;
-      controls.minDistance = 1.5;
+      controls.minDistance = 1.2;
       controls.maxDistance = 50;
       controls.target.set(2.5, 1.0, 2.5);
 
@@ -1052,7 +1088,6 @@
       scene.add(windParticles);
     }
 
-    // Procedural Mars Lander Craft
     function createProceduralMarsCraft() {
       clearCurrentModel();
 
@@ -1134,9 +1169,7 @@
       applyShadingMode();
     }
 
-    // ==========================================
-    // 3. SCI-FI ASTRONAUT CHARACTER WITH RIG
-    // ==========================================
+    // Procedural Sci-Fi Astronaut Character
     function createAstronautCharacter() {
       if (astronaut) scene.remove(astronaut);
 
@@ -1240,9 +1273,9 @@
       astronaut.add(rLegPivot);
       astroLimbs.rLeg = rLegPivot;
 
-      // Position in world
       astroPos.set(2.5, getTerrainHeight(2.5, 2.5), 2.5);
       astronaut.position.copy(astroPos);
+      astronaut.rotation.y = astroRotation;
       scene.add(astronaut);
     }
 
@@ -1259,7 +1292,7 @@
     function updateAstronautPhysics(delta) {
       if (!astronaut) return;
 
-      const moveSpeed = 4.0;
+      const moveSpeed = 5.2;
       let moveX = 0;
       let moveZ = 0;
 
@@ -1298,25 +1331,25 @@
         astroPos.x += moveX * moveSpeed * delta;
         astroPos.z += moveZ * moveSpeed * delta;
 
-        // Rotate astronaut to face moving direction
+        // Smooth rotation to facing direction
         const targetAngle = Math.atan2(moveX, moveZ);
-        astroRotation = THREE.MathUtils.lerp(astroRotation, targetAngle, 0.18);
+        astroRotation = THREE.MathUtils.lerp(astroRotation, targetAngle, 0.22);
         astronaut.rotation.y = astroRotation;
 
-        // Walk cycle animation
-        walkAnimTime += delta * 9.0;
-        const swing = Math.sin(walkAnimTime) * 0.55;
+        // Walk cycle
+        walkAnimTime += delta * 10.0;
+        const swing = Math.sin(walkAnimTime) * 0.65;
         if (astroLimbs.lLeg) astroLimbs.lLeg.rotation.x = swing;
         if (astroLimbs.rLeg) astroLimbs.rLeg.rotation.x = -swing;
-        if (astroLimbs.lArm) astroLimbs.lArm.rotation.x = -swing * 0.8;
-        if (astroLimbs.rArm) astroLimbs.rArm.rotation.x = swing * 0.8;
-        if (astroLimbs.torso) astroLimbs.torso.position.y = 0.95 + Math.abs(Math.sin(walkAnimTime * 2)) * 0.04;
+        if (astroLimbs.lArm) astroLimbs.lArm.rotation.x = -swing * 0.85;
+        if (astroLimbs.rArm) astroLimbs.rArm.rotation.x = swing * 0.85;
+        if (astroLimbs.torso) astroLimbs.torso.position.y = 0.95 + Math.abs(Math.sin(walkAnimTime * 2)) * 0.05;
       } else {
         // Idle return to neutral
-        if (astroLimbs.lLeg) astroLimbs.lLeg.rotation.x *= 0.85;
-        if (astroLimbs.rLeg) astroLimbs.rLeg.rotation.x *= 0.85;
-        if (astroLimbs.lArm) astroLimbs.lArm.rotation.x *= 0.85;
-        if (astroLimbs.rArm) astroLimbs.rArm.rotation.x *= 0.85;
+        if (astroLimbs.lLeg) astroLimbs.lLeg.rotation.x *= 0.82;
+        if (astroLimbs.rLeg) astroLimbs.rLeg.rotation.x *= 0.82;
+        if (astroLimbs.lArm) astroLimbs.lArm.rotation.x *= 0.82;
+        if (astroLimbs.rArm) astroLimbs.rArm.rotation.x *= 0.82;
         if (astroLimbs.torso) astroLimbs.torso.position.y = 0.95 + Math.sin(performance.now() * 0.003) * 0.015;
       }
 
@@ -1325,7 +1358,7 @@
       const marsGravity = 9.8 * 0.38;
 
       if (keyState.space && isGrounded) {
-        astroVelocity.y = 3.6; // initial jump burst
+        astroVelocity.y = 3.8;
         isGrounded = false;
       }
 
@@ -1340,13 +1373,12 @@
 
       astronaut.position.copy(astroPos);
 
-      // Camera Follow Logic
+      // Camera Follow
       if (isCameraFollow && controls) {
         const targetLook = new THREE.Vector3(astroPos.x, astroPos.y + 1.2, astroPos.z);
-        controls.target.lerp(targetLook, 0.1);
+        controls.target.lerp(targetLook, 0.12);
       }
 
-      // Update HUD Coordinates
       hudAstroPos.innerText = `X: ${astroPos.x.toFixed(1)}, Z: ${astroPos.z.toFixed(1)} (${isMoving ? 'Walking' : isGrounded ? 'Standing' : 'Airborne'})`;
     }
 
@@ -1367,7 +1399,6 @@
       try {
         const resp = await fetch(`assets/models/${filename}`);
         const buf = await resp.arrayBuffer();
-        const header = Py3sCodec.inspectHeader(buf);
         const unpacked = await Py3sCodec.unpack(buf);
 
         if (unpacked.colliderData && unpacked.colliderData.byteLength > 0) {
