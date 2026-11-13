@@ -25,16 +25,18 @@ export function createSplatTexture() {
   return cachedSplatTexture;
 }
 
-export function createSplatPointsObject(geometry, defaultSize = 0.06) {
+export function createSplatPointsObject(geometry, defaultSize = 0.10) {
   const mat = new THREE.PointsMaterial({
     size: defaultSize,
     vertexColors: true,
     map: createSplatTexture(),
     transparent: true,
-    opacity: 0.95,
+    opacity: 0.98,
     depthWrite: false,
+    sizeAttenuation: true,
     blending: THREE.NormalBlending
   });
+  mat.userData = { baseSize: defaultSize };
   return new THREE.Points(geometry, mat);
 }
 
@@ -84,9 +86,10 @@ export function parseSplatBuffer(buffer) {
   const colors = new Float32Array(count * 3);
 
   for (let i = 0; i < count; i++) {
+    // Keep natural Y-up upright coordinates
     positions[i * 3 + 0] = fView[i * 8 + 0];
-    positions[i * 3 + 1] = -fView[i * 8 + 1];
-    positions[i * 3 + 2] = -fView[i * 8 + 2];
+    positions[i * 3 + 1] = fView[i * 8 + 1];
+    positions[i * 3 + 2] = fView[i * 8 + 2];
 
     const colOffset = i * 32 + 24;
     colors[i * 3 + 0] = uView[colOffset + 0] / 255;
@@ -144,8 +147,8 @@ export function parsePlyBuffer(buffer) {
           const rec = i * stride;
           if (rec + stride > dataView.byteLength) break;
           positions[i * 3 + 0] = dataView.getFloat32(rec + xOff, true);
-          positions[i * 3 + 1] = -dataView.getFloat32(rec + yOff, true);
-          positions[i * 3 + 2] = -dataView.getFloat32(rec + zOff, true);
+          positions[i * 3 + 1] = dataView.getFloat32(rec + yOff, true);
+          positions[i * 3 + 2] = dataView.getFloat32(rec + zOff, true);
 
           const c0 = dataView.getFloat32(rec + c0Off, true);
           const c1 = dataView.getFloat32(rec + c1Off, true);

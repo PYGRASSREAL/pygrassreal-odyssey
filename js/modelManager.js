@@ -65,22 +65,68 @@ export function applyShadingMode() {
   }
 }
 
-export function fitModelToLanderArea(object3d, targetSize = 3.2) {
-  const box = new THREE.Box3().setFromObject(object3d);
+let currentModelScaleMultiplier = 1.0;
+let currentSplatSizeMultiplier = 1.0;
+let currentFlipX = false;
+let currentBaseTargetSize = 4.2;
+
+export function fitModelToLanderArea(object3d, targetSize = 4.2) {
+  currentBaseTargetSize = targetSize;
+  currentModelScaleMultiplier = 1.0;
+  realignModelToGround();
+}
+
+export function realignModelToGround() {
+  if (!currentModelGroup) return;
+
+  // Reset local transforms
+  currentModelGroup.position.set(0, 0, 0);
+  currentModelGroup.rotation.set(currentFlipX ? Math.PI : 0, 0, 0);
+  currentModelGroup.scale.set(1, 1, 1);
+  currentModelGroup.updateMatrixWorld(true);
+
+  // Compute box of active objects
+  const box = new THREE.Box3().setFromObject(currentModelGroup);
   const size = new THREE.Vector3();
   box.getSize(size);
   const maxDim = Math.max(size.x, size.y, size.z);
+
   if (maxDim > 0.001) {
-    const scale = targetSize / maxDim;
-    object3d.scale.set(scale, scale, scale);
+    const finalScale = (currentBaseTargetSize / maxDim) * currentModelScaleMultiplier;
+    currentModelGroup.scale.set(finalScale, finalScale, finalScale);
   }
-  const newBox = new THREE.Box3().setFromObject(object3d);
+  currentModelGroup.updateMatrixWorld(true);
+
+  const scaledBox = new THREE.Box3().setFromObject(currentModelGroup);
   const center = new THREE.Vector3();
-  newBox.getCenter(center);
+  scaledBox.getCenter(center);
   const groundY = terrainHeightFn(0, 0);
-  object3d.position.x = -center.x;
-  object3d.position.z = -center.z;
-  object3d.position.y = groundY + 0.1 - newBox.min.y;
+
+  // Center X, Z and position base at ground
+  currentModelGroup.position.x = -center.x;
+  currentModelGroup.position.z = -center.z;
+  currentModelGroup.position.y = groundY - scaledBox.min.y;
+}
+
+export function flipModelOrientation() {
+  currentFlipX = !currentFlipX;
+  realignModelToGround();
+}
+
+export function adjustModelScale(factor) {
+  currentModelScaleMultiplier *= factor;
+  realignModelToGround();
+}
+
+export function adjustSplatSize(factor) {
+  currentSplatSizeMultiplier *= factor;
+  splatPointsGroup.traverse((child) => {
+    if (child.isPoints && child.material) {
+      const base = child.material.userData?.baseSize || 0.10;
+      child.material.size = base * currentSplatSizeMultiplier;
+      child.material.needsUpdate = true;
+    }
+  });
 }
 
 export function createProceduralMarsCraft() {
@@ -162,9 +208,9 @@ export async function loadSamplePy3s(filename) {
     // 1. Unpack & Render Gaussian Splats (SPZ)
     if (unpacked.spzData && unpacked.spzData.byteLength > 0) {
       const { geo } = await parseSpzBuffer(unpacked.spzData.buffer);
-      const splatObj = createSplatPointsObject(geo, 0.045);
+      const splatObj = createSplatPointsObject(geo, 0.10);
       splatPointsGroup.add(splatObj);
-      fitModelToLanderArea(splatPointsGroup, 3.2);
+      fitModelToLanderArea(splatPointsGroup, 4.5);
     }
 
     // 2. Unpack & Render Physics Collider / Mesh
@@ -180,8 +226,8 @@ export async function loadSamplePy3s(filename) {
           }
         });
         colliderMeshGroup.add(model);
-        fitModelToLanderArea(visualMeshGroup, 3.2);
-        fitModelToLanderArea(colliderMeshGroup, 3.2);
+        fitModelToLanderArea(visualMeshGroup, 4.5);
+        fitModelToLanderArea(colliderMeshGroup, 4.5);
       });
     }
 
@@ -203,8 +249,8 @@ export function processLoadedFile(file) {
 
       if (unpacked.spzData && unpacked.spzData.byteLength > 0) {
         const { geo } = await parseSpzBuffer(unpacked.spzData.buffer);
-        splatPointsGroup.add(createSplatPointsObject(geo, 0.045));
-        fitModelToLanderArea(splatPointsGroup, 3.2);
+        splatPointsGroup.add(createSplatPointsObject(geo, 0.10));
+        fitModelToLanderArea(splatPointsGroup, 4.5);
       }
 
       if (unpacked.colliderData && unpacked.colliderData.byteLength > 0) {
@@ -218,8 +264,8 @@ export function processLoadedFile(file) {
             }
           });
           colliderMeshGroup.add(model);
-          fitModelToLanderArea(visualMeshGroup, 3.2);
-          fitModelToLanderArea(colliderMeshGroup, 3.2);
+          fitModelToLanderArea(visualMeshGroup, 4.5);
+          fitModelToLanderArea(colliderMeshGroup, 4.5);
         });
       }
 
@@ -230,8 +276,8 @@ export function processLoadedFile(file) {
     reader.onload = (ev) => {
       clearCurrentModel();
       const { geo } = parseSplatBuffer(ev.target.result);
-      splatPointsGroup.add(createSplatPointsObject(geo, 0.045));
-      fitModelToLanderArea(splatPointsGroup, 3.2);
+      splatPointsGroup.add(createSplatPointsObject(geo, 0.10));
+      fitModelToLanderArea(splatPointsGroup, 4.5);
       setShadingMode('splat');
     };
     reader.readAsArrayBuffer(file);
@@ -239,8 +285,8 @@ export function processLoadedFile(file) {
     reader.onload = async (ev) => {
       clearCurrentModel();
       const { geo } = await parseSpzBuffer(ev.target.result);
-      splatPointsGroup.add(createSplatPointsObject(geo, 0.045));
-      fitModelToLanderArea(splatPointsGroup, 3.2);
+      splatPointsGroup.add(createSplatPointsObject(geo, 0.10));
+      fitModelToLanderArea(splatPointsGroup, 4.5);
       setShadingMode('splat');
     };
     reader.readAsArrayBuffer(file);
@@ -248,8 +294,8 @@ export function processLoadedFile(file) {
     reader.onload = (ev) => {
       clearCurrentModel();
       const { geo } = parsePlyBuffer(ev.target.result);
-      splatPointsGroup.add(createSplatPointsObject(geo, 0.045));
-      fitModelToLanderArea(splatPointsGroup, 3.2);
+      splatPointsGroup.add(createSplatPointsObject(geo, 0.10));
+      fitModelToLanderArea(splatPointsGroup, 4.5);
       setShadingMode('splat');
     };
     reader.readAsArrayBuffer(file);
@@ -271,12 +317,12 @@ export function processLoadedFile(file) {
 
         const splatGeo = generateSplatPointsFromGroup(model);
         if (splatGeo) {
-          splatPointsGroup.add(createSplatPointsObject(splatGeo, 0.05));
+          splatPointsGroup.add(createSplatPointsObject(splatGeo, 0.08));
         }
 
-        fitModelToLanderArea(visualMeshGroup, 3.2);
-        fitModelToLanderArea(colliderMeshGroup, 3.2);
-        fitModelToLanderArea(splatPointsGroup, 3.2);
+        fitModelToLanderArea(visualMeshGroup, 4.5);
+        fitModelToLanderArea(colliderMeshGroup, 4.5);
+        fitModelToLanderArea(splatPointsGroup, 4.5);
         applyShadingMode();
       });
     };

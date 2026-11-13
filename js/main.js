@@ -26,7 +26,11 @@ import {
   setShadingMode,
   processLoadedFile,
   exportPrint3D,
-  currentModelGroup
+  currentModelGroup,
+  flipModelOrientation,
+  adjustModelScale,
+  adjustSplatSize,
+  realignModelToGround
 } from './modelManager.js';
 
 // Initialize 3D Engine
@@ -88,6 +92,10 @@ window.loadSamplePy3s = (filename) => loadSamplePy3s(filename);
 window.fireImpactTest = fireImpactTest;
 window.exportPrint3D = exportPrint3D;
 window.setVirtualKey = setVirtualKey;
+window.flipModelOrientation = flipModelOrientation;
+window.adjustModelScale = adjustModelScale;
+window.adjustSplatSize = adjustSplatSize;
+window.realignModelToGround = realignModelToGround;
 window.handleFileSelect = (e) => {
   if (e.target.files && e.target.files[0]) {
     processLoadedFile(e.target.files[0]);
