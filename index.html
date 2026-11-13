@@ -1,37 +1,487 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Space Apps Demo - Smoke Test</title>
+  <title>Space Mission Design Game | .py3s Rehearsal</title>
   <style>
-    body {
+    :root {
+      --bg: #05070d;
+      --card-bg: rgba(13, 19, 33, 0.85);
+      --border: rgba(56, 189, 248, 0.25);
+      --accent: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.4);
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --success: #10b981;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
       margin: 0;
-      background: #05070d;
-      color: #38bdf8;
-      font-family: system-ui, -apple-system, sans-serif;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      overflow-x: hidden;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
+    }
+
+    /* Ambient Space Canvas */
+    #space-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      width: 100%;
+    }
+
+    /* HUD Header */
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
       align-items: center;
-      justify-content: center;
-      min-height: 100vh;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-tag {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+    }
+
+    .brand h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .live-status {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--success);
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 0.35rem 0.85rem;
+      border-radius: 9999px;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--success);
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.3); }
+    }
+
+    /* Grid Layout */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* 6 Trade-off Variables */
+    .tradeoff-item {
+      margin-bottom: 1rem;
+    }
+
+    .tradeoff-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .tradeoff-label {
+      color: var(--text-muted);
+    }
+
+    .tradeoff-val {
+      font-family: monospace;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .meter-bar {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .meter-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #818cf8);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    /* .py3s Telemetry Box */
+    .telemetry-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .telemetry-badge {
+      background: rgba(56, 189, 248, 0.05);
+      border: 1px solid var(--border);
+      padding: 0.75rem;
+      border-radius: 8px;
       text-align: center;
     }
-    h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
-    p { color: #94a3b8; font-size: 1.1rem; }
-    .badge {
-      display: inline-block;
-      padding: 0.5rem 1rem;
-      border: 1px solid #38bdf8;
-      border-radius: 9999px;
+
+    .telemetry-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.25rem;
+    }
+
+    .telemetry-val {
+      font-size: 1.1rem;
+      font-weight: 700;
+      font-family: monospace;
+      color: var(--accent);
+    }
+
+    /* Actions & Buttons */
+    .action-panel {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+    }
+
+    .btn {
+      padding: 0.7rem 1.25rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #05070d;
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 0 16px var(--accent-glow);
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--accent);
+    }
+
+    .btn-hazard {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid var(--warning);
+      color: var(--warning);
+    }
+
+    .btn-hazard:hover {
+      background: var(--warning);
+      color: #05070d;
+    }
+
+    /* Log Box */
+    .terminal-box {
+      background: #020408;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 1rem;
+      font-family: 'Consolas', monospace;
+      font-size: 0.8rem;
+      color: #38bdf8;
+      height: 140px;
+      overflow-y: auto;
       margin-top: 1rem;
-      background: rgba(56, 189, 248, 0.1);
+      line-height: 1.5;
+    }
+
+    .log-time { color: var(--text-muted); }
+    .log-warn { color: var(--warning); }
+    .log-ok { color: var(--success); }
+
+    footer {
+      margin-top: auto;
+      padding: 1.5rem 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
     }
   </style>
 </head>
 <body>
-  <h1>GitHub Pages Smoke Test</h1>
-  <p>Space Mission Design Game - Rehearsal Environment</p>
-  <div class="badge">Pipeline Ready | Branch: main</div>
+  <canvas id="space-bg"></canvas>
+
+  <div class="container">
+    <header>
+      <div class="brand">
+        <span class="brand-tag">NASA SPACE APPS 2026</span>
+        <h1>Space Mission Design Simulator</h1>
+      </div>
+      <div class="live-status">
+        <span class="pulse-dot"></span>
+        <span>Local Pipeline Active (Port 4173)</span>
+      </div>
+    </header>
+
+    <div class="dashboard-grid">
+      <!-- 6 Trade-off Variables Panel -->
+      <div class="card">
+        <div class="card-title">
+          <span>⚙️</span>
+          <span>Core Mission Variables (6 Trade-offs)</span>
+        </div>
+
+        <div class="tradeoff-item">
+          <div class="tradeoff-header">
+            <span class="tradeoff-label">1. Mass (Payload vs Rocket)</span>
+            <span class="tradeoff-val" id="val-mass">1,450 kg / 2,000 kg</span>
+          </div>
+          <div class="meter-bar"><div class="meter-fill" style="width: 72%;"></div></div>
+        </div>
+
+        <div class="tradeoff-item">
+          <div class="tradeoff-header">
+            <span class="tradeoff-label">2. Power (Solar Array Generation)</span>
+            <span class="tradeoff-val" id="val-power">840 W / 900 W</span>
+          </div>
+          <div class="meter-bar"><div class="meter-fill" style="width: 93%;"></div></div>
+        </div>
+
+        <div class="tradeoff-item">
+          <div class="tradeoff-header">
+            <span class="tradeoff-label">3. Budget (Mission Cap)</span>
+            <span class="tradeoff-val" id="val-budget">$240M / $300M</span>
+          </div>
+          <div class="meter-bar"><div class="meter-fill" style="width: 80%;"></div></div>
+        </div>
+
+        <div class="tradeoff-item">
+          <div class="tradeoff-header">
+            <span class="tradeoff-label">4. Data Science Yield</span>
+            <span class="tradeoff-val" id="val-data">4.8 TB Captured</span>
+          </div>
+          <div class="meter-bar"><div class="meter-fill" style="width: 65%;"></div></div>
+        </div>
+
+        <div class="tradeoff-item">
+          <div class="tradeoff-header">
+            <span class="tradeoff-label">5. Communications Link</span>
+            <span class="tradeoff-val" id="val-comms">98.4% Telemetry</span>
+          </div>
+          <div class="meter-bar"><div class="meter-fill" id="meter-comms" style="width: 98%;"></div></div>
+        </div>
+
+        <div class="tradeoff-item">
+          <div class="tradeoff-header">
+            <span class="tradeoff-label">6. Flight Duration (Earth ➡️ Mars)</span>
+            <span class="tradeoff-val" id="val-time">210 Days Target</span>
+          </div>
+          <div class="meter-bar"><div class="meter-fill" style="width: 70%;"></div></div>
+        </div>
+      </div>
+
+      <!-- .py3s Container & Telemetry Panel -->
+      <div class="card">
+        <div class="card-title">
+          <span>📦</span>
+          <span>.py3s Spatial Container Telemetry</span>
+        </div>
+
+        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">
+          IANA Standard: <code>model/vnd.pygrassreal.py3s</code><br/>
+          Dehydrated Seed in KB hydrated to 35 MB 3DGS & Collider directly in browser memory.
+        </p>
+
+        <div class="telemetry-row">
+          <div class="telemetry-badge">
+            <div class="telemetry-label">File Size</div>
+            <div class="telemetry-val">3.2 MB</div>
+          </div>
+          <div class="telemetry-badge">
+            <div class="telemetry-label">Unpack Time</div>
+            <div class="telemetry-val" style="color: var(--success);">12 ms</div>
+          </div>
+          <div class="telemetry-badge">
+            <div class="telemetry-label">CRC-32</div>
+            <div class="telemetry-val" style="color: var(--accent);">0x8F4E21</div>
+          </div>
+        </div>
+
+        <div class="terminal-box" id="term-box">
+          <div><span class="log-time">[00:00.01]</span> <span class="log-ok">PY3S container initialized (Magic: 'PY3S')</span></div>
+          <div><span class="log-time">[00:00.02]</span> Flags: 0x8000 (AUTO_HYDRATE_ON_MOUNT enabled)</div>
+          <div><span class="log-time">[00:00.03]</span> Dual-Layer ready: Visual 3DGS + 1:1 Physics Collider</div>
+          <div><span class="log-time">[00:00.04]</span> Local Server: http://localhost:4173/ (200 OK)</div>
+        </div>
+
+        <div class="action-panel">
+          <button class="btn btn-hazard" onclick="triggerDONKI()">⚡ Test DONKI CME Event</button>
+          <button class="btn btn-outline" onclick="triggerImpact()">💥 Test Debris Impact</button>
+          <button class="btn btn-primary" onclick="simulateExport()">🖨️ Export Print 3D</button>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      Space Mission Design Game &copy; 2026 NASA Space Apps Challenge (Rehearsal Environment) &bull; MIT License
+    </footer>
+  </div>
+
+  <script>
+    // Starfield animation
+    const canvas = document.getElementById('space-bg');
+    const ctx = canvas.getContext('2d');
+    let width, height, stars = [];
+
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+      stars = Array.from({ length: 120 }, () => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        r: Math.random() * 1.5 + 0.5,
+        speed: Math.random() * 0.3 + 0.1
+      }));
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    function animate() {
+      ctx.fillStyle = '#05070d';
+      ctx.fillRect(0, 0, width, height);
+
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      stars.forEach(s => {
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fill();
+        s.y += s.speed;
+        if (s.y > height) s.y = 0;
+      });
+
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    function log(text, cls = '') {
+      const box = document.getElementById('term-box');
+      const time = new Date().toISOString().substring(11, 19);
+      const div = document.createElement('div');
+      div.innerHTML = `<span class="log-time">[${time}]</span> <span class="${cls}">${text}</span>`;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function triggerDONKI() {
+      log('⚠️ NASA DONKI Alert: Coronal Mass Ejection detected!', 'log-warn');
+      log('⚡ Deflector shield absorbing high-energy solar plasma...', 'log-warn');
+      document.getElementById('meter-comms').style.width = '62%';
+      document.getElementById('val-comms').innerText = '62.1% (Solar Storm)';
+      setTimeout(() => {
+        log('🛡️ Shield normalized. Telemetry link restored.', 'log-ok');
+        document.getElementById('meter-comms').style.width = '98%';
+        document.getElementById('val-comms').innerText = '98.4% Telemetry';
+      }, 3000);
+    }
+
+    function triggerImpact() {
+      log('💥 Kinetic Debris Impact detected at (X: +1.2, Y: -0.4, Z: 3.1)');
+      log('🔍 Collider Raycast: Hit registered on Shield Outer Shell (Damage: 0%)', 'log-ok');
+    }
+
+    function simulateExport() {
+      log('🖨️ Extracting embedded Print 3D Watertight Solid from .py3s...', 'log-ok');
+      log('📥 Download triggered: space_mission_spacecraft.3mf (0 sec export ready)', 'log-ok');
+      alert('Simulated .py3s Print 3D Export Successful!\nFile: space_mission_spacecraft.3mf is ready.');
+    }
+  </script>
 </body>
 </html>
