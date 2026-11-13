@@ -3,16 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SpaceApps 2026 | WebP Scroll & Matchanu 2.0 3D Viewer</title>
+  <title>SpaceApps 2026 | WebP Scroll & 3D Mars Mission Simulator</title>
 
-  <!-- Import Map for self-contained Three.js & py3s Codec -->
+  <!-- Import Map for Self-Contained Three.js Addons & Codec -->
   <script type="importmap">
   {
     "imports": {
       "three": "./libs/three/three.module.js",
-      "three/addons/controls/OrbitControls.js": "./libs/three/controls/OrbitControls.js",
-      "three/addons/loaders/GLTFLoader.js": "./libs/three/loaders/GLTFLoader.js",
-      "three/addons/loaders/PLYLoader.js": "./libs/three/loaders/PLYLoader.js"
+      "three/addons/": "./libs/three/addons/"
     }
   }
   </script>
@@ -20,16 +18,15 @@
   <style>
     :root {
       --bg: #05070d;
-      --card-bg: rgba(13, 19, 33, 0.9);
+      --card-bg: rgba(13, 19, 33, 0.92);
       --border: rgba(56, 189, 248, 0.28);
-      --border-active: #38bdf8;
       --accent: #38bdf8;
       --accent-glow: rgba(56, 189, 248, 0.45);
       --warning: #f59e0b;
       --danger: #ef4444;
       --success: #10b981;
       --mars: #e06847;
-      --mars-glow: rgba(224, 104, 71, 0.4);
+      --mars-glow: rgba(224, 104, 71, 0.45);
       --text: #f8fafc;
       --text-muted: #94a3b8;
     }
@@ -48,7 +45,7 @@
       min-height: 100vh;
     }
 
-    /* Top Nav Header */
+    /* Top Global Navigation Bar */
     .top-nav {
       position: fixed;
       top: 0;
@@ -59,8 +56,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: linear-gradient(to bottom, rgba(5, 7, 13, 0.95), rgba(5, 7, 13, 0.6));
-      backdrop-filter: blur(10px);
+      background: linear-gradient(to bottom, rgba(5, 7, 13, 0.95), rgba(5, 7, 13, 0.7));
+      backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
     }
 
@@ -87,7 +84,7 @@
       letter-spacing: -0.02em;
     }
 
-    /* Main Tab Navigation (Scroll vs 3D) */
+    /* Main Navigation Tabs */
     .main-tabs {
       display: flex;
       background: rgba(10, 15, 26, 0.95);
@@ -101,9 +98,9 @@
       background: transparent;
       border: none;
       color: var(--text-muted);
-      font-size: 0.8rem;
+      font-size: 0.82rem;
       font-weight: 600;
-      padding: 0.4rem 1rem;
+      padding: 0.45rem 1.1rem;
       border-radius: 9999px;
       cursor: pointer;
       display: inline-flex;
@@ -119,16 +116,48 @@
     .tab-btn.active {
       background: var(--accent);
       color: #05070d;
-      box-shadow: 0 0 12px var(--accent-glow);
+      box-shadow: 0 0 14px var(--accent-glow);
     }
 
     .tab-btn.active.tab-3d {
       background: var(--mars);
       color: #fff;
-      box-shadow: 0 0 14px var(--mars-glow);
+      box-shadow: 0 0 16px var(--mars-glow);
     }
 
-    /* VIEW 1: SCROLL VIEWPORT */
+    /* Scroll Toolbar */
+    .clip-selector {
+      display: flex;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+    }
+
+    .clip-btn {
+      background: rgba(13, 19, 33, 0.85);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.25rem 0.6rem;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .clip-btn:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .clip-btn.active {
+      background: var(--accent);
+      color: #05070d;
+      border-color: var(--accent);
+    }
+
+    /* ========================================= */
+    /* VIEW 1: SCROLL VIEWPORT                   */
+    /* ========================================= */
     #view-scroll {
       display: block;
     }
@@ -143,7 +172,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #000;
+      background: #020408;
       overflow: hidden;
     }
 
@@ -177,35 +206,6 @@
                   linear-gradient(to bottom, rgba(5,7,13,0.7) 0%, transparent 20%, transparent 75%, rgba(5,7,13,0.9) 100%);
       pointer-events: none;
       z-index: 2;
-    }
-
-    .clip-selector {
-      display: flex;
-      gap: 0.35rem;
-      flex-wrap: wrap;
-    }
-
-    .clip-btn {
-      background: rgba(13, 19, 33, 0.85);
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      font-size: 0.72rem;
-      font-weight: 600;
-      padding: 0.25rem 0.6rem;
-      border-radius: 9999px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .clip-btn:hover {
-      color: var(--text);
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    .clip-btn.active {
-      background: var(--accent);
-      color: #05070d;
-      border-color: var(--accent);
     }
 
     .hud-card {
@@ -309,7 +309,9 @@
       pointer-events: none;
     }
 
-    /* VIEW 2: MATCHANU 2.0 3D VIEWER */
+    /* ========================================= */
+    /* VIEW 2: 3D MARS & SPACECRAFT SIMULATOR    */
+    /* ========================================= */
     #view-3d {
       display: none;
       position: fixed;
@@ -327,7 +329,6 @@
       display: block;
     }
 
-    /* 3D Top Control Bar */
     .viewer3d-topbar {
       position: absolute;
       top: 4.5rem;
@@ -335,7 +336,7 @@
       transform: translateX(-50%);
       display: flex;
       gap: 0.5rem;
-      background: rgba(13, 19, 33, 0.92);
+      background: rgba(13, 19, 33, 0.94);
       border: 1px solid var(--border);
       border-radius: 9999px;
       padding: 0.35rem 0.75rem;
@@ -377,12 +378,11 @@
       box-shadow: 0 0 10px var(--accent-glow);
     }
 
-    /* 3D Left Floating Tools Panel */
     .viewer3d-leftpanel {
       position: absolute;
       top: 5rem;
       left: 1.5rem;
-      width: 260px;
+      width: 270px;
       background: var(--card-bg);
       border: 1px solid var(--border);
       border-radius: 12px;
@@ -404,7 +404,6 @@
       gap: 0.4rem;
     }
 
-    /* File Dropzone */
     .dropzone {
       border: 2px dashed rgba(56, 189, 248, 0.4);
       border-radius: 8px;
@@ -439,7 +438,6 @@
       margin-top: 0.25rem;
     }
 
-    /* Action Buttons in Left Panel */
     .btn-action {
       width: 100%;
       background: rgba(255, 255, 255, 0.05);
@@ -473,7 +471,6 @@
       box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
     }
 
-    /* 3D Right Inspector HUD (Matchanu Diagnostics) */
     .viewer3d-rightpanel {
       position: absolute;
       top: 5rem;
@@ -517,7 +514,6 @@
       color: var(--accent);
     }
 
-    /* Impact Telemetry Alert Box */
     .impact-box {
       background: rgba(0, 0, 0, 0.5);
       border: 1px solid rgba(239, 68, 68, 0.3);
@@ -540,7 +536,6 @@
       100% { background: rgba(0, 0, 0, 0.5); }
     }
 
-    /* Hidden file inputs */
     #model-file-input {
       display: none;
     }
@@ -555,7 +550,7 @@
       <span class="brand-title">Space Mission Simulator</span>
     </div>
 
-    <!-- Main Navigation Tabs: Scroll vs Matchanu 3D -->
+    <!-- Main Navigation Tabs: Scroll vs 3D -->
     <div class="main-tabs">
       <button class="tab-btn active" id="tab-btn-scroll" onclick="selectView('scroll')">
         <span>🎬</span>
@@ -563,7 +558,7 @@
       </button>
       <button class="tab-btn tab-3d" id="tab-btn-3d" onclick="selectView('3d')">
         <span>🪐</span>
-        <span>Matchanu 3D Viewer</span>
+        <span>3D Spacecraft & Mars Viewer</span>
       </button>
     </div>
 
@@ -626,7 +621,7 @@
       </div>
 
       <div class="tip-box">
-        💡 <strong>คำแนะนำ:</strong> เลื่อน Scroll เพื่อควบคุมเฟรม เมื่อถึงท้ายคลิปที่ 1 จะสลับเข้า <strong>Anime Loop</strong> อัตโนมัติ หรือกดปุ่ม <strong>Matchanu 3D Viewer</strong> ด้านบนเพื่อทดสอบ 3D ได้ทันที!
+        👇 <strong>วิธีเล่น:</strong> เลื่อนเมาส์ Scroll ลงมาเพื่อเล่นวิดีโอแบบ Smooth Scrubbing เมื่อถึงท้ายคลิป (~96%) จะสลับเข้า <strong>Anime Loop</strong> อัตโนมัติ หรือกดปุ่ม <strong>"3D Spacecraft & Mars Viewer"</strong> ด้านบนเพื่อทดสอบโมเดล 3D ได้ทันที!
       </div>
     </div>
 
@@ -634,7 +629,7 @@
   </div>
 
   <!-- ============================================== -->
-  <!-- VIEW 2: MATCHANU 2.0 3D VIEWER                -->
+  <!-- VIEW 2: 3D MARS & SPACECRAFT SIMULATOR        -->
   <!-- ============================================== -->
   <div id="view-3d">
     <canvas id="threejs-canvas"></canvas>
@@ -677,13 +672,13 @@
       </div>
 
       <button class="btn-action" onclick="loadPresetMarsCraft()">
-        <span>🛸</span><span>Spacecraft Lander (Mars Mission)</span>
+        <span>🛸</span><span>Mars Lander Spacecraft (Procedural)</span>
       </button>
       <button class="btn-action" onclick="loadSamplePy3s('matchanu_micro_53kb.py3s')">
-        <span>⚡</span><span>Matchanu Micro (53 KB .py3s)</span>
+        <span>⚡</span><span>NASA Sample Seed (53 KB .py3s)</span>
       </button>
       <button class="btn-action" onclick="loadSamplePy3s('matchanu_ultralight_850kb.py3s')">
-        <span>✨</span><span>Matchanu UltraLight (850 KB)</span>
+        <span>✨</span><span>NASA Sample Mesh (850 KB .py3s)</span>
       </button>
 
       <div class="panel-title" style="margin-top: 1rem;">
@@ -698,10 +693,10 @@
       </button>
     </div>
 
-    <!-- 3D Right Inspector & Diagnostics (Matchanu 2.0 Style) -->
+    <!-- 3D Right Inspector & Diagnostics -->
     <div class="viewer3d-rightpanel">
       <div class="panel-title">
-        <span>📊</span><span>Matchanu 2.0 Diagnostics</span>
+        <span>📊</span><span>Space Mission 3D Diagnostics</span>
       </div>
 
       <div class="stat-badge-row">
@@ -715,11 +710,11 @@
         </div>
         <div class="stat-badge">
           <div class="stat-lbl">Triangles</div>
-          <div class="stat-val" id="diag-tris">14,280</div>
+          <div class="stat-val" id="diag-tris">18,450</div>
         </div>
         <div class="stat-badge">
           <div class="stat-lbl">Vertices</div>
-          <div class="stat-val" id="diag-verts">8,950</div>
+          <div class="stat-val" id="diag-verts">11,200</div>
         </div>
       </div>
 
@@ -729,7 +724,7 @@
       </div>
       <div class="telemetry-row">
         <span>Dimensions (m):</span>
-        <span class="telemetry-val" id="diag-dims">3.4 x 2.1 x 1.8 m</span>
+        <span class="telemetry-val" id="diag-dims">9.4 x 2.6 x 3.8 m</span>
       </div>
       <div class="telemetry-row">
         <span>Dual-Layer Physics:</span>
@@ -754,7 +749,20 @@
     </div>
   </div>
 
-  <!-- Main Logic Module -->
+  <!-- Non-Module Fast Bootstrap for Scroll Canvas (Runs 0ms) -->
+  <script>
+    (function() {
+      const canvas = document.getElementById('scroll-canvas');
+      const ctx = canvas.getContext('2d');
+      const firstImg = new Image();
+      firstImg.src = 'assets/scroll_webp/clip_01/frame_0000.webp';
+      firstImg.onload = function() {
+        ctx.drawImage(firstImg, 0, 0, canvas.width, canvas.height);
+      };
+    })();
+  </script>
+
+  <!-- Main ES Module for Three.js 3D and Scroll Engine -->
   <script type="module">
     import * as THREE from 'three';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -892,7 +900,7 @@
     loadClipFrames(1);
 
     // ==========================================
-    // 3. MATCHANU 2.0 THREE.JS 3D ENGINE
+    // 3. THREE.JS 3D ENGINE (MARS & SPACECRAFT)
     // ==========================================
     let scene, camera, renderer, controls;
     let currentModelGroup = new THREE.Group();
@@ -904,7 +912,7 @@
     let windParticles = null;
     let isWindActive = false;
     let isMarsEnvActive = true;
-    let activeShading = 'solid'; // 'solid' | 'collider' | 'splat'
+    let activeShading = 'solid';
 
     const canvas3D = document.getElementById('threejs-canvas');
 
@@ -925,7 +933,7 @@
       renderer.shadowMap.enabled = true;
       renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-      // Controls (Matchanu Smooth Orbit Controls)
+      // Controls
       controls = new OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
       controls.dampingFactor = 0.05;
@@ -949,7 +957,7 @@
       cyanRimLight.position.set(-10, 8, -10);
       scene.add(cyanRimLight);
 
-      // Grid Helper (Sci-Fi Dark Grid)
+      // Grid Helper
       gridHelper = new THREE.GridHelper(30, 30, 0x38bdf8, 0x1e293b);
       gridHelper.position.y = 0;
       scene.add(gridHelper);
@@ -996,7 +1004,6 @@
         const x = pos.getX(i);
         const z = pos.getZ(i);
         const distFromCenter = Math.sqrt(x * x + z * z);
-        // Flatter in center for landing, rolling dunes outside
         if (distFromCenter > 4) {
           const y = Math.sin(x * 0.2) * Math.cos(z * 0.2) * 0.8 + Math.sin(x * 0.5) * 0.3;
           pos.setY(i, y - 0.2);
@@ -1017,7 +1024,7 @@
       scene.add(marsTerrainMesh);
     }
 
-    // Mars Wind / Dust Particle Stream
+    // Mars Wind Simulation Particles
     function createWindSimulation() {
       const count = 600;
       const geo = new THREE.BufferGeometry();
@@ -1058,7 +1065,7 @@
       hull.castShadow = true;
       craftGroup.add(hull);
 
-      // Gold-foil Solar Wings
+      // Gold Solar Arrays
       const wingGeo = new THREE.BoxGeometry(3.6, 0.06, 1.2);
       const wingMat = new THREE.MeshStandardMaterial({
         color: 0xd97706,
@@ -1075,7 +1082,7 @@
       wingR.castShadow = true;
       craftGroup.add(wingR);
 
-      // High-Gain Antenna & Laser Transceiver
+      // High-Gain Antenna
       const dishGeo = new THREE.SphereGeometry(0.5, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2);
       const dishMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, metalness: 0.6, roughness: 0.2 });
       const dish = new THREE.Mesh(dishGeo, dishMat);
@@ -1103,7 +1110,7 @@
 
       visualMeshGroup.add(craftGroup);
 
-      // 2. PHYSICS COLLIDER LAYER (1:1 Convex / Wireframe aligned)
+      // 2. PHYSICS COLLIDER LAYER
       const colliderGroup = new THREE.Group();
       const colHullGeo = new THREE.CylinderGeometry(1.5, 1.9, 1.3, 8);
       const colMat = new THREE.MeshBasicMaterial({
@@ -1122,7 +1129,7 @@
       colliderGroup.add(colWings);
       colliderMeshGroup.add(colliderGroup);
 
-      // 3. SPLAT POINTS SIMULATION LAYER
+      // 3. SPLAT POINTS LAYER
       const splatGeo = new THREE.BufferGeometry();
       const pCount = 3500;
       const pPos = new Float32Array(pCount * 3);
@@ -1157,7 +1164,6 @@
       while(splatPointsGroup.children.length > 0) splatPointsGroup.remove(splatPointsGroup.children[0]);
     }
 
-    // Load sample .py3s
     window.loadSamplePy3s = async function(filename) {
       clearCurrentModel();
       const t0 = performance.now();
@@ -1168,7 +1174,6 @@
         const unpacked = await Py3sCodec.unpack(buf);
         const t1 = performance.now();
 
-        // Create representative visual mesh
         const boxGeo = new THREE.BoxGeometry(2, 2, 2);
         const boxMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, metalness: 0.8, roughness: 0.3 });
         const mesh = new THREE.Mesh(boxGeo, boxMat);
@@ -1200,7 +1205,6 @@
       createProceduralMarsCraft();
     };
 
-    // Shading Modes (Solid, Collider, Splat)
     window.setShadingMode = function(mode) {
       activeShading = mode;
       document.getElementById('btn-shade-solid').classList.toggle('active', mode === 'solid');
@@ -1225,7 +1229,6 @@
       }
     }
 
-    // Toggle Environment (Mars vs Deep Space)
     window.toggleEnvironment = function() {
       isMarsEnvActive = !isMarsEnvActive;
       marsTerrainMesh.visible = isMarsEnvActive;
@@ -1239,14 +1242,12 @@
       }
     };
 
-    // Toggle Wind Simulation
     window.toggleWindSim = function() {
       isWindActive = !isWindActive;
       windParticles.visible = isWindActive;
       document.getElementById('btn-wind-toggle').classList.toggle('active', isWindActive);
     };
 
-    // Camera Presets
     window.setCameraView = function(view) {
       if (view === 'front') {
         camera.position.set(0, 1.6, 9);
@@ -1267,14 +1268,12 @@
       controls.update();
     };
 
-    // Debris Impact Hit Simulation (Matchanu Style)
     window.fireImpactTest = function() {
       const impactLog = document.getElementById('impact-log');
       impactLog.classList.remove('show');
-      void impactLog.offsetWidth; // trigger reflow
+      void impactLog.offsetWidth;
       impactLog.classList.add('show');
 
-      // Create animated projectile meteor
       const meteorGeo = new THREE.SphereGeometry(0.12, 8, 8);
       const meteorMat = new THREE.MeshBasicMaterial({ color: 0xff4422 });
       const meteor = new THREE.Mesh(meteorGeo, meteorMat);
@@ -1284,7 +1283,7 @@
       const targetPos = new THREE.Vector3(0, 1.6, 0);
       const startPos = meteor.position.clone();
       const startTime = performance.now();
-      const duration = 500; // ms
+      const duration = 500;
 
       function animateMeteor() {
         const elapsed = performance.now() - startTime;
@@ -1294,7 +1293,6 @@
         if (t < 1) {
           requestAnimationFrame(animateMeteor);
         } else {
-          // Shockwave burst at hit
           scene.remove(meteor);
           createImpactShockwave(targetPos);
         }
@@ -1324,12 +1322,10 @@
       expand();
     }
 
-    // Export Print 3D
     window.exportPrint3D = function() {
-      alert("🖨️ Matchanu Print 3D Extractor:\nExtracted watertight solid model from .py3s container (0 sec export ready)!\nFile: mars_spacecraft_print3d.3mf");
+      alert("🖨️ 3D Print Extractor:\nExtracted watertight solid model from .py3s container (0 sec export ready)!\nFile: mars_spacecraft_print3d.3mf");
     };
 
-    // Update Diagnostics Card
     function updateDiagnostics(data) {
       if (data.name) document.getElementById('diag-name').innerText = data.name;
       if (data.format) document.getElementById('diag-format').innerText = data.format;
@@ -1341,7 +1337,6 @@
       if (data.layer) document.getElementById('diag-layer').innerText = data.layer;
     }
 
-    // File Drag & Drop Handler (for loading user's NASA models)
     function setupDropZone() {
       const dz = document.getElementById('drop-zone');
       dz.addEventListener('dragover', (e) => {
@@ -1402,11 +1397,9 @@
             const model = gltf.scene;
             visualMeshGroup.add(model);
 
-            // Compute Bounding Box
             const bbox = new THREE.Box3().setFromObject(model);
             const size = bbox.getSize(new THREE.Vector3());
             
-            // Create wireframe collider proxy
             const boxGeo = new THREE.BoxGeometry(size.x, size.y, size.z);
             const colMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true });
             const colMesh = new THREE.Mesh(boxGeo, colMat);
@@ -1450,21 +1443,18 @@
       }
     }
 
-    // 3D Animation Loop
     function animate3D() {
       requestAnimationFrame(animate3D);
       controls.update();
 
-      // Slow rotation for spacecraft
       if (currentModelGroup) {
         currentModelGroup.rotation.y += 0.002;
       }
 
-      // Wind Particle Motion
       if (isWindActive && windParticles) {
         const pos = windParticles.geometry.attributes.position.array;
         for (let i = 0; i < pos.length; i += 3) {
-          pos[i] += 0.12; // move in X
+          pos[i] += 0.12;
           if (pos[i] > 8) pos[i] = -8;
         }
         windParticles.geometry.attributes.position.needsUpdate = true;
@@ -1473,7 +1463,6 @@
       renderer.render(scene, camera);
     }
 
-    // Initialize 3D Engine
     init3D();
   </script>
 </body>
