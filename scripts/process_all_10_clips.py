@@ -123,3 +123,4 @@ if __name__ == "__main__":
     make_animated_loop(src_clip_num=1, out_filename="loop_clip_01_direct.webp", fps=18, quality=70, max_frames=72)
     
     print("\nBatch processing completely finished!")
+
