@@ -3,16 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Space Mission Design Game | .py3s Rehearsal</title>
+  <title>SpaceApps 2026 | WebP 720p Scroll & Anime Loop Engine</title>
   <style>
     :root {
       --bg: #05070d;
-      --card-bg: rgba(13, 19, 33, 0.85);
-      --border: rgba(56, 189, 248, 0.25);
+      --card-bg: rgba(13, 19, 33, 0.88);
+      --border: rgba(56, 189, 248, 0.28);
       --accent: #38bdf8;
-      --accent-glow: rgba(56, 189, 248, 0.4);
+      --accent-glow: rgba(56, 189, 248, 0.45);
       --warning: #f59e0b;
-      --danger: #ef4444;
       --success: #10b981;
       --text: #f8fafc;
       --text-muted: #94a3b8;
@@ -29,41 +28,71 @@
       color: var(--text);
       font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
       overflow-x: hidden;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
     }
 
-    /* Ambient Space Canvas */
-    #space-bg {
+    /* Sticky Fullscreen Viewport for WebP Scroll */
+    .viewport-container {
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      z-index: 0;
-      pointer-events: none;
-    }
-
-    .container {
-      position: relative;
       z-index: 1;
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 2rem 1.5rem;
-      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+      overflow: hidden;
     }
 
-    /* HUD Header */
-    header {
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 1.5rem;
-      margin-bottom: 2rem;
+    #scroll-canvas {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: opacity 0.3s ease;
+    }
+
+    /* Seamless Anime Loop Overlay */
+    #loop-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    #loop-overlay.active {
+      opacity: 1;
+    }
+
+    /* Ambient HUD Vignette */
+    .vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, transparent 40%, rgba(5, 7, 13, 0.75) 100%),
+                  linear-gradient(to bottom, rgba(5,7,13,0.6) 0%, transparent 20%, transparent 75%, rgba(5,7,13,0.9) 100%);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* UI Header Bar */
+    .top-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 10;
+      padding: 1rem 1.5rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem;
+      background: linear-gradient(to bottom, rgba(5, 7, 13, 0.95), transparent);
+      backdrop-filter: blur(8px);
     }
 
     .brand {
@@ -72,7 +101,7 @@
       gap: 0.75rem;
     }
 
-    .brand-tag {
+    .badge-nasa {
       background: rgba(56, 189, 248, 0.15);
       color: var(--accent);
       border: 1px solid var(--accent);
@@ -83,405 +112,371 @@
       letter-spacing: 0.05em;
     }
 
-    .brand h1 {
-      font-size: 1.4rem;
+    .brand-title {
+      font-size: 1.1rem;
       font-weight: 700;
       letter-spacing: -0.02em;
     }
 
-    .live-status {
+    /* Clip Switcher Pills */
+    .clip-selector {
       display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.85rem;
-      color: var(--success);
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      padding: 0.35rem 0.85rem;
-      border-radius: 9999px;
-    }
-
-    .pulse-dot {
-      width: 8px;
-      height: 8px;
-      background: var(--success);
-      border-radius: 50%;
-      animation: pulse 1.5s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(1.3); }
-    }
-
-    /* Grid Layout */
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-      margin-bottom: 2rem;
-    }
-
-    @media (max-width: 768px) {
-      .dashboard-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.5rem;
-      backdrop-filter: blur(12px);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-    }
-
-    .card-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--accent);
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    /* 6 Trade-off Variables */
-    .tradeoff-item {
-      margin-bottom: 1rem;
-    }
-
-    .tradeoff-header {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.85rem;
-      margin-bottom: 0.35rem;
-    }
-
-    .tradeoff-label {
-      color: var(--text-muted);
-    }
-
-    .tradeoff-val {
-      font-family: monospace;
-      font-weight: 600;
-      color: var(--text);
-    }
-
-    .meter-bar {
-      height: 8px;
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 4px;
-      overflow: hidden;
-    }
-
-    .meter-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--accent), #818cf8);
-      border-radius: 4px;
-      transition: width 0.3s ease;
-    }
-
-    /* .py3s Telemetry Box */
-    .telemetry-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.75rem;
-      margin-top: 1rem;
-    }
-
-    .telemetry-badge {
-      background: rgba(56, 189, 248, 0.05);
-      border: 1px solid var(--border);
-      padding: 0.75rem;
-      border-radius: 8px;
-      text-align: center;
-    }
-
-    .telemetry-label {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 0.25rem;
-    }
-
-    .telemetry-val {
-      font-size: 1.1rem;
-      font-weight: 700;
-      font-family: monospace;
-      color: var(--accent);
-    }
-
-    /* Actions & Buttons */
-    .action-panel {
-      display: flex;
-      gap: 0.75rem;
+      gap: 0.35rem;
       flex-wrap: wrap;
-      margin-top: 1.5rem;
+      background: rgba(13, 19, 33, 0.9);
+      padding: 0.3rem 0.5rem;
+      border-radius: 9999px;
+      border: 1px solid var(--border);
     }
 
-    .btn {
-      padding: 0.7rem 1.25rem;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 0.85rem;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      transition: all 0.2s ease;
+    .clip-btn {
+      background: transparent;
       border: none;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.2s ease;
     }
 
-    .btn-primary {
+    .clip-btn:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .clip-btn.active {
       background: var(--accent);
       color: #05070d;
     }
 
-    .btn-primary:hover {
-      box-shadow: 0 0 16px var(--accent-glow);
-      transform: translateY(-1px);
-    }
-
-    .btn-outline {
-      background: transparent;
+    /* Floating HUD Diagnostics Card */
+    .hud-card {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 380px;
+      z-index: 10;
+      background: var(--card-bg);
       border: 1px solid var(--border);
-      color: var(--text);
+      border-radius: 12px;
+      padding: 1.25rem;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
     }
 
-    .btn-outline:hover {
-      background: rgba(255, 255, 255, 0.05);
-      border-color: var(--accent);
+    .hud-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent);
+      border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+      padding-bottom: 0.4rem;
     }
 
-    .btn-hazard {
-      background: rgba(245, 158, 11, 0.15);
-      border: 1px solid var(--warning);
-      color: var(--warning);
+    .status-pill {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
 
-    .btn-hazard:hover {
-      background: var(--warning);
-      color: #05070d;
+    .status-scrubbing {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      border: 1px solid var(--accent);
     }
 
-    /* Log Box */
-    .terminal-box {
-      background: #020408;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
-      padding: 1rem;
-      font-family: 'Consolas', monospace;
-      font-size: 0.8rem;
-      color: #38bdf8;
-      height: 140px;
-      overflow-y: auto;
-      margin-top: 1rem;
-      line-height: 1.5;
+    .status-looping {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--success);
+      border: 1px solid var(--success);
+      animation: pulse 1.2s infinite;
     }
 
-    .log-time { color: var(--text-muted); }
-    .log-warn { color: var(--warning); }
-    .log-ok { color: var(--success); }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.6; }
+    }
 
-    footer {
-      margin-top: auto;
-      padding: 1.5rem 0;
-      border-top: 1px solid var(--border);
-      text-align: center;
+    .telemetry-row {
+      display: flex;
+      justify-content: space-between;
       font-size: 0.8rem;
       color: var(--text-muted);
+      margin-bottom: 0.35rem;
+      font-family: monospace;
+    }
+
+    .telemetry-val {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      overflow: hidden;
+      margin: 0.5rem 0 1rem 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #818cf8);
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+
+    .tip-box {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      border-left: 3px solid var(--accent);
+      line-height: 1.4;
+    }
+
+    /* Scroll Height Spacer to drive the animation */
+    .scroll-driver {
+      position: relative;
+      z-index: 5;
+      height: 400vh; /* 4 screens of scroll for smooth scrub */
+      pointer-events: none;
+    }
+
+    /* Scroll Prompt indicator */
+    .scroll-hint {
+      position: fixed;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.9;
+      pointer-events: none;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translate(-50%, 0); }
+      40% { transform: translate(-50%, -8px); }
+      60% { transform: translate(-50%, -4px); }
     }
   </style>
 </head>
 <body>
-  <canvas id="space-bg"></canvas>
 
-  <div class="container">
-    <header>
-      <div class="brand">
-        <span class="brand-tag">NASA SPACE APPS 2026</span>
-        <h1>Space Mission Design Simulator</h1>
-      </div>
-      <div class="live-status">
-        <span class="pulse-dot"></span>
-        <span>Local Pipeline Active (Port 4173)</span>
-      </div>
-    </header>
-
-    <div class="dashboard-grid">
-      <!-- 6 Trade-off Variables Panel -->
-      <div class="card">
-        <div class="card-title">
-          <span>⚙️</span>
-          <span>Core Mission Variables (6 Trade-offs)</span>
-        </div>
-
-        <div class="tradeoff-item">
-          <div class="tradeoff-header">
-            <span class="tradeoff-label">1. Mass (Payload vs Rocket)</span>
-            <span class="tradeoff-val" id="val-mass">1,450 kg / 2,000 kg</span>
-          </div>
-          <div class="meter-bar"><div class="meter-fill" style="width: 72%;"></div></div>
-        </div>
-
-        <div class="tradeoff-item">
-          <div class="tradeoff-header">
-            <span class="tradeoff-label">2. Power (Solar Array Generation)</span>
-            <span class="tradeoff-val" id="val-power">840 W / 900 W</span>
-          </div>
-          <div class="meter-bar"><div class="meter-fill" style="width: 93%;"></div></div>
-        </div>
-
-        <div class="tradeoff-item">
-          <div class="tradeoff-header">
-            <span class="tradeoff-label">3. Budget (Mission Cap)</span>
-            <span class="tradeoff-val" id="val-budget">$240M / $300M</span>
-          </div>
-          <div class="meter-bar"><div class="meter-fill" style="width: 80%;"></div></div>
-        </div>
-
-        <div class="tradeoff-item">
-          <div class="tradeoff-header">
-            <span class="tradeoff-label">4. Data Science Yield</span>
-            <span class="tradeoff-val" id="val-data">4.8 TB Captured</span>
-          </div>
-          <div class="meter-bar"><div class="meter-fill" style="width: 65%;"></div></div>
-        </div>
-
-        <div class="tradeoff-item">
-          <div class="tradeoff-header">
-            <span class="tradeoff-label">5. Communications Link</span>
-            <span class="tradeoff-val" id="val-comms">98.4% Telemetry</span>
-          </div>
-          <div class="meter-bar"><div class="meter-fill" id="meter-comms" style="width: 98%;"></div></div>
-        </div>
-
-        <div class="tradeoff-item">
-          <div class="tradeoff-header">
-            <span class="tradeoff-label">6. Flight Duration (Earth ➡️ Mars)</span>
-            <span class="tradeoff-val" id="val-time">210 Days Target</span>
-          </div>
-          <div class="meter-bar"><div class="meter-fill" style="width: 70%;"></div></div>
-        </div>
-      </div>
-
-      <!-- .py3s Container & Telemetry Panel -->
-      <div class="card">
-        <div class="card-title">
-          <span>📦</span>
-          <span>.py3s Spatial Container Telemetry</span>
-        </div>
-
-        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">
-          IANA Standard: <code>model/vnd.pygrassreal.py3s</code><br/>
-          Dehydrated Seed in KB hydrated to 35 MB 3DGS & Collider directly in browser memory.
-        </p>
-
-        <div class="telemetry-row">
-          <div class="telemetry-badge">
-            <div class="telemetry-label">File Size</div>
-            <div class="telemetry-val">3.2 MB</div>
-          </div>
-          <div class="telemetry-badge">
-            <div class="telemetry-label">Unpack Time</div>
-            <div class="telemetry-val" style="color: var(--success);">12 ms</div>
-          </div>
-          <div class="telemetry-badge">
-            <div class="telemetry-label">CRC-32</div>
-            <div class="telemetry-val" style="color: var(--accent);">0x8F4E21</div>
-          </div>
-        </div>
-
-        <div class="terminal-box" id="term-box">
-          <div><span class="log-time">[00:00.01]</span> <span class="log-ok">PY3S container initialized (Magic: 'PY3S')</span></div>
-          <div><span class="log-time">[00:00.02]</span> Flags: 0x8000 (AUTO_HYDRATE_ON_MOUNT enabled)</div>
-          <div><span class="log-time">[00:00.03]</span> Dual-Layer ready: Visual 3DGS + 1:1 Physics Collider</div>
-          <div><span class="log-time">[00:00.04]</span> Local Server: http://localhost:4173/ (200 OK)</div>
-        </div>
-
-        <div class="action-panel">
-          <button class="btn btn-hazard" onclick="triggerDONKI()">⚡ Test DONKI CME Event</button>
-          <button class="btn btn-outline" onclick="triggerImpact()">💥 Test Debris Impact</button>
-          <button class="btn btn-primary" onclick="simulateExport()">🖨️ Export Print 3D</button>
-        </div>
-      </div>
+  <!-- Top Nav -->
+  <header class="top-nav">
+    <div class="brand">
+      <span class="badge-nasa">NASA SPACE APPS 2026</span>
+      <span class="brand-title">WebP 720p Scroll Engine</span>
     </div>
 
-    <footer>
-      Space Mission Design Game &copy; 2026 NASA Space Apps Challenge (Rehearsal Environment) &bull; MIT License
-    </footer>
+    <!-- 10 Clips Switcher -->
+    <div class="clip-selector">
+      <button class="clip-btn active" onclick="switchClip(1)">Clip 1 (Start ➡️ HUD)</button>
+      <button class="clip-btn" onclick="switchClip(2)">Clip 2 (Ascend)</button>
+      <button class="clip-btn" onclick="switchClip(3)">Clip 3 (Shield)</button>
+      <button class="clip-btn" onclick="switchClip(4)">Clip 4 (Plasma)</button>
+      <button class="clip-btn" onclick="switchClip(5)">Clip 5 (Landing)</button>
+      <button class="clip-btn" onclick="switchClip(6)">Clip 6 (Gantry Loop)</button>
+      <button class="clip-btn" onclick="switchClip(7)">Clip 7 (Orbit Loop)</button>
+      <button class="clip-btn" onclick="switchClip(8)">Clip 8 (Deep Space Loop)</button>
+      <button class="clip-btn" onclick="switchClip(9)">Clip 9 (Laser Loop)</button>
+      <button class="clip-btn" onclick="switchClip(10)">Clip 10 (Mars Loop)</button>
+    </div>
+  </header>
+
+  <!-- Sticky Viewport -->
+  <div class="viewport-container">
+    <canvas id="scroll-canvas" width="1280" height="720"></canvas>
+    <img id="loop-overlay" src="assets/loops/loop_clip_01_gantry_pulse.webp" alt="Anime Loop" />
+    <div class="vignette"></div>
   </div>
 
+  <!-- Floating HUD Diagnostics Card -->
+  <div class="hud-card">
+    <div class="hud-header">
+      <span id="hud-clip-title">CLIP 01: LAUNCH PLATFORM ➡️ HUD</span>
+      <span id="hud-status-badge" class="status-pill status-scrubbing">SCROLL SCRUB</span>
+    </div>
+
+    <div class="telemetry-row">
+      <span>Frame Position:</span>
+      <span class="telemetry-val" id="hud-frame-pos">0000 / 0118 (0.0%)</span>
+    </div>
+
+    <div class="progress-track">
+      <div class="progress-fill" id="hud-progress-bar"></div>
+    </div>
+
+    <div class="telemetry-row">
+      <span>Resolution:</span>
+      <span class="telemetry-val">1280 &times; 720 (WebP 720p)</span>
+    </div>
+    <div class="telemetry-row">
+      <span>Active Container:</span>
+      <span class="telemetry-val">.py3s (12ms Unpack)</span>
+    </div>
+    <div class="telemetry-row">
+      <span>Loop Trigger:</span>
+      <span class="telemetry-val" id="hud-loop-trigger">End of Clip 1 (&ge; 96%)</span>
+    </div>
+
+    <div class="tip-box" id="hud-tip">
+      👇 <strong>วิธีทดสอบ:</strong> เลื่อน Scroll เมาส์ลงมาเพื่อเล่นวิดีโอแบบ Scroll Scrub เมื่อถึงท้ายคลิป (~96-100%) ระบบจะสลับเข้า <strong>Anime วนลูปไร้รอยต่อ (Seamless Loop)</strong> ให้ทันทีอัตโนมัติ!
+    </div>
+  </div>
+
+  <!-- Scroll Down Hint -->
+  <div class="scroll-hint" id="scroll-hint">
+    <span>Scroll to Scrub</span>
+    <span style="font-size: 1.1rem;">&darr;</span>
+  </div>
+
+  <!-- Height to generate scroll range -->
+  <div class="scroll-driver"></div>
+
   <script>
-    // Starfield animation
-    const canvas = document.getElementById('space-bg');
+    let currentClip = 1;
+    let totalFrames = 119;
+    const images = [];
+    let isImagesLoaded = false;
+    let isLoopActive = false;
+
+    const canvas = document.getElementById('scroll-canvas');
     const ctx = canvas.getContext('2d');
-    let width, height, stars = [];
+    const loopOverlay = document.getElementById('loop-overlay');
+    const progressBar = document.getElementById('hud-progress-bar');
+    const framePosText = document.getElementById('hud-frame-pos');
+    const statusBadge = document.getElementById('hud-status-badge');
+    const clipTitle = document.getElementById('hud-clip-title');
+    const scrollHint = document.getElementById('scroll-hint');
 
-    function resize() {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
-      stars = Array.from({ length: 120 }, () => ({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        r: Math.random() * 1.5 + 0.5,
-        speed: Math.random() * 0.3 + 0.1
-      }));
+    // Preload frames for current clip
+    function loadClipFrames(clipId) {
+      images.length = 0;
+      isImagesLoaded = false;
+      const padClip = String(clipId).padStart(2, '0');
+      let loadedCount = 0;
+
+      for (let i = 0; i < totalFrames; i++) {
+        const padFrame = String(i).padStart(4, '0');
+        const img = new Image();
+        img.src = `assets/scroll_webp/clip_${padClip}/frame_${padFrame}.webp`;
+        img.onload = () => {
+          loadedCount++;
+          if (loadedCount === 1) {
+            renderFrame(0); // Show first frame immediately
+          }
+          if (loadedCount === totalFrames) {
+            isImagesLoaded = true;
+          }
+        };
+        images.push(img);
+      }
     }
-    window.addEventListener('resize', resize);
-    resize();
 
-    function animate() {
-      ctx.fillStyle = '#05070d';
-      ctx.fillRect(0, 0, width, height);
+    function renderFrame(index) {
+      if (images[index] && images[index].complete) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(images[index], 0, 0, canvas.width, canvas.height);
+      }
+    }
 
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-      stars.forEach(s => {
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-        ctx.fill();
-        s.y += s.speed;
-        if (s.y > height) s.y = 0;
+    // Scroll Handler
+    function onScroll() {
+      const scrollY = window.scrollY;
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = Math.min(Math.max(scrollY / (maxScroll || 1), 0), 1);
+
+      // Frame Index
+      const frameIndex = Math.min(Math.floor(progress * totalFrames), totalFrames - 1);
+      
+      // Update HUD
+      progressBar.style.width = (progress * 100).toFixed(1) + '%';
+      framePosText.innerText = `${String(frameIndex).padStart(4, '0')} / ${String(totalFrames - 1).padStart(4, '0')} (${(progress * 100).toFixed(1)}%)`;
+
+      // Check if user is near the end of Clip 1 (>= 96%)
+      if (currentClip === 1 && progress >= 0.96) {
+        if (!isLoopActive) {
+          isLoopActive = true;
+          loopOverlay.classList.add('active');
+          statusBadge.innerText = 'ANIME LOOP ACTIVE';
+          statusBadge.className = 'status-pill status-looping';
+        }
+      } else {
+        if (isLoopActive) {
+          isLoopActive = false;
+          loopOverlay.classList.remove('active');
+          statusBadge.innerText = 'SCROLL SCRUB';
+          statusBadge.className = 'status-pill status-scrubbing';
+        }
+        renderFrame(frameIndex);
+      }
+
+      // Hide scroll hint after starting scroll
+      if (scrollY > 60) {
+        scrollHint.style.opacity = '0';
+      } else {
+        scrollHint.style.opacity = '0.9';
+      }
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // Switch Clip
+    function switchClip(clipId) {
+      currentClip = clipId;
+      document.querySelectorAll('.clip-btn').forEach((btn, idx) => {
+        btn.classList.toggle('active', idx + 1 === clipId);
       });
 
-      requestAnimationFrame(animate);
-    }
-    animate();
+      const titles = [
+        "CLIP 01: LAUNCH PLATFORM ➡️ HUD",
+        "CLIP 02: ASCENDS INTO ORBIT",
+        "CLIP 03: DEFLECTOR SHIELD",
+        "CLIP 04: ESCAPES SOLAR PLASMA",
+        "CLIP 05: MARS LANDING",
+        "CLIP 06: GANTRY PULSE LOOP",
+        "CLIP 07: ORBITING EARTH LOOP",
+        "CLIP 08: SPACE SHIELD LOOP",
+        "CLIP 09: INTERPLANETARY LASER LOOP",
+        "CLIP 10: MARS CANYON TOUCHDOWN LOOP"
+      ];
+      clipTitle.innerText = titles[clipId - 1] || `CLIP ${clipId}`;
 
-    function log(text, cls = '') {
-      const box = document.getElementById('term-box');
-      const time = new Date().toISOString().substring(11, 19);
-      const div = document.createElement('div');
-      div.innerHTML = `<span class="log-time">[${time}]</span> <span class="${cls}">${text}</span>`;
-      box.appendChild(div);
-      box.scrollTop = box.scrollHeight;
-    }
+      // Reset scroll position and reload
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      isLoopActive = false;
+      loopOverlay.classList.remove('active');
+      statusBadge.innerText = 'SCROLL SCRUB';
+      statusBadge.className = 'status-pill status-scrubbing';
 
-    function triggerDONKI() {
-      log('⚠️ NASA DONKI Alert: Coronal Mass Ejection detected!', 'log-warn');
-      log('⚡ Deflector shield absorbing high-energy solar plasma...', 'log-warn');
-      document.getElementById('meter-comms').style.width = '62%';
-      document.getElementById('val-comms').innerText = '62.1% (Solar Storm)';
-      setTimeout(() => {
-        log('🛡️ Shield normalized. Telemetry link restored.', 'log-ok');
-        document.getElementById('meter-comms').style.width = '98%';
-        document.getElementById('val-comms').innerText = '98.4% Telemetry';
-      }, 3000);
-    }
-
-    function triggerImpact() {
-      log('💥 Kinetic Debris Impact detected at (X: +1.2, Y: -0.4, Z: 3.1)');
-      log('🔍 Collider Raycast: Hit registered on Shield Outer Shell (Damage: 0%)', 'log-ok');
+      loadClipFrames(clipId);
     }
 
-    function simulateExport() {
-      log('🖨️ Extracting embedded Print 3D Watertight Solid from .py3s...', 'log-ok');
-      log('📥 Download triggered: space_mission_spacecraft.3mf (0 sec export ready)', 'log-ok');
-      alert('Simulated .py3s Print 3D Export Successful!\nFile: space_mission_spacecraft.3mf is ready.');
-    }
+    // Initialize with Clip 1
+    loadClipFrames(1);
+    renderFrame(0);
   </script>
 </body>
 </html>
