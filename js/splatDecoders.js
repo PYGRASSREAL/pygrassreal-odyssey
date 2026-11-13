@@ -49,6 +49,167 @@ export async function getSpzModuleInstance() {
   return spzModuleInstance;
 }
 
+/**
+ * Converts Niantic/Adobe Packed SPZ ArrayBuffer into authentic 32-byte 3D Gaussian Splats Binary Blob.
+ * Conforms to standard 3DGS binary spec (Pos: 12B, Scale: 12B, Color+Alpha: 4B, Quaternion: 4B).
+ */
+export async function convertSpzToSplatBlob(spzBuffer) {
+  const spz = await getSpzModuleInstance();
+  const cloud = spz.loadSpzFromBuffer(new Uint8Array(spzBuffer), { to: spz.CoordinateSystem.RUB });
+  const count = cloud.numPoints;
+  const buffer = new ArrayBuffer(count * 32);
+  const view = new DataView(buffer);
+  const u8 = new Uint8Array(buffer);
+  const SH_C0 = 0.28209479177387814;
+
+  for (let i = 0; i < count; i++) {
+    const offset = i * 32;
+    const p3 = i * 3;
+    const p4 = i * 4;
+
+    // Position (x, y, z)
+    view.setFloat32(offset + 0, cloud.positions[p3 + 0] ?? 0, true);
+    view.setFloat32(offset + 4, cloud.positions[p3 + 1] ?? 0, true);
+    view.setFloat32(offset + 8, cloud.positions[p3 + 2] ?? 0, true);
+
+    // Scale (exp of log-scale covariance factors)
+    view.setFloat32(offset + 12, Math.exp(cloud.scales[p3 + 0] ?? Math.log(0.01)), true);
+    view.setFloat32(offset + 16, Math.exp(cloud.scales[p3 + 1] ?? Math.log(0.01)), true);
+    view.setFloat32(offset + 20, Math.exp(cloud.scales[p3 + 2] ?? Math.log(0.01)), true);
+
+    // Color (RGBA)
+    u8[offset + 24] = Math.max(0, Math.min(255, Math.round((0.5 + SH_C0 * (cloud.colors[p3 + 0] ?? 0)) * 255)));
+    u8[offset + 25] = Math.max(0, Math.min(255, Math.round((0.5 + SH_C0 * (cloud.colors[p3 + 1] ?? 0)) * 255)));
+    u8[offset + 26] = Math.max(0, Math.min(255, Math.round((0.5 + SH_C0 * (cloud.colors[p3 + 2] ?? 0)) * 255)));
+    u8[offset + 27] = Math.max(0, Math.min(255, Math.round((1 / (1 + Math.exp(-(cloud.alphas[i] ?? 0)))) * 255)));
+
+    // Rotation (quaternion qw, qx, qy, qz mapped to uint8 [0..255])
+    u8[offset + 28] = Math.max(0, Math.min(255, Math.round((cloud.rotations[p4 + 3] ?? 1) * 128 + 128)));
+    u8[offset + 29] = Math.max(0, Math.min(255, Math.round((cloud.rotations[p4 + 0] ?? 0) * 128 + 128)));
+    u8[offset + 30] = Math.max(0, Math.min(255, Math.round((cloud.rotations[p4 + 1] ?? 0) * 128 + 128)));
+    u8[offset + 31] = Math.max(0, Math.min(255, Math.round((cloud.rotations[p4 + 2] ?? 0) * 128 + 128)));
+  }
+
+  return new Blob([buffer], { type: 'application/octet-stream' });
+}
+
+/**
+ * Converts Three.js BufferGeometry (points / positions + colors) into a 32-byte standard 3DGS binary Blob.
+ */
+export function convertPointsGeoToSplatBlob(geo, defaultRadius = 0.04) {
+  const pos = geo.attributes.position;
+  const col = geo.attributes.color;
+  const count = pos.count;
+  const buffer = new ArrayBuffer(count * 32);
+  const view = new DataView(buffer);
+  const u8 = new Uint8Array(buffer);
+
+  for (let i = 0; i < count; i++) {
+    const offset = i * 32;
+    view.setFloat32(offset + 0, pos.getX(i), true);
+    view.setFloat32(offset + 4, pos.getY(i), true);
+    view.setFloat32(offset + 8, pos.getZ(i), true);
+
+    view.setFloat32(offset + 12, defaultRadius, true);
+    view.setFloat32(offset + 16, defaultRadius, true);
+    view.setFloat32(offset + 20, defaultRadius, true);
+
+    const r = col ? col.getX(i) : 0.88;
+    const g = col ? col.getY(i) : 0.92;
+    const b = col ? col.getZ(i) : 0.98;
+
+    u8[offset + 24] = Math.max(0, Math.min(255, Math.round(r * 255)));
+    u8[offset + 25] = Math.max(0, Math.min(255, Math.round(g * 255)));
+    u8[offset + 26] = Math.max(0, Math.min(255, Math.round(b * 255)));
+    u8[offset + 27] = 255;
+
+    u8[offset + 28] = 255; // qw = 1
+    u8[offset + 29] = 128; // qx = 0
+    u8[offset + 30] = 128; // qy = 0
+    u8[offset + 31] = 128; // qz = 0
+  }
+
+  return new Blob([buffer], { type: 'application/octet-stream' });
+}
+
+/**
+ * Creates authentic procedural 3D Gaussian Splats Binary Blob for Mars Lander (14,000 dense splats).
+ */
+export function createProceduralLanderSplatBlob() {
+  const totalSplats = 14000;
+  const buffer = new ArrayBuffer(totalSplats * 32);
+  const view = new DataView(buffer);
+  const u8 = new Uint8Array(buffer);
+  let idx = 0;
+
+  function addSplat(x, y, z, sx, sy, sz, r, g, b, a = 255, qw = 1, qx = 0, qy = 0, qz = 0) {
+    if (idx >= totalSplats) return;
+    const off = idx * 32;
+    view.setFloat32(off + 0, x, true);
+    view.setFloat32(off + 4, y, true);
+    view.setFloat32(off + 8, z, true);
+    view.setFloat32(off + 12, sx, true);
+    view.setFloat32(off + 16, sy, true);
+    view.setFloat32(off + 20, sz, true);
+    u8[off + 24] = Math.max(0, Math.min(255, Math.round(r * 255)));
+    u8[off + 25] = Math.max(0, Math.min(255, Math.round(g * 255)));
+    u8[off + 26] = Math.max(0, Math.min(255, Math.round(b * 255)));
+    u8[off + 27] = Math.max(0, Math.min(255, Math.round(a)));
+    u8[off + 28] = Math.max(0, Math.min(255, Math.round(qw * 128 + 128)));
+    u8[off + 29] = Math.max(0, Math.min(255, Math.round(qx * 128 + 128)));
+    u8[off + 30] = Math.max(0, Math.min(255, Math.round(qy * 128 + 128)));
+    u8[off + 31] = Math.max(0, Math.min(255, Math.round(qz * 128 + 128)));
+    idx++;
+  }
+
+  // 1. Hull Body (6,000 splats - White & Alloy Shielding)
+  for (let i = 0; i < 6000; i++) {
+    const u = Math.random() * Math.PI * 2;
+    const hRatio = Math.random();
+    const y = 0.8 + hRatio * 1.35;
+    const rBase = 1.9 - hRatio * 0.5 + (Math.random() - 0.5) * 0.04;
+    const x = Math.cos(u) * rBase;
+    const z = Math.sin(u) * rBase;
+    const shade = 0.88 + Math.random() * 0.12;
+    addSplat(x, y, z, 0.045, 0.045, 0.045, shade, shade * 0.98, shade * 0.95, 255);
+  }
+
+  // 2. Solar Wings (4,500 splats - Deep Gold/Amber Reflective)
+  for (let i = 0; i < 4500; i++) {
+    const side = Math.random() > 0.5 ? 1 : -1;
+    const wx = side * (1.1 + Math.random() * 3.5);
+    const wy = 1.55 + (Math.random() - 0.5) * 0.06;
+    const wz = (Math.random() - 0.5) * 1.3;
+    addSplat(wx, wy, wz, 0.04, 0.04, 0.04, 0.96, 0.64 + Math.random() * 0.15, 0.12, 255);
+  }
+
+  // 3. Sensor Dome (1,800 splats - Radiant Cyan Capsule)
+  for (let i = 0; i < 1800; i++) {
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.random() * (Math.PI / 2.2);
+    const r = 0.55 + (Math.random() - 0.5) * 0.03;
+    const dx = Math.sin(phi) * Math.cos(theta) * r;
+    const dy = Math.cos(phi) * r;
+    const dz = Math.sin(phi) * Math.sin(theta) * r;
+    const rotY = dy * Math.cos(-Math.PI / 4) - dz * Math.sin(-Math.PI / 4);
+    const rotZ = dy * Math.sin(-Math.PI / 4) + dz * Math.cos(-Math.PI / 4);
+    addSplat(dx, 2.45 + rotY, 0.4 + rotZ, 0.035, 0.035, 0.035, 0.22, 0.82, 0.98, 255);
+  }
+
+  // 4. Landing Gear & Foot Pads (1,700 splats - Carbon Legs)
+  for (let i = 0; i < 1700; i++) {
+    const legIdx = Math.floor(Math.random() * 4);
+    const angle = (legIdx * Math.PI) / 2 + Math.PI / 4;
+    const t = Math.random();
+    const lx = Math.cos(angle) * (1.6 + t * 0.45);
+    const ly = 0.8 * (1 - t) + 0.02 * t;
+    const lz = Math.sin(angle) * (1.6 + t * 0.45);
+    addSplat(lx, ly, lz, 0.04, 0.04, 0.04, 0.25, 0.28, 0.35, 255);
+  }
+
+  return new Blob([buffer.slice(0, idx * 32)], { type: 'application/octet-stream' });
+}
+
 export async function parseSpzBuffer(buffer) {
   const spz = await getSpzModuleInstance();
   const cloud = spz.loadSpzFromBuffer(new Uint8Array(buffer), { to: spz.CoordinateSystem.RUB });

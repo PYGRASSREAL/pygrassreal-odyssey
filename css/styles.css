@@ -177,10 +177,12 @@
       border-radius: 9999px;
       padding: 0.35rem 0.75rem;
       backdrop-filter: blur(12px);
-      z-index: 50;
+      z-index: 65;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.4s ease;
+      max-width: 95vw;
+      overflow-x: auto;
     }
     .viewer3d-topbar.active {
       opacity: 1;

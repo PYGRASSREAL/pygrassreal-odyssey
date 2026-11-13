@@ -1,39 +1,98 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import * as GaussianSplats3D from '@mkkellogg/gaussian-splats-3d';
 import { Py3sCodec } from '../libs/py3s/py3sCodec.js';
 import {
-  createSplatPointsObject,
-  parseSpzBuffer,
-  parseSplatBuffer,
-  parsePlyBuffer,
-  generateSplatPointsFromGroup,
-  createProceduralLanderSplats
+  convertSpzToSplatBlob,
+  convertPointsGeoToSplatBlob,
+  createProceduralLanderSplatBlob,
+  generateSplatPointsFromGroup
 } from './splatDecoders.js';
 
 export const currentModelGroup = new THREE.Group();
 export const visualMeshGroup = new THREE.Group();
 export const colliderMeshGroup = new THREE.Group();
-export const splatPointsGroup = new THREE.Group();
+export const splatContainerGroup = new THREE.Group();
 
 let activeShading = 'solid';
 let terrainHeightFn = () => 0;
+let mainScene = null;
+let dropInViewer = null;
+let currentBlobUrl = null;
+
+let currentModelScaleMultiplier = 1.0;
+let currentFlipX = false;
+let currentBaseTargetSize = 4.2;
 
 export function initModelManager(scene, getTerrainHeight) {
+  mainScene = scene;
   terrainHeightFn = getTerrainHeight;
 
   currentModelGroup.add(visualMeshGroup);
   currentModelGroup.add(colliderMeshGroup);
-  currentModelGroup.add(splatPointsGroup);
+  currentModelGroup.add(splatContainerGroup);
   scene.add(currentModelGroup);
 
   createProceduralMarsCraft();
   setupDropZone();
 }
 
+/**
+ * Safely dispose and recreate the GaussianSplats3D DropInViewer instance.
+ */
+export async function resetDropInViewer() {
+  if (currentBlobUrl) {
+    try {
+      URL.revokeObjectURL(currentBlobUrl.split('#')[0]);
+    } catch {
+      // ignore
+    }
+    currentBlobUrl = null;
+  }
+
+  if (dropInViewer) {
+    try {
+      splatContainerGroup.remove(dropInViewer);
+      if (typeof dropInViewer.dispose === 'function') {
+        await dropInViewer.dispose();
+      }
+    } catch (err) {
+      console.warn('[ModelManager] DropInViewer dispose note:', err);
+    }
+    dropInViewer = null;
+  }
+
+  // Clear any existing children in splat container
+  while (splatContainerGroup.children.length > 0) {
+    const child = splatContainerGroup.children[0];
+    splatContainerGroup.remove(child);
+    if (child.geometry) child.geometry.dispose();
+  }
+
+  dropInViewer = new GaussianSplats3D.DropInViewer({
+    gpuAcceleratedSort: false,
+    sharedMemoryForWorkers: false,
+    integerBasedSort: true,
+    halfPrecisionCovariancesOnGPU: false,
+    sphericalHarmonicsDegree: 0,
+    dynamicScene: true,
+    logLevel: GaussianSplats3D.LogLevel.None,
+  });
+
+  splatContainerGroup.add(dropInViewer);
+  applyShadingMode();
+  return dropInViewer;
+}
+
 export function clearCurrentModel() {
-  while (visualMeshGroup.children.length > 0) visualMeshGroup.remove(visualMeshGroup.children[0]);
-  while (colliderMeshGroup.children.length > 0) colliderMeshGroup.remove(colliderMeshGroup.children[0]);
-  while (splatPointsGroup.children.length > 0) splatPointsGroup.remove(splatPointsGroup.children[0]);
+  while (visualMeshGroup.children.length > 0) {
+    const c = visualMeshGroup.children[0];
+    visualMeshGroup.remove(c);
+  }
+  while (colliderMeshGroup.children.length > 0) {
+    const c = colliderMeshGroup.children[0];
+    colliderMeshGroup.remove(c);
+  }
 }
 
 export function setShadingMode(mode) {
@@ -53,24 +112,47 @@ export function applyShadingMode() {
   if (activeShading === 'solid') {
     visualMeshGroup.visible = true;
     colliderMeshGroup.visible = false;
-    splatPointsGroup.visible = false;
+    splatContainerGroup.visible = false;
   } else if (activeShading === 'collider') {
     visualMeshGroup.visible = false;
     colliderMeshGroup.visible = true;
-    splatPointsGroup.visible = false;
+    splatContainerGroup.visible = false;
   } else if (activeShading === 'splat') {
     visualMeshGroup.visible = false;
     colliderMeshGroup.visible = false;
-    splatPointsGroup.visible = true;
+    splatContainerGroup.visible = true;
   }
 }
 
-let currentModelScaleMultiplier = 1.0;
-let currentSplatSizeMultiplier = 1.0;
-let currentFlipX = false;
-let currentBaseTargetSize = 4.2;
+export function getModelBoundingBox() {
+  // 1. Try SplatMesh bounding box if available
+  if (dropInViewer && dropInViewer.splatMesh) {
+    try {
+      const sBox = dropInViewer.splatMesh.computeBoundingBox(false);
+      if (sBox && isFinite(sBox.min.x) && isFinite(sBox.max.x) && (sBox.max.x - sBox.min.x) > 0.001) {
+        return sBox;
+      }
+    } catch {
+      // fallback
+    }
+  }
 
-export function fitModelToLanderArea(object3d, targetSize = 4.2) {
+  // 2. Try visual mesh
+  if (visualMeshGroup.children.length > 0) {
+    const box = new THREE.Box3().setFromObject(visualMeshGroup);
+    if (isFinite(box.min.x)) return box;
+  }
+
+  // 3. Try collider mesh
+  if (colliderMeshGroup.children.length > 0) {
+    const box = new THREE.Box3().setFromObject(colliderMeshGroup);
+    if (isFinite(box.min.x)) return box;
+  }
+
+  return new THREE.Box3(new THREE.Vector3(-2, 0, -2), new THREE.Vector3(2, 3, 2));
+}
+
+export function fitModelToLanderArea(targetSize = 4.2) {
   currentBaseTargetSize = targetSize;
   currentModelScaleMultiplier = 1.0;
   realignModelToGround();
@@ -79,33 +161,35 @@ export function fitModelToLanderArea(object3d, targetSize = 4.2) {
 export function realignModelToGround() {
   if (!currentModelGroup) return;
 
-  // Reset local transforms
-  currentModelGroup.position.set(0, 0, 0);
-  currentModelGroup.rotation.set(currentFlipX ? Math.PI : 0, 0, 0);
-  currentModelGroup.scale.set(1, 1, 1);
-  currentModelGroup.updateMatrixWorld(true);
-
-  // Compute box of active objects
-  const box = new THREE.Box3().setFromObject(currentModelGroup);
+  const box = getModelBoundingBox();
   const size = new THREE.Vector3();
   box.getSize(size);
   const maxDim = Math.max(size.x, size.y, size.z);
 
+  let finalScale = 1.0;
   if (maxDim > 0.001) {
-    const finalScale = (currentBaseTargetSize / maxDim) * currentModelScaleMultiplier;
-    currentModelGroup.scale.set(finalScale, finalScale, finalScale);
+    finalScale = (currentBaseTargetSize / maxDim) * currentModelScaleMultiplier;
   }
-  currentModelGroup.updateMatrixWorld(true);
+  currentModelGroup.scale.set(finalScale, finalScale, finalScale);
 
-  const scaledBox = new THREE.Box3().setFromObject(currentModelGroup);
   const center = new THREE.Vector3();
-  scaledBox.getCenter(center);
+  box.getCenter(center);
+
   const groundY = terrainHeightFn(0, 0);
 
-  // Center X, Z and position base at ground
-  currentModelGroup.position.x = -center.x;
-  currentModelGroup.position.z = -center.z;
-  currentModelGroup.position.y = groundY - scaledBox.min.y;
+  if (currentFlipX) {
+    currentModelGroup.rotation.set(Math.PI, 0, 0);
+    currentModelGroup.position.x = -center.x * finalScale;
+    currentModelGroup.position.z = center.z * finalScale;
+    currentModelGroup.position.y = groundY + box.max.y * finalScale;
+  } else {
+    currentModelGroup.rotation.set(0, 0, 0);
+    currentModelGroup.position.x = -center.x * finalScale;
+    currentModelGroup.position.z = -center.z * finalScale;
+    currentModelGroup.position.y = groundY - box.min.y * finalScale;
+  }
+
+  currentModelGroup.updateMatrixWorld(true);
 }
 
 export function flipModelOrientation() {
@@ -119,21 +203,53 @@ export function adjustModelScale(factor) {
 }
 
 export function adjustSplatSize(factor) {
-  currentSplatSizeMultiplier *= factor;
-  splatPointsGroup.traverse((child) => {
-    if (child.isPoints && child.material) {
-      const base = child.material.userData?.baseSize || 0.10;
-      child.material.size = base * currentSplatSizeMultiplier;
-      child.material.needsUpdate = true;
-    }
-  });
+  if (dropInViewer && dropInViewer.splatMesh && typeof dropInViewer.splatMesh.setSplatScale === 'function') {
+    const cur = dropInViewer.splatMesh.getSplatScale();
+    dropInViewer.splatMesh.setSplatScale(Math.max(0.05, cur * factor));
+  }
 }
 
-export function createProceduralMarsCraft() {
+/**
+ * Load authentic 3D Gaussian Splats into DropInViewer.
+ */
+export async function loadGaussianSplatBlob(blob, format = GaussianSplats3D.SceneFormat.Splat, ext = 'splat', shouldFlip = false) {
+  currentFlipX = shouldFlip;
+  const viewer = await resetDropInViewer();
+  const blobUrl = `${URL.createObjectURL(blob)}#model.${ext}`;
+  currentBlobUrl = blobUrl;
+
+  try {
+    await viewer.addSplatScene(blobUrl, {
+      format: format,
+      showLoadingUI: false,
+      splatAlphaRemovalThreshold: 1,
+      progressiveLoad: false,
+      position: [0, 0, 0],
+      rotation: [0, 0, 0, 1],
+      scale: [1, 1, 1],
+    });
+
+    // Double-pass alignment for complete vertex and matrix readiness
+    fitModelToLanderArea(4.5);
+    setTimeout(() => {
+      fitModelToLanderArea(4.5);
+    }, 60);
+
+    setShadingMode('splat');
+  } catch (err) {
+    console.error('[ModelManager] Failed to load Gaussian Splat Scene:', err);
+  }
+}
+
+/**
+ * Creates Procedural Mars Lander with Solid Visual, Physics Collider, and authentic 3DGS Splat.
+ */
+export async function createProceduralMarsCraft() {
   clearCurrentModel();
+  currentFlipX = false;
 
+  // 1. Solid Visual Craft
   const craftGroup = new THREE.Group();
-
   const hullGeo = new THREE.CylinderGeometry(1.4, 1.8, 1.2, 8);
   const hullMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.8, roughness: 0.25 });
   const hull = new THREE.Mesh(hullGeo, hullMat);
@@ -178,6 +294,7 @@ export function createProceduralMarsCraft() {
   }
   visualMeshGroup.add(craftGroup);
 
+  // 2. Physics Collider Wireframe
   const colliderGroup = new THREE.Group();
   const colHullGeo = new THREE.CylinderGeometry(1.5, 1.9, 1.3, 8);
   const colMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.8 });
@@ -191,13 +308,16 @@ export function createProceduralMarsCraft() {
   colliderGroup.add(colWings);
   colliderMeshGroup.add(colliderGroup);
 
-  // 12,000 rich Gaussian Splats
-  const splatGeo = createProceduralLanderSplats();
-  splatPointsGroup.add(createSplatPointsObject(splatGeo, 0.05));
+  // 3. Authentic 3D Gaussian Splatting (14,000 splats)
+  const landerSplatBlob = createProceduralLanderSplatBlob();
+  await loadGaussianSplatBlob(landerSplatBlob, GaussianSplats3D.SceneFormat.Splat, 'splat', false);
 
   applyShadingMode();
 }
 
+/**
+ * Load .py3s Container with SPZ 3DGS & Mesh Collider.
+ */
 export async function loadSamplePy3s(filename) {
   clearCurrentModel();
   try {
@@ -205,38 +325,56 @@ export async function loadSamplePy3s(filename) {
     const buf = await resp.arrayBuffer();
     const unpacked = await Py3sCodec.unpack(buf);
 
-    // 1. Unpack & Render Gaussian Splats (SPZ)
+    // 1. Decode SPZ to Authentic 3DGS Binary Blob & Load (default upright flip for 3DGS assets)
     if (unpacked.spzData && unpacked.spzData.byteLength > 0) {
-      const { geo } = await parseSpzBuffer(unpacked.spzData.buffer);
-      const splatObj = createSplatPointsObject(geo, 0.10);
-      splatPointsGroup.add(splatObj);
-      fitModelToLanderArea(splatPointsGroup, 4.5);
+      const spzSubBuffer = unpacked.spzData.buffer.slice(
+        unpacked.spzData.byteOffset,
+        unpacked.spzData.byteOffset + unpacked.spzData.byteLength
+      );
+      const splatBlob = await convertSpzToSplatBlob(spzSubBuffer);
+      await loadGaussianSplatBlob(splatBlob, GaussianSplats3D.SceneFormat.Splat, 'splat', true);
     }
 
     // 2. Unpack & Render Physics Collider / Mesh
     if (unpacked.colliderData && unpacked.colliderData.byteLength > 0) {
-      const loader = new GLTFLoader();
-      loader.parse(unpacked.colliderData.buffer, '', (gltf) => {
-        const model = gltf.scene;
-        visualMeshGroup.add(model.clone());
+      const colSubBuffer = unpacked.colliderData.buffer.slice(
+        unpacked.colliderData.byteOffset,
+        unpacked.colliderData.byteOffset + unpacked.colliderData.byteLength
+      );
+      const colU8 = new Uint8Array(colSubBuffer);
+      const isGlb = colU8[0] === 0x67 && colU8[1] === 0x6C && colU8[2] === 0x54 && colU8[3] === 0x46; // 'glTF'
+      const isGltfJson = colU8[0] === 0x7B; // '{'
 
-        model.traverse((c) => {
-          if (c.isMesh) {
-            c.material = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.8 });
-          }
-        });
-        colliderMeshGroup.add(model);
-        fitModelToLanderArea(visualMeshGroup, 4.5);
-        fitModelToLanderArea(colliderMeshGroup, 4.5);
-      });
+      if (isGlb || isGltfJson) {
+        try {
+          const loader = new GLTFLoader();
+          loader.parse(colSubBuffer, '', (gltf) => {
+            const model = gltf.scene;
+            visualMeshGroup.add(model.clone());
+
+            model.traverse((c) => {
+              if (c.isMesh) {
+                c.material = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.8 });
+              }
+            });
+            colliderMeshGroup.add(model);
+            fitModelToLanderArea(4.5);
+          });
+        } catch (colErr) {
+          console.warn('[ModelManager] Non-standard collider mesh, skipping GLTF parse:', colErr);
+        }
+      }
     }
 
     setShadingMode('splat');
   } catch (err) {
-    console.error("Failed to load .py3s:", err);
+    console.error('[ModelManager] Failed to load .py3s:', err);
   }
 }
 
+/**
+ * Handles dragged & dropped files (.splat, .spz, .py3s, .ply, .glb).
+ */
 export function processLoadedFile(file) {
   const ext = file.name.split('.').pop().toLowerCase();
   const reader = new FileReader();
@@ -248,62 +386,72 @@ export function processLoadedFile(file) {
       const unpacked = await Py3sCodec.unpack(buf);
 
       if (unpacked.spzData && unpacked.spzData.byteLength > 0) {
-        const { geo } = await parseSpzBuffer(unpacked.spzData.buffer);
-        splatPointsGroup.add(createSplatPointsObject(geo, 0.10));
-        fitModelToLanderArea(splatPointsGroup, 4.5);
+        const spzSubBuffer = unpacked.spzData.buffer.slice(
+          unpacked.spzData.byteOffset,
+          unpacked.spzData.byteOffset + unpacked.spzData.byteLength
+        );
+        const splatBlob = await convertSpzToSplatBlob(spzSubBuffer);
+        await loadGaussianSplatBlob(splatBlob, GaussianSplats3D.SceneFormat.Splat, 'splat', true);
       }
 
       if (unpacked.colliderData && unpacked.colliderData.byteLength > 0) {
-        const loader = new GLTFLoader();
-        loader.parse(unpacked.colliderData.buffer, '', (gltf) => {
-          const model = gltf.scene;
-          visualMeshGroup.add(model.clone());
-          model.traverse((c) => {
-            if (c.isMesh) {
-              c.material = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.8 });
-            }
-          });
-          colliderMeshGroup.add(model);
-          fitModelToLanderArea(visualMeshGroup, 4.5);
-          fitModelToLanderArea(colliderMeshGroup, 4.5);
-        });
+        const colSubBuffer = unpacked.colliderData.buffer.slice(
+          unpacked.colliderData.byteOffset,
+          unpacked.colliderData.byteOffset + unpacked.colliderData.byteLength
+        );
+        const colU8 = new Uint8Array(colSubBuffer);
+        const isGlb = colU8[0] === 0x67 && colU8[1] === 0x6C && colU8[2] === 0x54 && colU8[3] === 0x46;
+        const isGltfJson = colU8[0] === 0x7B;
+
+        if (isGlb || isGltfJson) {
+          try {
+            const loader = new GLTFLoader();
+            loader.parse(colSubBuffer, '', (gltf) => {
+              const model = gltf.scene;
+              visualMeshGroup.add(model.clone());
+              model.traverse((c) => {
+                if (c.isMesh) {
+                  c.material = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.8 });
+                }
+              });
+              colliderMeshGroup.add(model);
+              fitModelToLanderArea(4.5);
+            });
+          } catch (colErr) {
+            console.warn('[ModelManager] Non-standard collider mesh, skipping GLTF parse:', colErr);
+          }
+        }
       }
 
       setShadingMode('splat');
     };
     reader.readAsArrayBuffer(file);
   } else if (ext === 'splat') {
-    reader.onload = (ev) => {
+    reader.onload = async (ev) => {
       clearCurrentModel();
-      const { geo } = parseSplatBuffer(ev.target.result);
-      splatPointsGroup.add(createSplatPointsObject(geo, 0.10));
-      fitModelToLanderArea(splatPointsGroup, 4.5);
-      setShadingMode('splat');
+      const splatBlob = new Blob([ev.target.result], { type: 'application/octet-stream' });
+      await loadGaussianSplatBlob(splatBlob, GaussianSplats3D.SceneFormat.Splat, 'splat', true);
     };
     reader.readAsArrayBuffer(file);
   } else if (ext === 'spz') {
     reader.onload = async (ev) => {
       clearCurrentModel();
-      const { geo } = await parseSpzBuffer(ev.target.result);
-      splatPointsGroup.add(createSplatPointsObject(geo, 0.10));
-      fitModelToLanderArea(splatPointsGroup, 4.5);
-      setShadingMode('splat');
+      const splatBlob = await convertSpzToSplatBlob(ev.target.result);
+      await loadGaussianSplatBlob(splatBlob, GaussianSplats3D.SceneFormat.Splat, 'splat', true);
     };
     reader.readAsArrayBuffer(file);
   } else if (ext === 'ply') {
-    reader.onload = (ev) => {
+    reader.onload = async (ev) => {
       clearCurrentModel();
-      const { geo } = parsePlyBuffer(ev.target.result);
-      splatPointsGroup.add(createSplatPointsObject(geo, 0.10));
-      fitModelToLanderArea(splatPointsGroup, 4.5);
-      setShadingMode('splat');
+      const plyBlob = new Blob([ev.target.result], { type: 'application/octet-stream' });
+      await loadGaussianSplatBlob(plyBlob, GaussianSplats3D.SceneFormat.Ply, 'ply', true);
     };
     reader.readAsArrayBuffer(file);
   } else if (ext === 'glb' || ext === 'gltf') {
     reader.onload = (ev) => {
       clearCurrentModel();
       const loader = new GLTFLoader();
-      loader.parse(ev.target.result, '', (gltf) => {
+      loader.parse(ev.target.result, '', async (gltf) => {
         const model = gltf.scene;
         visualMeshGroup.add(model.clone());
 
@@ -317,12 +465,11 @@ export function processLoadedFile(file) {
 
         const splatGeo = generateSplatPointsFromGroup(model);
         if (splatGeo) {
-          splatPointsGroup.add(createSplatPointsObject(splatGeo, 0.08));
+          const splatBlob = convertPointsGeoToSplatBlob(splatGeo, 0.04);
+          await loadGaussianSplatBlob(splatBlob, GaussianSplats3D.SceneFormat.Splat, 'splat', false);
         }
 
-        fitModelToLanderArea(visualMeshGroup, 4.5);
-        fitModelToLanderArea(colliderMeshGroup, 4.5);
-        fitModelToLanderArea(splatPointsGroup, 4.5);
+        fitModelToLanderArea(4.5);
         applyShadingMode();
       });
     };
@@ -347,4 +494,3 @@ function setupDropZone() {
 export function exportPrint3D() {
   alert("🖨️ 3D Print Extractor:\nExtracted watertight solid model from .py3s container (0 sec export ready)!\nFile: mars_spacecraft_print3d.3mf");
 }
-

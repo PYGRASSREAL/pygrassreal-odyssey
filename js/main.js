@@ -27,6 +27,7 @@ import {
   processLoadedFile,
   exportPrint3D,
   currentModelGroup,
+  getModelBoundingBox,
   flipModelOrientation,
   adjustModelScale,
   adjustSplatSize,
@@ -96,6 +97,8 @@ window.flipModelOrientation = flipModelOrientation;
 window.adjustModelScale = adjustModelScale;
 window.adjustSplatSize = adjustSplatSize;
 window.realignModelToGround = realignModelToGround;
+window.currentModelGroup = currentModelGroup;
+window.getModelBoundingBox = getModelBoundingBox;
 window.handleFileSelect = (e) => {
   if (e.target.files && e.target.files[0]) {
     processLoadedFile(e.target.files[0]);

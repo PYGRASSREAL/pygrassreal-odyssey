@@ -10,7 +10,8 @@
     {
       "imports": {
         "three": "./libs/three/three.module.js",
-        "three/addons/": "./libs/three/addons/"
+        "three/addons/": "./libs/three/addons/",
+        "@mkkellogg/gaussian-splats-3d": "./libs/gaussian-splats-3d/gaussian-splats-3d.module.js"
       }
     }
   </script>
@@ -69,7 +70,7 @@
       <span>🛡️</span><span>Physics Collider Layer</span>
     </button>
     <button class="ctrl-btn" id="btn-shade-splat" onclick="setShadingMode('splat')">
-      <span>✨</span><span>Splat Points</span>
+      <span>✨</span><span>3D Gaussian Splats</span>
     </button>
     <button class="ctrl-btn" onclick="flipModelOrientation()" title="กลับหัวโมเดล 180°">
       <span>🔄</span><span>Flip 180°</span>
