@@ -114,9 +114,10 @@ export function applyShadingMode() {
     colliderMeshGroup.visible = false;
     splatContainerGroup.visible = false;
   } else if (activeShading === 'collider') {
+    // โหมด Collider: แสดงทั้ง 3DGS และ Wireframe ซ้อนทับกัน เพื่อเปรียบเทียบตำแหน่ง
     visualMeshGroup.visible = false;
     colliderMeshGroup.visible = true;
-    splatContainerGroup.visible = false;
+    splatContainerGroup.visible = true;
   } else if (activeShading === 'splat') {
     visualMeshGroup.visible = false;
     colliderMeshGroup.visible = false;
@@ -152,10 +153,39 @@ export function getModelBoundingBox() {
   return new THREE.Box3(new THREE.Vector3(-2, 0, -2), new THREE.Vector3(2, 3, 2));
 }
 
+export function alignMeshLayersWithSplat() {
+  if (!dropInViewer || !dropInViewer.splatMesh) return;
+  let sBox = null;
+  try {
+    sBox = dropInViewer.splatMesh.computeBoundingBox(false);
+  } catch {
+    return;
+  }
+  if (!sBox || !isFinite(sBox.max.y)) return;
+
+  const targetY = sBox.max.y;
+
+  const alignModel = (model) => {
+    if (!model) return;
+    if (currentFlipX) {
+      model.rotation.set(Math.PI, 0, 0);
+      model.position.set(0, targetY, 0);
+    } else {
+      model.rotation.set(0, 0, 0);
+      model.position.set(0, 0, 0);
+    }
+    model.updateMatrixWorld(true);
+  };
+
+  colliderMeshGroup.children.forEach(alignModel);
+  visualMeshGroup.children.forEach(alignModel);
+}
+
 export function fitModelToLanderArea(targetSize = 4.2) {
   currentBaseTargetSize = targetSize;
   currentModelScaleMultiplier = 1.0;
   realignModelToGround();
+  alignMeshLayersWithSplat();
 }
 
 export function realignModelToGround() {
@@ -189,6 +219,7 @@ export function realignModelToGround() {
     currentModelGroup.position.y = groundY - box.min.y * finalScale;
   }
 
+  alignMeshLayersWithSplat();
   currentModelGroup.updateMatrixWorld(true);
 }
 
@@ -352,18 +383,16 @@ export async function loadSamplePy3s(filename) {
           loader.parse(colSubBuffer, '', (gltf) => {
             const model = gltf.scene;
 
-            // Rotate GLTF by PI around X to match 3DGS upright coordinate frame
-            model.rotation.x = Math.PI;
-
             const visualClone = model.clone();
             visualMeshGroup.add(visualClone);
 
             model.traverse((c) => {
               if (c.isMesh) {
-                c.material = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.8 });
+                c.material = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.75 });
               }
             });
             colliderMeshGroup.add(model);
+            alignMeshLayersWithSplat();
             fitModelToLanderArea(4.5);
           });
         } catch (colErr) {
@@ -432,9 +461,6 @@ export function processLoadedFile(file) {
             loader.parse(colSubBuffer, '', (gltf) => {
               const model = gltf.scene;
 
-              // Rotate GLTF by PI around X to match 3DGS upright coordinate frame
-              model.rotation.x = Math.PI;
-
               const visualClone = model.clone();
               visualMeshGroup.add(visualClone);
 
@@ -444,6 +470,7 @@ export function processLoadedFile(file) {
                 }
               });
               colliderMeshGroup.add(model);
+              alignMeshLayersWithSplat();
               fitModelToLanderArea(4.5);
             });
           } catch (colErr) {
@@ -528,7 +555,7 @@ export function exportPrint3D() {
  * Traces the highest walkable surface of colliders at (x, z).
  * Supports stair climbing / step-up like Unreal Engine 5.
  */
-export function getColliderSurfaceHeight(x, z, currentY, maxStep = 0.65) {
+export function getColliderSurfaceHeight(x, z, currentY, maxStep = 0.55) {
   const colliders = [];
   colliderMeshGroup.traverse((c) => {
     if (c.isMesh) colliders.push(c);
@@ -540,14 +567,14 @@ export function getColliderSurfaceHeight(x, z, currentY, maxStep = 0.65) {
   }
   if (colliders.length === 0) return null;
 
-  const rayOrigin = new THREE.Vector3(x, currentY + maxStep + 0.5, z);
-  const downRay = new THREE.Raycaster(rayOrigin, new THREE.Vector3(0, -1, 0), 0.01, maxStep + 2.0);
+  const rayOrigin = new THREE.Vector3(x, currentY + maxStep + 0.3, z);
+  const downRay = new THREE.Raycaster(rayOrigin, new THREE.Vector3(0, -1, 0), 0.01, maxStep + 1.8);
   const hits = downRay.intersectObjects(colliders, true);
 
   if (hits.length > 0) {
     for (const hit of hits) {
       const normal = hit.face ? hit.face.normal.clone().applyQuaternion(hit.object.getWorldQuaternion(new THREE.Quaternion())) : new THREE.Vector3(0, 1, 0);
-      if (normal.y > 0.4) {
+      if (normal.y >= 0.45) {
         const heightDiff = hit.point.y - currentY;
         if (heightDiff <= maxStep && hit.point.y >= currentY - 0.8) {
           return hit.point.y;
@@ -563,44 +590,18 @@ export function getColliderSurfaceHeight(x, z, currentY, maxStep = 0.65) {
  * with robust sliding response, stair step-up, and penetration prevention.
  */
 export function resolveCharacterCollision(newPos, oldPos, charRadius = 0.45) {
-  // 1. Check for walkable stair / ground surface step-up (like UE5 MaxStepHeight)
-  const stairY = getColliderSurfaceHeight(newPos.x, newPos.z, oldPos.y, 0.65);
-  if (stairY !== null) {
-    const heightDiff = stairY - oldPos.y;
-    if (heightDiff <= 0.65) {
-      const stepPos = newPos.clone();
-      stepPos.y = stairY;
-      return stepPos;
-    }
-  }
-
-  // 2. Collect active collider meshes
-  const ucxMeshes = [];
-  const otherMeshes = [];
-
+  const colliders = [];
   colliderMeshGroup.traverse((c) => {
-    if (c.isMesh) {
-      const name = (c.name || '').toLowerCase();
-      if (name.includes('ucx') || name.includes('col')) {
-        ucxMeshes.push(c);
-      } else {
-        otherMeshes.push(c);
-      }
-    }
+    if (c.isMesh) colliders.push(c);
   });
-
-  let activeColliders = ucxMeshes.length > 0 ? ucxMeshes : otherMeshes;
-
-  // Fallback to visual meshes if colliderMeshGroup has none
-  if (activeColliders.length === 0) {
+  if (colliders.length === 0) {
     visualMeshGroup.traverse((c) => {
-      if (c.isMesh) otherMeshes.push(c);
+      if (c.isMesh) colliders.push(c);
     });
-    activeColliders = otherMeshes;
   }
 
-  // If no mesh at all, check general model bounding box
-  if (activeColliders.length === 0) {
+  // If no mesh at all, fallback to general bounding box
+  if (colliders.length === 0) {
     const box = getModelBoundingBox();
     if (box && isFinite(box.min.x)) {
       return checkSingleBoxCollision(newPos, oldPos, box, charRadius);
@@ -608,54 +609,52 @@ export function resolveCharacterCollision(newPos, oldPos, charRadius = 0.45) {
     return newPos;
   }
 
-  // Check against all active collider boxes
+  const moveVec = new THREE.Vector3(newPos.x - oldPos.x, 0, newPos.z - oldPos.z);
+  const moveLen = moveVec.length();
   let resolvedPos = newPos.clone();
 
-  for (const mesh of activeColliders) {
-    if (!mesh.geometry) continue;
-    mesh.updateMatrixWorld(true);
-    if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox();
+  // 1. Horizontal wall/pillar obstacle detection (knees, waist, chest)
+  if (moveLen > 0.0001) {
+    const dir = moveVec.clone().normalize();
+    const checkHeights = [0.35, 0.85, 1.4];
+    const maxDist = charRadius + moveLen;
 
-    const worldBox = mesh.geometry.boundingBox.clone().applyMatrix4(mesh.matrixWorld);
+    let hitWall = false;
+    let wallNormal = null;
 
-    // Height clearance check (astronaut height ~1.8m)
-    // Ignore collision if astronaut is completely above or below the obstacle
-    if (resolvedPos.y + 0.2 > worldBox.max.y || resolvedPos.y + 1.8 < worldBox.min.y) {
-      continue;
+    for (const h of checkHeights) {
+      const rayOrigin = new THREE.Vector3(oldPos.x, oldPos.y + h, oldPos.z);
+      const ray = new THREE.Raycaster(rayOrigin, dir, 0.01, maxDist);
+      const hits = ray.intersectObjects(colliders, true);
+      for (const hit of hits) {
+        const normal = hit.face ? hit.face.normal.clone().applyQuaternion(hit.object.getWorldQuaternion(new THREE.Quaternion())) : new THREE.Vector3(0, 1, 0);
+        // Vertical surfaces (wall, column, tree)
+        if (normal.y < 0.45) {
+          hitWall = true;
+          wallNormal = normal;
+          break;
+        }
+      }
+      if (hitWall) break;
     }
 
-    const minX = worldBox.min.x - charRadius;
-    const maxX = worldBox.max.x + charRadius;
-    const minZ = worldBox.min.z - charRadius;
-    const maxZ = worldBox.max.z + charRadius;
-
-    // Is new position colliding?
-    if (resolvedPos.x >= minX && resolvedPos.x <= maxX && resolvedPos.z >= minZ && resolvedPos.z <= maxZ) {
-      // Test sliding on X axis only
-      const testXInside = resolvedPos.x >= minX && resolvedPos.x <= maxX && oldPos.z >= minZ && oldPos.z <= maxZ;
-      // Test sliding on Z axis only
-      const testZInside = oldPos.x >= minX && oldPos.x <= maxX && resolvedPos.z >= minZ && resolvedPos.z <= maxZ;
-
-      if (!testXInside && testZInside) {
-        // Can slide along X axis
-        resolvedPos.z = oldPos.z;
-      } else if (!testZInside && testXInside) {
-        // Can slide along Z axis
-        resolvedPos.x = oldPos.x;
-      } else {
-        // Blocked both ways or starting from inside: push out to closest edge
-        const distMinX = Math.abs(resolvedPos.x - minX);
-        const distMaxX = Math.abs(resolvedPos.x - maxX);
-        const distMinZ = Math.abs(resolvedPos.z - minZ);
-        const distMaxZ = Math.abs(resolvedPos.z - maxZ);
-        const minDist = Math.min(distMinX, distMaxX, distMinZ, distMaxZ);
-
-        if (minDist === distMinX) resolvedPos.x = minX - 0.01;
-        else if (minDist === distMaxX) resolvedPos.x = maxX + 0.01;
-        else if (minDist === distMinZ) resolvedPos.z = minZ - 0.01;
-        else resolvedPos.z = maxZ + 0.01;
+    if (hitWall && wallNormal) {
+      // UE5 Wall sliding projection
+      const norm2D = new THREE.Vector2(wallNormal.x, wallNormal.z).normalize();
+      const move2D = new THREE.Vector2(moveVec.x, moveVec.z);
+      const dot = move2D.dot(norm2D);
+      if (dot < 0) {
+        move2D.sub(norm2D.multiplyScalar(dot));
+        resolvedPos.x = oldPos.x + move2D.x;
+        resolvedPos.z = oldPos.z + move2D.y;
       }
     }
+  }
+
+  // 2. Walkable floor & stair step-up (like UE5 MaxStepHeight)
+  const stairY = getColliderSurfaceHeight(resolvedPos.x, resolvedPos.z, oldPos.y, 0.55);
+  if (stairY !== null) {
+    resolvedPos.y = stairY;
   }
 
   return resolvedPos;
