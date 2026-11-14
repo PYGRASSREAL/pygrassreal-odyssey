@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { resolveCharacterCollision } from './modelManager.js';
 
 let astronaut = null;
 const astroLimbs = { lLeg: null, rLeg: null, lArm: null, rArm: null, torso: null };
@@ -199,8 +200,16 @@ export function updateAstronautPhysics(delta, getTerrainHeight, camera, controls
   if (isMoving) {
     moveX /= inputLen;
     moveZ /= inputLen;
-    astroPos.x += moveX * moveSpeed * delta;
-    astroPos.z += moveZ * moveSpeed * delta;
+
+    const oldPos = astroPos.clone();
+    const nextX = astroPos.x + moveX * moveSpeed * delta;
+    const nextZ = astroPos.z + moveZ * moveSpeed * delta;
+
+    const testPos = new THREE.Vector3(nextX, astroPos.y, nextZ);
+    const resolvedPos = resolveCharacterCollision(testPos, oldPos, 0.45);
+
+    astroPos.x = resolvedPos.x;
+    astroPos.z = resolvedPos.z;
 
     const targetAngle = Math.atan2(moveX, moveZ);
     astroRotation = THREE.MathUtils.lerp(astroRotation, targetAngle, 0.22);
@@ -214,6 +223,11 @@ export function updateAstronautPhysics(delta, getTerrainHeight, camera, controls
     if (astroLimbs.rArm) astroLimbs.rArm.rotation.x = swing * 0.85;
     if (astroLimbs.torso) astroLimbs.torso.position.y = 0.95 + Math.abs(Math.sin(walkAnimTime * 2)) * 0.05;
   } else {
+    // Anti-penetration check: push out if currently stuck inside any collider
+    const unstickPos = resolveCharacterCollision(astroPos, astroPos, 0.45);
+    astroPos.x = unstickPos.x;
+    astroPos.z = unstickPos.z;
+
     if (astroLimbs.lLeg) astroLimbs.lLeg.rotation.x *= 0.82;
     if (astroLimbs.rLeg) astroLimbs.rLeg.rotation.x *= 0.82;
     if (astroLimbs.lArm) astroLimbs.lArm.rotation.x *= 0.82;

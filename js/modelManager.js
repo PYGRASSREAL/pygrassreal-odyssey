@@ -512,3 +512,119 @@ function setupDropZone() {
 export function exportPrint3D() {
   alert("🖨️ 3D Print Extractor:\nExtracted watertight solid model from .py3s container (0 sec export ready)!\nFile: mars_spacecraft_print3d.3mf");
 }
+
+/**
+ * Resolves character collision against all colliders (UCX / Mesh / Bounding Box)
+ * with robust sliding response and penetration prevention.
+ */
+export function resolveCharacterCollision(newPos, oldPos, charRadius = 0.45) {
+  // 1. Collect active collider meshes
+  const ucxMeshes = [];
+  const otherMeshes = [];
+
+  colliderMeshGroup.traverse((c) => {
+    if (c.isMesh) {
+      const name = (c.name || '').toLowerCase();
+      if (name.includes('ucx') || name.includes('col')) {
+        ucxMeshes.push(c);
+      } else {
+        otherMeshes.push(c);
+      }
+    }
+  });
+
+  let activeColliders = ucxMeshes.length > 0 ? ucxMeshes : otherMeshes;
+
+  // Fallback to visual meshes if colliderMeshGroup has none
+  if (activeColliders.length === 0) {
+    visualMeshGroup.traverse((c) => {
+      if (c.isMesh) otherMeshes.push(c);
+    });
+    activeColliders = otherMeshes;
+  }
+
+  // If no mesh at all, check general model bounding box
+  if (activeColliders.length === 0) {
+    const box = getModelBoundingBox();
+    if (box && isFinite(box.min.x)) {
+      return checkSingleBoxCollision(newPos, oldPos, box, charRadius);
+    }
+    return newPos;
+  }
+
+  // Check against all active collider boxes
+  let resolvedPos = newPos.clone();
+
+  for (const mesh of activeColliders) {
+    if (!mesh.geometry) continue;
+    mesh.updateMatrixWorld(true);
+    if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox();
+
+    const worldBox = mesh.geometry.boundingBox.clone().applyMatrix4(mesh.matrixWorld);
+
+    // Height clearance check (astronaut height ~1.8m)
+    // Ignore collision if astronaut is completely above or below the obstacle
+    if (resolvedPos.y + 0.2 > worldBox.max.y || resolvedPos.y + 1.8 < worldBox.min.y) {
+      continue;
+    }
+
+    const minX = worldBox.min.x - charRadius;
+    const maxX = worldBox.max.x + charRadius;
+    const minZ = worldBox.min.z - charRadius;
+    const maxZ = worldBox.max.z + charRadius;
+
+    // Is new position colliding?
+    if (resolvedPos.x >= minX && resolvedPos.x <= maxX && resolvedPos.z >= minZ && resolvedPos.z <= maxZ) {
+      // Test sliding on X axis only
+      const testXInside = resolvedPos.x >= minX && resolvedPos.x <= maxX && oldPos.z >= minZ && oldPos.z <= maxZ;
+      // Test sliding on Z axis only
+      const testZInside = oldPos.x >= minX && oldPos.x <= maxX && resolvedPos.z >= minZ && resolvedPos.z <= maxZ;
+
+      if (!testXInside && testZInside) {
+        // Can slide along X axis
+        resolvedPos.z = oldPos.z;
+      } else if (!testZInside && testXInside) {
+        // Can slide along Z axis
+        resolvedPos.x = oldPos.x;
+      } else {
+        // Blocked both ways or starting from inside: push out to closest edge
+        const distMinX = Math.abs(resolvedPos.x - minX);
+        const distMaxX = Math.abs(resolvedPos.x - maxX);
+        const distMinZ = Math.abs(resolvedPos.z - minZ);
+        const distMaxZ = Math.abs(resolvedPos.z - maxZ);
+        const minDist = Math.min(distMinX, distMaxX, distMinZ, distMaxZ);
+
+        if (minDist === distMinX) resolvedPos.x = minX - 0.01;
+        else if (minDist === distMaxX) resolvedPos.x = maxX + 0.01;
+        else if (minDist === distMinZ) resolvedPos.z = minZ - 0.01;
+        else resolvedPos.z = maxZ + 0.01;
+      }
+    }
+  }
+
+  return resolvedPos;
+}
+
+function checkSingleBoxCollision(newPos, oldPos, worldBox, charRadius) {
+  if (newPos.y + 0.2 > worldBox.max.y || newPos.y + 1.8 < worldBox.min.y) {
+    return newPos;
+  }
+  const minX = worldBox.min.x - charRadius;
+  const maxX = worldBox.max.x + charRadius;
+  const minZ = worldBox.min.z - charRadius;
+  const maxZ = worldBox.max.z + charRadius;
+
+  if (newPos.x >= minX && newPos.x <= maxX && newPos.z >= minZ && newPos.z <= maxZ) {
+    const res = newPos.clone();
+    const canMoveX = !(newPos.x >= minX && newPos.x <= maxX && oldPos.z >= minZ && oldPos.z <= maxZ);
+    const canMoveZ = !(oldPos.x >= minX && oldPos.x <= maxX && newPos.z >= minZ && newPos.z <= maxZ);
+    if (canMoveX && !canMoveZ) res.z = oldPos.z;
+    else if (canMoveZ && !canMoveX) res.x = oldPos.x;
+    else {
+      res.x = oldPos.x;
+      res.z = oldPos.z;
+    }
+    return res;
+  }
+  return newPos;
+}

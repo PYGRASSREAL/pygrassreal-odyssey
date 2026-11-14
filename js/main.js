@@ -84,6 +84,7 @@ window.toggleEnvironment = toggleEnvironment;
 window.toggleWindSim = toggleWindSim;
 window.reset3DCamera = () => reset3DCamera(astroPos);
 window.resetAstronautToLander = () => resetAstronautToLander(getTerrainHeight);
+window.astroPos = astroPos;
 window.loadPresetMarsCraft = () => createProceduralMarsCraft();
 window.loadSamplePy3s = (filename) => loadSamplePy3s(filename);
 window.fireImpactTest = fireImpactTest;
