@@ -244,8 +244,9 @@ export function updateAstronautPhysics(delta, getTerrainHeight, camera, controls
   const groundY = (colliderY !== null && colliderY > groundTerrainY) ? colliderY : groundTerrainY;
   const marsGravity = 9.8 * 0.38;
 
+  // Realistic Mars EVA Hop (ความสูงกระโดด ~0.65m ป้องกันการกระโดดเหาะข้ามกำแพงอาคาร)
   if (keyState.space && isGrounded) {
-    astroVelocity.y = 3.8;
+    astroVelocity.y = 2.2;
     isGrounded = false;
   }
 

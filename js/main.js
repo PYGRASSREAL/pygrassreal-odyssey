@@ -36,8 +36,16 @@ import {
   adjustColliderOpacity,
   realignModelToGround,
   getColliderSurfaceHeight,
-  resolveCharacterCollision
+  resolveCharacterCollision,
+  colliderMeshGroup
 } from './modelManager.js';
+import {
+  initBenchmarkModal,
+  toggleBenchmarkModal,
+  switchBenchmarkTab,
+  runSpaceTransmissionCalc,
+  handleBackdropClick
+} from './benchmarkModal.js';
 
 // Initialize 3D Engine
 const canvas3D = document.getElementById('threejs-canvas');
@@ -46,6 +54,7 @@ const { scene, camera, renderer, controls } = initMarsScene(canvas3D);
 // Initialize Astronaut & Model Manager
 createAstronautCharacter(scene, getTerrainHeight);
 initModelManager(scene, getTerrainHeight);
+initBenchmarkModal();
 
 // Setup Keyboard Controls
 setupKeyboardControls(() => getCurrentPhase() === '3d');
@@ -96,8 +105,15 @@ window.loadSamplePy3s = (filename) => loadSamplePy3s(filename);
 window.fireImpactTest = fireImpactTest;
 window.exportPrint3D = exportPrint3D;
 window.setVirtualKey = setVirtualKey;
+window.toggleBenchmarkModal = toggleBenchmarkModal;
+window.switchBenchmarkTab = switchBenchmarkTab;
+window.runSpaceTransmissionCalc = runSpaceTransmissionCalc;
+window.handleBackdropClick = handleBackdropClick;
 window.flipModelOrientation = flipModelOrientation;
 window.adjustModelScale = adjustModelScale;
+window.getColliderSurfaceHeight = getColliderSurfaceHeight;
+window.resolveCharacterCollision = resolveCharacterCollision;
+window.colliderMeshGroup = colliderMeshGroup;
 window.adjustSplatSize = adjustSplatSize;
 window.adjustColliderHeight = adjustColliderHeight;
 window.adjustColliderOpacity = adjustColliderOpacity;

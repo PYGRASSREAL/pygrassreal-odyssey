@@ -212,7 +212,9 @@ export function setupOptimizedColliderMesh(model) {
       cachedColliders.push(c);
 
       // Mesh พื้นฐานซ่อนไว้เพื่อใช้ตรวจจับการชน (Raycasting Collision) ทางฟิสิกส์ 100%
-      c.material = new THREE.MeshBasicMaterial({ visible: false });
+      // สำคัญมาก: กำหนด side: THREE.DoubleSide เพื่อให้ Raycast ตรวจจับได้ทั้งสองด้าน
+      // ป้องกันไม่ให้ลำแสงหลุดทะลุสามเหลี่ยมเมื่อตัวละครอยู่ชิดหรือเหลื่อมกับระนาบกำแพง
+      c.material = new THREE.MeshBasicMaterial({ visible: false, side: THREE.DoubleSide });
 
       // สร้างเฉพาะเส้นขอบโครงสร้างสถาปัตยกรรม (Edges) เพื่อความเบาและคมชัด
       const edgesGeo = new THREE.EdgesGeometry(c.geometry, 35);
@@ -226,7 +228,7 @@ export function setupOptimizedColliderMesh(model) {
       edges.name = 'ColliderEdges';
       edges.renderOrder = 999;
       // ป้องกันไม่ให้ Raycast ชนเส้น LineSegments (แก้บั๊กคาแรคเตอร์เด้งขึ้นฟ้า)
-      edges.raycast = () => {};
+      edges.raycast = () => { };
       c.add(edges);
     }
   });
@@ -626,7 +628,10 @@ export function getColliderSurfaceHeight(x, z, currentY, maxStep = 0.20) {
   const colliders = getActiveColliders();
   if (colliders.length === 0) return null;
 
-  // ยิง Raycast ลงพื้นจากความสูงเหนือเท้าเล็กน้อย (currentY + maxStep + 0.05) ป้องกันไม่ให้ทะยานขึ้นยอดหลังคา
+  // ขอบเขตความสูงของระนาบพื้นที่เดินได้ (บันไดและลานทางเข้าด้านหน้า)
+  // ระนาบที่สูงกว่า 0.52m ถือเป็นโครงสร้างอาคาร (ซุ้มประตู ยอดเสา และหลังคา) ไม่ใช่พื้นที่อนุญาตให้ยืน
+  const MAX_WALKABLE_FLOOR_Y = 0.52;
+
   const rayOrigin = new THREE.Vector3(x, currentY + maxStep + 0.05, z);
   const downRay = new THREE.Raycaster(rayOrigin, new THREE.Vector3(0, -1, 0), 0.01, maxStep + 0.45);
   downRay.firstHitOnly = true;
@@ -638,11 +643,22 @@ export function getColliderSurfaceHeight(x, z, currentY, maxStep = 0.20) {
       if (!hit.face) continue;
       const normal = hit.face.normal.clone().applyQuaternion(hit.object.getWorldQuaternion(new THREE.Quaternion()));
       // ตรวจจับเฉพาะระนาบพื้นที่เดินได้ ความชันไม่เกิน 45 องศา (normal.y >= 0.70)
-      if (normal.y >= 0.70) {
+      if (normal.y >= 0.70 && hit.point.y <= MAX_WALKABLE_FLOOR_Y) {
         const heightDiff = hit.point.y - currentY;
         // บันไดมาตรฐาน: ก้าวขึ้นได้ไม่เกิน 20 ซม. และก้าวลงได้ไม่เกิน 25 ซม. เพื่อความนุ่มนวลเหมือน UE5
         if (heightDiff <= maxStep && hit.point.y >= currentY - 0.25) {
-          return hit.point.y;
+          // ตรวจสอบ Headroom: เหนือพื้นจุดนี้ต้องมีที่ว่างสูงอย่างน้อย 1.55m ไม่มีเพดานหรือสิ่งกีดขวาง
+          const checkHeadRay = new THREE.Raycaster(
+            new THREE.Vector3(x, hit.point.y + 0.20, z),
+            new THREE.Vector3(0, 1, 0),
+            0.01,
+            1.52
+          );
+          checkHeadRay.firstHitOnly = true;
+          const headHits = checkHeadRay.intersectObjects(colliders, false);
+          if (headHits.length === 0) {
+            return hit.point.y;
+          }
         }
       }
     }
@@ -652,7 +668,7 @@ export function getColliderSurfaceHeight(x, z, currentY, maxStep = 0.20) {
 
 /**
  * Resolves character collision against all colliders (UCX / Mesh / Bounding Box)
- * with robust sliding response, stair step-up, and penetration prevention.
+ * with robust sliding response, stair step-up, and 100% solid zero-penetration blocking.
  */
 export function resolveCharacterCollision(newPos, oldPos, charRadius = 0.40) {
   const colliders = getActiveColliders();
@@ -673,29 +689,21 @@ export function resolveCharacterCollision(newPos, oldPos, charRadius = 0.40) {
   let hitWall = false;
   let wallNormal = null;
 
-  // 1. Horizontal Capsule Obstacle Sweep (Center, Left, Right across body width at waist & chest)
+  // 1. Multi-height Horizontal Obstacle Sweep (ตรวจจับสิ่งกีดขวางตั้งแต่ข้อเท้าจรดศีรษะ 6 ระดับความสูง x 3 แนว)
   if (moveLen > 0.0001) {
     const dir = moveVec.clone().normalize();
     const perp = new THREE.Vector3(-dir.z, 0, dir.x);
     const maxDist = charRadius + moveLen + 0.05;
 
-    const sweepOrigins = [
-      // ระดับเอว (Waist) 0.70m
-      new THREE.Vector3(oldPos.x, oldPos.y + 0.70, oldPos.z),
-      new THREE.Vector3(oldPos.x + perp.x * (charRadius * 0.7), oldPos.y + 0.70, oldPos.z + perp.z * (charRadius * 0.7)),
-      new THREE.Vector3(oldPos.x - perp.x * (charRadius * 0.7), oldPos.y + 0.70, oldPos.z - perp.z * (charRadius * 0.7)),
-      // ระดับอก (Chest) 1.20m
-      new THREE.Vector3(oldPos.x, oldPos.y + 1.20, oldPos.z),
-      new THREE.Vector3(oldPos.x + perp.x * (charRadius * 0.7), oldPos.y + 1.20, oldPos.z + perp.z * (charRadius * 0.7)),
-      new THREE.Vector3(oldPos.x - perp.x * (charRadius * 0.7), oldPos.y + 1.20, oldPos.z - perp.z * (charRadius * 0.7)),
-      // ระดับศีรษะและหมวก (Head & Helmet) 1.45m - 1.68m ป้องกันหัวทะลุช่องประตู/เพดานเตี้ย
-      new THREE.Vector3(oldPos.x, oldPos.y + 1.45, oldPos.z),
-      new THREE.Vector3(oldPos.x + perp.x * (charRadius * 0.55), oldPos.y + 1.45, oldPos.z + perp.z * (charRadius * 0.55)),
-      new THREE.Vector3(oldPos.x - perp.x * (charRadius * 0.55), oldPos.y + 1.45, oldPos.z - perp.z * (charRadius * 0.55)),
-      new THREE.Vector3(oldPos.x, oldPos.y + 1.65, oldPos.z),
-      new THREE.Vector3(oldPos.x + perp.x * (charRadius * 0.45), oldPos.y + 1.65, oldPos.z + perp.z * (charRadius * 0.45)),
-      new THREE.Vector3(oldPos.x - perp.x * (charRadius * 0.45), oldPos.y + 1.65, oldPos.z - perp.z * (charRadius * 0.45))
-    ];
+    // ตรวจสอบ 6 ระดับความสูง (ข้อเท้า 0.20m, เข่า 0.45m, เอว 0.75m, อก 1.15m, ศีรษะ 1.45m, ยอดหมวก 1.68m)
+    const checkHeights = [0.20, 0.45, 0.75, 1.15, 1.45, 1.68];
+    const sweepOrigins = [];
+
+    for (const h of checkHeights) {
+      sweepOrigins.push(new THREE.Vector3(oldPos.x, oldPos.y + h, oldPos.z));
+      sweepOrigins.push(new THREE.Vector3(oldPos.x + perp.x * (charRadius * 0.65), oldPos.y + h, oldPos.z + perp.z * (charRadius * 0.65)));
+      sweepOrigins.push(new THREE.Vector3(oldPos.x - perp.x * (charRadius * 0.65), oldPos.y + h, oldPos.z - perp.z * (charRadius * 0.65)));
+    }
 
     const ray = new THREE.Raycaster();
     ray.firstHitOnly = true;
@@ -707,8 +715,8 @@ export function resolveCharacterCollision(newPos, oldPos, charRadius = 0.40) {
       for (const hit of hits) {
         if (!hit.face) continue;
         const normal = hit.face.normal.clone().applyQuaternion(hit.object.getWorldQuaternion(new THREE.Quaternion()));
-        // กำแพง เสา ซุ้มประตู ช่องหลังคา และสิ่งกีดขวางระดับลำตัว/ศีรษะ
-        if (normal.y < 0.85) {
+        // กำแพง เสา โคนเสา ซุ้มประตู (ความชันเกิน 45 องศา normal.y < 0.70 หรือระนาบเหนือเอว normal.y < 0.85)
+        if (normal.y < 0.70 || (origin.y >= oldPos.y + 0.65 && normal.y < 0.85)) {
           hitWall = true;
           wallNormal = normal;
           break;
@@ -718,14 +726,34 @@ export function resolveCharacterCollision(newPos, oldPos, charRadius = 0.40) {
     }
 
     if (hitWall && wallNormal) {
-      // UE5 Wall sliding projection
+      // UE5 Wall sliding projection (ฉายเวกเตอร์การเคลื่อนที่ขนานกับแนวผนัง)
       const len2D = Math.hypot(wallNormal.x, wallNormal.z);
       if (len2D > 0.001) {
         const norm2D = new THREE.Vector2(wallNormal.x / len2D, wallNormal.z / len2D);
         const move2D = new THREE.Vector2(moveVec.x, moveVec.z);
         const dot = move2D.dot(norm2D);
         if (dot < 0) {
-          move2D.sub(norm2D.multiplyScalar(dot));
+          move2D.sub(norm2D.clone().multiplyScalar(dot));
+          // Corner Crease Check: หากการสไลด์ตามแนวผนังชนผนังหรือเสาอีกด้านหนึ่ง ให้หยุดทันที
+          const testSlideDir = new THREE.Vector3(move2D.x, 0, move2D.y);
+          const slideLen = testSlideDir.length();
+          if (slideLen > 0.001) {
+            testSlideDir.normalize();
+            const cornerRay = new THREE.Raycaster(
+              new THREE.Vector3(oldPos.x, oldPos.y + 0.75, oldPos.z),
+              testSlideDir,
+              0.01,
+              charRadius + slideLen
+            );
+            cornerRay.firstHitOnly = true;
+            const cornerHits = cornerRay.intersectObjects(colliders, false);
+            if (cornerHits.length > 0 && cornerHits[0].face) {
+              const cNorm = cornerHits[0].face.normal.clone().applyQuaternion(cornerHits[0].object.getWorldQuaternion(new THREE.Quaternion()));
+              if (cNorm.y < 0.70) {
+                move2D.set(0, 0); // โดนมุมหนีบ หยุดการเคลื่อนที่เด็ดขาด
+              }
+            }
+          }
           resolvedPos.x = oldPos.x + move2D.x;
           resolvedPos.z = oldPos.z + move2D.y;
         } else {
@@ -736,55 +764,77 @@ export function resolveCharacterCollision(newPos, oldPos, charRadius = 0.40) {
         resolvedPos.x = oldPos.x;
         resolvedPos.z = oldPos.z;
       }
-
-      // เมื่อชนกำแพง/เสา/ซุ้มประตูเตี้ยระดับศีรษะ ห้ามปีนบันไดเด็ดขาด!
-      return resolvedPos;
+      // หมายเหตุ: ไม่ทำ early return เพื่อให้ Anti-Penetration Push-Out ดันตัวละครออกจากระนาบเสมอ
     }
   }
 
-  // 2. Headroom Clearance Check (ตรวจสอบเพดาน/กรอบประตู ไม่ให้หัวมุดทะลุช่องประตูเตี้ย)
+  // 2. Headroom & Doorway Clearance Check (ตรวจสอบเพดาน/กรอบประตู ไม่ให้หัวมุดทะลุช่องประตูเตี้ย)
   const charHeight = 1.72;
   const upRay = new THREE.Raycaster(
-    new THREE.Vector3(resolvedPos.x, resolvedPos.y + 0.15, resolvedPos.z),
+    new THREE.Vector3(resolvedPos.x, resolvedPos.y + 0.20, resolvedPos.z),
     new THREE.Vector3(0, 1, 0),
     0.01,
-    charHeight
+    charHeight - 0.20
   );
   upRay.firstHitOnly = true;
   const upHits = upRay.intersectObjects(colliders, false);
   if (upHits.length > 0) {
     // เพดาน/กรอบประตูเตี้ยกว่าความสูงตัวละคร บล็อกไม่ให้เดินเข้าไปในช่องประตูเด็ดขาด!
-    return oldPos.clone();
+    resolvedPos.x = oldPos.x;
+    resolvedPos.z = oldPos.z;
+    hitWall = true;
   }
 
-  // 3. Anti-Penetration Push-Out (ตรวจ 8 ทิศทางรอบรัศมีแคปซูล ทั้งระดับเอวและระดับศีรษะ)
+  // 3. Anti-Penetration Push-Out (ตรวจ 12 ทิศทางรอบรัศมีแคปซูล x 4 ระดับความสูง)
+  // คำนวณเฉพาะระยะเจาะลึกสูงสุด (Deepest Penetration) เพื่อดันตัวละครออกจากระนาบอย่างแม่นยำ ไม่สะสมเวกเตอร์จนเด้ง
   const pushRay = new THREE.Raycaster();
   pushRay.firstHitOnly = true;
-  const pushHeights = [0.70, 1.45];
-  for (const ph of pushHeights) {
-    for (let a = 0; a < 8; a++) {
-      const ang = (a * Math.PI) / 4;
-      const pDir = new THREE.Vector3(Math.cos(ang), 0, Math.sin(ang));
-      pushRay.set(new THREE.Vector3(resolvedPos.x, resolvedPos.y + ph, resolvedPos.z), pDir);
-      pushRay.far = charRadius;
-      const pushHits = pushRay.intersectObjects(colliders, false);
-      if (pushHits.length > 0 && pushHits[0].face) {
-        const pNorm = pushHits[0].face.normal.clone().applyQuaternion(pushHits[0].object.getWorldQuaternion(new THREE.Quaternion()));
-        if (pNorm.y < 0.85) {
-          const pen = charRadius - pushHits[0].distance;
-          if (pen > 0) {
-            resolvedPos.x -= pDir.x * pen;
-            resolvedPos.z -= pDir.z * pen;
+  const pushHeights = [0.25, 0.65, 1.15, 1.55];
+  const numAngles = 12;
+
+  for (let pass = 0; pass < 2; pass++) {
+    let maxPen = 0;
+    let bestPushDir = null;
+
+    for (const ph of pushHeights) {
+      for (let a = 0; a < numAngles; a++) {
+        const ang = (a * 2 * Math.PI) / numAngles;
+        const pDir = new THREE.Vector3(Math.cos(ang), 0, Math.sin(ang));
+        pushRay.set(new THREE.Vector3(resolvedPos.x, resolvedPos.y + ph, resolvedPos.z), pDir);
+        pushRay.far = charRadius + 0.02;
+        const pushHits = pushRay.intersectObjects(colliders, false);
+        if (pushHits.length > 0 && pushHits[0].face) {
+          const pNorm = pushHits[0].face.normal.clone().applyQuaternion(pushHits[0].object.getWorldQuaternion(new THREE.Quaternion()));
+          if (pNorm.y < 0.70) {
+            const pen = charRadius - pushHits[0].distance;
+            if (pen > maxPen) {
+              maxPen = pen;
+              const norm2D = new THREE.Vector2(pNorm.x, pNorm.z);
+              if (norm2D.length() > 0.001) {
+                bestPushDir = norm2D.normalize();
+              } else {
+                bestPushDir = new THREE.Vector2(-pDir.x, -pDir.z);
+              }
+            }
           }
         }
       }
     }
+
+    if (maxPen > 0.001 && bestPushDir) {
+      resolvedPos.x += bestPushDir.x * maxPen;
+      resolvedPos.z += bestPushDir.y * maxPen;
+    } else {
+      break; // ตัวละครอยู่นอกระยะการชนอย่างสมบูรณ์แล้ว
+    }
   }
 
-  // 4. Walkable floor & stair step-up (เฉพาะกรณีที่ทางข้างหน้าและศีรษะโปร่ง)
-  const stairY = getColliderSurfaceHeight(resolvedPos.x, resolvedPos.z, oldPos.y, 0.20);
-  if (stairY !== null) {
-    resolvedPos.y = stairY;
+  // 4. Walkable floor & stair step-up (เฉพาะกรณีที่ตัวละครไม่ได้ชนกำแพง/เสา)
+  if (!hitWall) {
+    const stairY = getColliderSurfaceHeight(resolvedPos.x, resolvedPos.z, oldPos.y, 0.20);
+    if (stairY !== null) {
+      resolvedPos.y = stairY;
+    }
   }
 
   return resolvedPos;
