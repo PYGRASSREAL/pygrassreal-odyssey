@@ -82,7 +82,25 @@
                   0 0 30px rgba(56, 189, 248, 0.16) !important;
       padding: 1.2rem 1.35rem;
       color: #f8fafc;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+      /* สถานะซ่อนอยู่ใต้ขอบล่างหน้าจอ (Smooth Slow Push-Down State) */
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(calc(100% + 3.5rem));
+      transition: transform 0.95s cubic-bezier(0.19, 1, 0.22, 1),
+                  opacity 0.75s cubic-bezier(0.19, 1, 0.22, 1),
+                  background 0.3s ease, 
+                  border-color 0.3s ease;
+      will-change: transform, opacity;
+    }
+
+    /* เอฟเฟกต์ดันขึ้นมาจากขอบล่างหน้าจออย่างช้าๆ นุ่มนวล (Cinematic Slow Push-Up) */
+    .unified-right-console.pop-active {
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      transform: translateY(0) !important;
+      transition: transform 1.25s cubic-bezier(0.16, 1, 0.3, 1),
+                  opacity 1.0s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }
     .unified-right-console:hover {
       background: rgba(6, 14, 30, 0.52) !important;
@@ -199,9 +217,9 @@
 
     /* Section 2: .py3s Format Breakthrough */
     .console-format-section {
-      padding-bottom: 0.75rem;
-      margin-bottom: 0.75rem;
-      border-bottom: 1px solid rgba(56, 189, 248, 0.18);
+      padding-bottom: 0.2rem;
+      margin-bottom: 0;
+      border-bottom: none;
     }
     .compare-header {
       display: flex;
@@ -396,14 +414,6 @@
         <span>🪐</span><span>Final 3D Simulation</span>
       </button>
     </div>
-
-    <!-- Benchmark Action Button -->
-    <div style="display: flex; align-items: center; gap: 0.5rem;">
-      <button class="benchmark-pill-btn" id="btn-benchmark-toggle" onclick="toggleBenchmarkModal()" title="ดูตารางเปรียบเทียบฟอร์แมต 3D และวิเคราะห์แบนด์วิธอวกาศลึก">
-        <span class="pulse-dot"></span>
-        <span>⚡ .py3s Format Benchmark</span>
-      </button>
-    </div>
   </header>
 
   <!-- Single Master Viewport -->
@@ -423,33 +433,6 @@
     </button>
     <button class="ctrl-btn active" id="btn-shade-splat" onclick="setShadingMode('splat')">
       <span>✨</span><span>3D Gaussian Splats</span>
-    </button>
-    <button class="ctrl-btn" onclick="flipModelOrientation()" title="กลับหัวโมเดล 180°">
-      <span>🔄</span><span>Flip 180°</span>
-    </button>
-    <button class="ctrl-btn" onclick="adjustModelScale(1.25)" title="ขยายขนาดโมเดล">
-      <span>➕</span><span>Scale +</span>
-    </button>
-    <button class="ctrl-btn" onclick="adjustModelScale(0.8)" title="ย่อขนาดโมเดล">
-      <span>➖</span><span>Scale -</span>
-    </button>
-    <button class="ctrl-btn" onclick="adjustSplatSize(1.3)" title="ขยายขนาดเม็ด Splat ให้เต็ม">
-      <span>✨</span><span>Splat Size +</span>
-    </button>
-    <button class="ctrl-btn" onclick="adjustSplatSize(0.75)" title="ลดขนาดเม็ด Splat">
-      <span>🔍</span><span>Splat Size -</span>
-    </button>
-    <button class="ctrl-btn active" id="btn-cam-follow" onclick="toggleCameraFollow()">
-      <span>🎥</span><span id="cam-follow-text">Follow Astronaut</span>
-    </button>
-    <button class="ctrl-btn" id="btn-env-toggle" onclick="toggleEnvironment()">
-      <span>🪐</span><span>Mars Surface</span>
-    </button>
-    <button class="ctrl-btn" id="btn-wind-toggle" onclick="toggleWindSim()">
-      <span>💨</span><span>Wind Sim</span>
-    </button>
-    <button class="ctrl-btn" onclick="reset3DCamera()">
-      <span>🎯</span><span>Reset View</span>
     </button>
   </div>
 
@@ -636,37 +619,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Section 3: Telemetry Rows & Diagnostics -->
-    <div class="console-telemetry-section">
-      <div class="telemetry-row">
-        <span>Mission Story Progress:</span>
-        <span class="telemetry-val" id="hud-frame-pos">Stage 1 of 5 (0.0%)</span>
-      </div>
-      <div class="telemetry-row">
-        <span>Story Stage Sequence:</span>
-        <span class="telemetry-val" id="hud-sequence-text" style="color: var(--accent);">Clip 01 (Scroll) ➡️ Clip 06 (Loop)</span>
-      </div>
-      <div class="telemetry-row">
-        <span>Active Screen:</span>
-        <span class="telemetry-val" id="hud-media-text">Clip 01 (Scrubbing Frame 0 / 118)</span>
-      </div>
-      <div class="telemetry-row">
-        <span>Astronaut Telemetry:</span>
-        <span class="telemetry-val" id="hud-astro-pos" style="color: var(--success);">Waiting at Final Stage (Mars Surface)</span>
-      </div>
-
-      <div class="impact-box" id="impact-log">
-        <strong>⚠️ IMPACT HIT DETECTED!</strong><br/>
-        Velocity: 14.2 km/s | Raycast: Outer Shield Hull<br/>
-        Physics Collider absorption: 98.2% | Integrity: Grade S
-      </div>
-    </div>
-
-    <!-- Section 4: Action Button & Interactive Modal Link -->
-    <button class="btn-glass-action" onclick="toggleBenchmarkModal()" style="margin-top: 0.75rem;">
-      <span>📊</span><span>คลิกเปิดดูตารางเปรียบเทียบเต็ม 6 ฟอร์แมต & เครื่องคำนวณ ➔</span>
-    </button>
   </div>
 
   <!-- Floating Scroll Down Hint -->
@@ -1186,12 +1138,6 @@
       const chip3Lbl = document.getElementById('chip-3-lbl');
       const chip3Val = document.getElementById('chip-3-val');
 
-      // Micro-fade transition for unified console
-      const unifiedConsole = document.getElementById('glass-unified-console');
-      if (unifiedConsole) {
-        unifiedConsole.style.opacity = '0.75';
-        setTimeout(() => { unifiedConsole.style.opacity = '1'; }, 160);
-      }
 
       if (badge) badge.innerText = data.stageBadge;
       if (clips) clips.innerText = data.clips;
