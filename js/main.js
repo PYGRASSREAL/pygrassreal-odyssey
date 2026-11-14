@@ -33,6 +33,7 @@ import {
   adjustModelScale,
   adjustSplatSize,
   adjustColliderHeight,
+  adjustColliderOpacity,
   realignModelToGround
 } from './modelManager.js';
 
@@ -97,6 +98,7 @@ window.flipModelOrientation = flipModelOrientation;
 window.adjustModelScale = adjustModelScale;
 window.adjustSplatSize = adjustSplatSize;
 window.adjustColliderHeight = adjustColliderHeight;
+window.adjustColliderOpacity = adjustColliderOpacity;
 window.realignModelToGround = realignModelToGround;
 window.currentModelGroup = currentModelGroup;
 window.getModelBoundingBox = getModelBoundingBox;

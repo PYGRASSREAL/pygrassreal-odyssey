@@ -154,10 +154,48 @@ export function getModelBoundingBox() {
 }
 
 let currentColliderLiftOffset = 0.04; // ยกขึ้น 0.04 ใน local space เพื่อให้เส้นโครงตาข่ายตรงกับยอดหลังคาและซุ้มประตูพอดี
+let currentColliderOpacity = 0.25; // ความโปร่งแสงที่สบายตาและมองทะลุเห็นเนื้อ 3DGS ด้านในได้ชัดเจน
 
 export function adjustColliderHeight(delta) {
   currentColliderLiftOffset += delta;
   alignMeshLayersWithSplat();
+}
+
+export function adjustColliderOpacity(delta) {
+  currentColliderOpacity = Math.max(0.05, Math.min(1.0, currentColliderOpacity + delta));
+  colliderMeshGroup.traverse((c) => {
+    if (c.isLineSegments && c.material) {
+      c.material.opacity = currentColliderOpacity;
+    } else if (c.isMesh && c.material && c.material.wireframe) {
+      c.material.opacity = currentColliderOpacity;
+    }
+  });
+}
+
+/**
+ * แปลง Mesh ให้เป็น EdgesGeometry ที่เบาลง (ตัดเส้นทแยงมุมรกๆ ออก 70%)
+ * และทำให้มองทะลุเห็นเนื้อโมเดล 3DGS อย่างสวยงาม ไม่บังสายตา
+ */
+export function setupOptimizedColliderMesh(model) {
+  model.traverse((c) => {
+    if (c.isMesh) {
+      // Mesh พื้นฐานซ่อนไว้เพื่อใช้ตรวจจับการชน (Raycasting Collision) ทางฟิสิกส์ 100%
+      c.material = new THREE.MeshBasicMaterial({ visible: false });
+
+      // สร้างเฉพาะเส้นขอบโครงสร้างสถาปัตยกรรม (Edges) เพื่อความเบาและคมชัด
+      const edgesGeo = new THREE.EdgesGeometry(c.geometry, 35);
+      const lineMat = new THREE.LineBasicMaterial({
+        color: 0x38bdf8,
+        transparent: true,
+        opacity: currentColliderOpacity,
+        depthWrite: false
+      });
+      const edges = new THREE.LineSegments(edgesGeo, lineMat);
+      edges.name = 'ColliderEdges';
+      edges.renderOrder = 999;
+      c.add(edges);
+    }
+  });
 }
 
 export function alignMeshLayersWithSplat() {
@@ -393,11 +431,7 @@ export async function loadSamplePy3s(filename) {
             const visualClone = model.clone();
             visualMeshGroup.add(visualClone);
 
-            model.traverse((c) => {
-              if (c.isMesh) {
-                c.material = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.75 });
-              }
-            });
+            setupOptimizedColliderMesh(model);
             colliderMeshGroup.add(model);
             alignMeshLayersWithSplat();
             fitModelToLanderArea(4.5);
@@ -471,11 +505,7 @@ export function processLoadedFile(file) {
               const visualClone = model.clone();
               visualMeshGroup.add(visualClone);
 
-              model.traverse((c) => {
-                if (c.isMesh) {
-                  c.material = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.8 });
-                }
-              });
+              setupOptimizedColliderMesh(model);
               colliderMeshGroup.add(model);
               alignMeshLayersWithSplat();
               fitModelToLanderArea(4.5);
@@ -519,11 +549,7 @@ export function processLoadedFile(file) {
         visualMeshGroup.add(model.clone());
 
         const colModel = model.clone();
-        colModel.traverse((c) => {
-          if (c.isMesh) {
-            c.material = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.8 });
-          }
-        });
+        setupOptimizedColliderMesh(colModel);
         colliderMeshGroup.add(colModel);
 
         const splatGeo = generateSplatPointsFromGroup(model);
