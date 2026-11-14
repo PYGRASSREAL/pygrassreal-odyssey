@@ -351,7 +351,12 @@ export async function loadSamplePy3s(filename) {
           const loader = new GLTFLoader();
           loader.parse(colSubBuffer, '', (gltf) => {
             const model = gltf.scene;
-            visualMeshGroup.add(model.clone());
+
+            // Rotate GLTF by PI around X to match 3DGS upright coordinate frame
+            model.rotation.x = Math.PI;
+
+            const visualClone = model.clone();
+            visualMeshGroup.add(visualClone);
 
             model.traverse((c) => {
               if (c.isMesh) {
@@ -426,7 +431,13 @@ export function processLoadedFile(file) {
             const loader = new GLTFLoader();
             loader.parse(colSubBuffer, '', (gltf) => {
               const model = gltf.scene;
-              visualMeshGroup.add(model.clone());
+
+              // Rotate GLTF by PI around X to match 3DGS upright coordinate frame
+              model.rotation.x = Math.PI;
+
+              const visualClone = model.clone();
+              visualMeshGroup.add(visualClone);
+
               model.traverse((c) => {
                 if (c.isMesh) {
                   c.material = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.8 });
@@ -514,11 +525,56 @@ export function exportPrint3D() {
 }
 
 /**
+ * Traces the highest walkable surface of colliders at (x, z).
+ * Supports stair climbing / step-up like Unreal Engine 5.
+ */
+export function getColliderSurfaceHeight(x, z, currentY, maxStep = 0.65) {
+  const colliders = [];
+  colliderMeshGroup.traverse((c) => {
+    if (c.isMesh) colliders.push(c);
+  });
+  if (colliders.length === 0) {
+    visualMeshGroup.traverse((c) => {
+      if (c.isMesh) colliders.push(c);
+    });
+  }
+  if (colliders.length === 0) return null;
+
+  const rayOrigin = new THREE.Vector3(x, currentY + maxStep + 0.5, z);
+  const downRay = new THREE.Raycaster(rayOrigin, new THREE.Vector3(0, -1, 0), 0.01, maxStep + 2.0);
+  const hits = downRay.intersectObjects(colliders, true);
+
+  if (hits.length > 0) {
+    for (const hit of hits) {
+      const normal = hit.face ? hit.face.normal.clone().applyQuaternion(hit.object.getWorldQuaternion(new THREE.Quaternion())) : new THREE.Vector3(0, 1, 0);
+      if (normal.y > 0.4) {
+        const heightDiff = hit.point.y - currentY;
+        if (heightDiff <= maxStep && hit.point.y >= currentY - 0.8) {
+          return hit.point.y;
+        }
+      }
+    }
+  }
+  return null;
+}
+
+/**
  * Resolves character collision against all colliders (UCX / Mesh / Bounding Box)
- * with robust sliding response and penetration prevention.
+ * with robust sliding response, stair step-up, and penetration prevention.
  */
 export function resolveCharacterCollision(newPos, oldPos, charRadius = 0.45) {
-  // 1. Collect active collider meshes
+  // 1. Check for walkable stair / ground surface step-up (like UE5 MaxStepHeight)
+  const stairY = getColliderSurfaceHeight(newPos.x, newPos.z, oldPos.y, 0.65);
+  if (stairY !== null) {
+    const heightDiff = stairY - oldPos.y;
+    if (heightDiff <= 0.65) {
+      const stepPos = newPos.clone();
+      stepPos.y = stairY;
+      return stepPos;
+    }
+  }
+
+  // 2. Collect active collider meshes
   const ucxMeshes = [];
   const otherMeshes = [];
 

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { resolveCharacterCollision } from './modelManager.js';
+import { resolveCharacterCollision, getColliderSurfaceHeight } from './modelManager.js';
 
 let astronaut = null;
 const astroLimbs = { lLeg: null, rLeg: null, lArm: null, rArm: null, torso: null };
@@ -210,6 +210,9 @@ export function updateAstronautPhysics(delta, getTerrainHeight, camera, controls
 
     astroPos.x = resolvedPos.x;
     astroPos.z = resolvedPos.z;
+    if (resolvedPos.y !== astroPos.y && isGrounded) {
+      astroPos.y = resolvedPos.y;
+    }
 
     const targetAngle = Math.atan2(moveX, moveZ);
     astroRotation = THREE.MathUtils.lerp(astroRotation, targetAngle, 0.22);
@@ -235,7 +238,9 @@ export function updateAstronautPhysics(delta, getTerrainHeight, camera, controls
     if (astroLimbs.torso) astroLimbs.torso.position.y = 0.95 + Math.sin(performance.now() * 0.003) * 0.015;
   }
 
-  const groundY = getTerrainHeight(astroPos.x, astroPos.z);
+  const groundTerrainY = getTerrainHeight(astroPos.x, astroPos.z);
+  const colliderY = getColliderSurfaceHeight(astroPos.x, astroPos.z, astroPos.y, 0.65);
+  const groundY = (colliderY !== null && colliderY > groundTerrainY) ? colliderY : groundTerrainY;
   const marsGravity = 9.8 * 0.38;
 
   if (keyState.space && isGrounded) {
