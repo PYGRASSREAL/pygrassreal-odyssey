@@ -58,63 +58,52 @@
     }
 
     /* =========================================================================
-       DISTRIBUTED FROSTED GLASS (GLASSMORPHISM) SCI-FI GUI
+       ULTRA-TRANSPARENT FROSTED GLASS CONSOLE (RIGHT SIDE UNIFIED HUD)
        ========================================================================= */
-    .glass-left-dock {
+    .unified-right-console {
       position: fixed;
-      top: 4.4rem;
-      left: 1.25rem;
-      width: 395px;
-      max-width: calc(100vw - 2.5rem);
-      display: flex;
-      flex-direction: column;
-      gap: 0.85rem;
+      right: 1.5rem;
+      bottom: 1.5rem;
+      width: 440px;
+      max-width: calc(100vw - 3rem);
+      max-height: calc(100vh - 5.5rem);
+      overflow-y: auto;
+      overflow-x: hidden;
       z-index: 55;
-      pointer-events: auto;
-      transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .glass-left-dock.hidden-in-3d {
-      opacity: 0 !important;
-      pointer-events: none !important;
-      transform: translateX(-40px) !important;
-    }
-
-    /* Base Frosted Glass Panel */
-    .glass-panel {
-      background: rgba(8, 14, 28, 0.65) !important;
-      backdrop-filter: blur(24px) saturate(190%) !important;
-      -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
-      border: 1px solid rgba(56, 189, 248, 0.28) !important;
-      border-radius: 16px !important;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65), 
-                  inset 0 1px 0 rgba(255, 255, 255, 0.12),
-                  0 0 20px rgba(56, 189, 248, 0.15) !important;
+      
+      /* Ultra-Transparent Frosted Glassmorphism */
+      background: rgba(6, 14, 30, 0.40) !important;
+      backdrop-filter: blur(30px) saturate(220%) !important;
+      -webkit-backdrop-filter: blur(30px) saturate(220%) !important;
+      border: 1px solid rgba(56, 189, 248, 0.32) !important;
+      border-radius: 20px !important;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 
+                  inset 0 1px 0 rgba(255, 255, 255, 0.20),
+                  0 0 30px rgba(56, 189, 248, 0.16) !important;
+      padding: 1.2rem 1.35rem;
       color: #f8fafc;
-      transition: border-color 0.3s, box-shadow 0.3s;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .glass-panel:hover {
-      border-color: rgba(56, 189, 248, 0.55) !important;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), 
-                  inset 0 1px 0 rgba(255, 255, 255, 0.18),
-                  0 0 26px rgba(56, 189, 248, 0.25) !important;
+    .unified-right-console:hover {
+      background: rgba(6, 14, 30, 0.52) !important;
+      border-color: rgba(56, 189, 248, 0.6) !important;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75), 
+                  inset 0 1px 0 rgba(255, 255, 255, 0.28),
+                  0 0 36px rgba(56, 189, 248, 0.28) !important;
     }
 
-    /* 1. Main Stage & Mission Context Card */
-    .glass-stage-card {
-      padding: 1.15rem 1.25rem;
-    }
-    .glass-card-header {
+    .unified-right-console::-webkit-scrollbar { width: 5px; }
+    .unified-right-console::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); border-radius: 4px; }
+    .unified-right-console::-webkit-scrollbar-thumb { background: rgba(56, 189, 248, 0.4); border-radius: 4px; }
+
+    /* Top HUD Header */
+    .hud-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 0.5rem;
-      margin-bottom: 0.65rem;
+      margin-bottom: 0.5rem;
       flex-wrap: wrap;
-    }
-    .stage-tag-group {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
     }
     .stage-pill {
       font-size: 0.65rem;
@@ -141,46 +130,91 @@
       padding: 0.18rem 0.55rem;
       border-radius: 9999px;
     }
+    .status-pill {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 0.18rem 0.55rem;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .status-scrubbing {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent, #38bdf8);
+      border: 1px solid var(--accent, #38bdf8);
+    }
+    .status-looping {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid #10b981;
+      animation: pulse 1.2s infinite;
+    }
+    .status-3d {
+      background: rgba(224, 104, 71, 0.25);
+      color: #e06847;
+      border: 1px solid #e06847;
+    }
 
+    .progress-track {
+      width: 100%;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 3px;
+      overflow: hidden;
+      margin: 0.5rem 0 0.85rem 0;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #38bdf8, #10b981);
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+
+    /* Section 1: Active Stage Mission Story */
+    .console-story-section {
+      padding-bottom: 0.75rem;
+      margin-bottom: 0.75rem;
+      border-bottom: 1px solid rgba(56, 189, 248, 0.18);
+    }
     .glass-card-title {
-      font-size: 0.98rem;
+      font-size: 0.95rem;
       font-weight: 800;
       color: #ffffff;
       line-height: 1.3;
-      margin-bottom: 0.25rem;
+      margin-bottom: 0.2rem;
       letter-spacing: -0.01em;
     }
     .glass-theme-sub {
       font-size: 0.74rem;
       font-weight: 600;
       color: #38bdf8;
-      margin-bottom: 0.6rem;
+      margin-bottom: 0.45rem;
     }
     .glass-card-desc {
-      font-size: 0.77rem;
+      font-size: 0.76rem;
       color: #cbd5e1;
       line-height: 1.45;
-      border-top: 1px solid rgba(56, 189, 248, 0.18);
-      padding-top: 0.6rem;
       transition: opacity 0.25s ease;
     }
 
-    /* 2. Real-Time Stage Format Breakthrough & Telemetry Node */
-    .glass-compare-widget {
-      padding: 1rem 1.25rem;
+    /* Section 2: .py3s Format Breakthrough */
+    .console-format-section {
+      padding-bottom: 0.75rem;
+      margin-bottom: 0.75rem;
+      border-bottom: 1px solid rgba(56, 189, 248, 0.18);
     }
     .compare-header {
       display: flex;
       align-items: center;
       gap: 0.45rem;
-      margin-bottom: 0.65rem;
+      margin-bottom: 0.55rem;
     }
     .compare-icon {
-      font-size: 1rem;
+      font-size: 0.95rem;
       color: #38bdf8;
     }
     .compare-header-title {
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-weight: 800;
       color: #ffffff;
       text-transform: uppercase;
@@ -188,20 +222,23 @@
     }
 
     .compare-contrast-box {
-      background: rgba(3, 7, 18, 0.65);
-      border: 1px solid rgba(56, 189, 248, 0.2);
-      border-radius: 10px;
+      background: rgba(8, 18, 38, 0.40);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(56, 189, 248, 0.22);
+      border-radius: 12px;
       padding: 0.65rem 0.8rem;
       display: flex;
       flex-direction: column;
       gap: 0.45rem;
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.65rem;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
     }
     .contrast-row {
       display: flex;
       flex-direction: column;
-      gap: 0.15rem;
-      font-size: 0.73rem;
+      gap: 0.12rem;
+      font-size: 0.72rem;
       line-height: 1.35;
     }
     .contrast-label {
@@ -228,31 +265,33 @@
     .contrast-row.theirs strong { color: #fca5a5; }
     .contrast-row.theirs .contrast-value { color: #94a3b8; padding-left: 0.8rem; }
 
-    /* 3 Telemetry Metric Chips */
+    /* Telemetry Chips */
     .telemetry-chips {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 0.45rem;
-      margin-bottom: 0.75rem;
+      gap: 0.4rem;
     }
     .chip {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 8px;
+      background: rgba(8, 18, 38, 0.45);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(56, 189, 248, 0.18);
+      border-radius: 10px;
       padding: 0.4rem 0.45rem;
       display: flex;
       flex-direction: column;
       gap: 0.15rem;
       text-align: center;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
     }
     .chip-lbl {
-      font-size: 0.6rem;
+      font-size: 0.58rem;
       color: #94a3b8;
       font-family: monospace;
       text-transform: uppercase;
     }
     .chip-val {
-      font-size: 0.74rem;
+      font-size: 0.72rem;
       font-weight: 800;
       font-family: monospace;
       white-space: nowrap;
@@ -263,14 +302,29 @@
     .chip-val.green { color: #34d399; }
     .chip-val.red { color: #f87171; }
 
+    /* Section 3: Telemetry Rows */
+    .console-telemetry-section {
+      display: flex;
+      flex-direction: column;
+      gap: 0.28rem;
+    }
+    .telemetry-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: #94a3b8;
+      font-family: monospace;
+    }
+    .telemetry-val { color: #f8fafc; font-weight: 600; }
+
     .btn-glass-action {
       width: 100%;
       background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(16, 185, 129, 0.2));
       border: 1px solid #38bdf8;
       color: #ffffff;
-      font-size: 0.74rem;
+      font-size: 0.73rem;
       font-weight: 700;
-      padding: 0.55rem 0.75rem;
+      padding: 0.52rem 0.75rem;
       border-radius: 8px;
       cursor: pointer;
       display: flex;
@@ -287,36 +341,27 @@
       transform: translateY(-1px);
     }
 
-    /* Redesign bottom right HUD card with frosted glass too */
-    .hud-card {
-      background: rgba(8, 14, 28, 0.68) !important;
-      backdrop-filter: blur(24px) saturate(190%) !important;
-      -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
-      border: 1px solid rgba(56, 189, 248, 0.28) !important;
-      border-radius: 16px !important;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65), 
-                  inset 0 1px 0 rgba(255, 255, 255, 0.12),
-                  0 0 20px rgba(56, 189, 248, 0.15) !important;
+    /* 3D Mode Adaptation */
+    .unified-right-console.mode-3d .console-story-section,
+    .unified-right-console.mode-3d .console-format-section {
+      display: none;
     }
 
     @media (max-width: 900px) {
-      .glass-left-dock {
-        width: 320px;
-        top: 4.2rem;
-        left: 0.75rem;
-        gap: 0.6rem;
-      }
-      .glass-stage-card, .glass-compare-widget {
-        padding: 0.85rem 1rem;
-      }
-      .telemetry-chips { grid-template-columns: 1fr; }
-    }
-    @media (max-width: 640px) {
-      .glass-left-dock {
-        position: static;
-        width: 100%;
-        max-width: none;
+      .unified-right-console {
+        width: 360px;
+        right: 1rem;
+        bottom: 1rem;
         padding: 1rem;
+      }
+    }
+    @media (max-width: 600px) {
+      .unified-right-console {
+        width: calc(100vw - 1.5rem);
+        right: 0.75rem;
+        left: 0.75rem;
+        bottom: 0.75rem;
+        max-height: 52vh;
       }
     }
   </style>
@@ -361,74 +406,6 @@
     </div>
   </header>
 
-  <!-- Distributed Frosted Glass GUI Modules (Per-Stage Reactive) -->
-  <div class="glass-left-dock" id="glass-left-dock">
-    
-    <!-- 1. Stage Story & Mission Objective Frosted Card -->
-    <div class="glass-panel glass-stage-card" id="glass-stage-card">
-      <div class="glass-card-header">
-        <div class="stage-tag-group">
-          <span class="stage-pill" id="stg-badge">STAGE 1 OF 5</span>
-          <span class="stage-clip" id="stg-clips">Clip 01 ➡️ 06</span>
-        </div>
-        <span class="constraint-pill" id="stg-constraint">⚖️ Mass vs Budget</span>
-      </div>
-
-      <h3 class="glass-card-title" id="stg-title">🚀 STAGE 1: LAUNCH PLATFORM & DEHYDRATED SEED</h3>
-      <div class="glass-theme-sub" id="stg-theme">Mass & Budget Trade-Off (มวลบรรทุก & งบประมาณ)</div>
-      
-      <p class="glass-card-desc" id="stg-desc">
-        ก่อนปล่อยยานขึ้นสู่อวกาศ ทุกกรัมของน้ำหนักและทุกไบต์ของข้อมูลคือต้นทุนมหาศาล ฟอร์แมต .py3s เริ่มต้นด้วยโหมด Dehydrated Seed (0x4000) บันทึกเฉพาะสัมประสิทธิ์พารามิเตอร์และจุดยึดโครงสร้างหลัก ทำให้ไฟล์มีขนาดจิ๋วเพียง 53 KB – 3.2 MB ประหยัดแบนด์วิธกว่า 97%
-      </p>
-    </div>
-
-    <!-- 2. Live Stage Format Breakthrough & Telemetry Node -->
-    <div class="glass-panel glass-compare-widget" id="glass-compare-widget">
-      <div class="compare-header">
-        <span class="compare-icon">⚡</span>
-        <span class="compare-header-title" id="cmp-title">📦 ทำไม .py3s เหนือกว่าในด่านฐานปล่อย?</span>
-      </div>
-
-      <div class="compare-contrast-box">
-        <div class="contrast-row mine">
-          <div class="contrast-label">
-            <span class="badge-dot-cyan"></span>
-            <strong id="cmp-mine-label">🌟 .py3s (Dehydrated Seed):</strong>
-          </div>
-          <div class="contrast-value" id="cmp-mine-val">53 KB – 3.2 MB (เบากว่า 97%)</div>
-        </div>
-        <div class="contrast-row theirs">
-          <div class="contrast-label">
-            <span class="badge-dot-red"></span>
-            <strong id="cmp-theirs-label">❌ Inria PLY ดั้งเดิม:</strong>
-          </div>
-          <div class="contrast-value" id="cmp-theirs-val">120 – 500+ MB (เทอะทะเกินเพดานบรรทุก)</div>
-        </div>
-      </div>
-
-      <!-- 3 Telemetry Metric Chips -->
-      <div class="telemetry-chips" id="cmp-chips">
-        <div class="chip">
-          <span class="chip-lbl" id="chip-1-lbl">Payload Size</span>
-          <strong class="chip-val cyan" id="chip-1-val">3.2 MB</strong>
-        </div>
-        <div class="chip">
-          <span class="chip-lbl" id="chip-2-lbl">Bandwidth Saved</span>
-          <strong class="chip-val green" id="chip-2-val">97.6%</strong>
-        </div>
-        <div class="chip">
-          <span class="chip-lbl" id="chip-3-lbl">Inria PLY</span>
-          <strong class="chip-val red" id="chip-3-val">Heavy (>100MB)</strong>
-        </div>
-      </div>
-
-      <button class="btn-glass-action" onclick="toggleBenchmarkModal()">
-        <span>📊</span><span>คลิกเปิดดูตารางเปรียบเทียบเต็ม 6 ฟอร์แมต & เครื่องคำนวณ ➔</span>
-      </button>
-    </div>
-
-  </div>
-
   <!-- Single Master Viewport -->
   <div class="master-viewport">
     <canvas id="scroll-canvas-layer" width="1280" height="720"></canvas>
@@ -441,13 +418,10 @@
 
   <!-- 3D Top Floating Mode Bar (Visible ONLY at final 3D stage) -->
   <div class="viewer3d-topbar" id="v3d-topbar">
-    <button class="ctrl-btn active" id="btn-shade-solid" onclick="setShadingMode('solid')">
-      <span>🎨</span><span>Solid Visual</span>
-    </button>
     <button class="ctrl-btn cyan" id="btn-shade-collider" onclick="setShadingMode('collider')">
       <span>🛡️</span><span>Physics Collider Layer</span>
     </button>
-    <button class="ctrl-btn" id="btn-shade-splat" onclick="setShadingMode('splat')">
+    <button class="ctrl-btn active" id="btn-shade-splat" onclick="setShadingMode('splat')">
       <span>✨</span><span>3D Gaussian Splats</span>
     </button>
     <button class="ctrl-btn" onclick="flipModelOrientation()" title="กลับหัวโมเดล 180°">
@@ -595,49 +569,104 @@
     </div>
   </div>
 
-  <!-- Bottom-Right HUD Diagnostics Card -->
-  <div class="hud-card">
+  <!-- Unified Right-Side Frosted Glass Mission Console (Ultra-Transparent Glassmorphism) -->
+  <div class="unified-right-console" id="glass-unified-console">
+    <!-- Top HUD Header -->
     <div class="hud-header">
-      <span id="hud-title">STAGE 1: LAUNCH PLATFORM (1 ➡️ 6)</span>
+      <div style="display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;">
+        <span class="stage-pill" id="stg-badge">STAGE 1 OF 5</span>
+        <span class="stage-clip" id="stg-clips">Clip 01 ➡️ 06</span>
+        <span class="constraint-pill" id="stg-constraint">⚖️ Mass vs Budget</span>
+      </div>
       <span id="hud-status-badge" class="status-pill status-scrubbing">SCROLL SCRUB</span>
+      <span id="hud-title" style="display: none;">STAGE 1: LAUNCH PLATFORM (1 ➡️ 6)</span>
     </div>
 
-    <div class="telemetry-row">
-      <span>Mission Story Progress:</span>
-      <span class="telemetry-val" id="hud-frame-pos">Stage 1 of 5 (0.0%)</span>
-    </div>
-
-    <div class="progress-track">
+    <!-- Progress Track Bar -->
+    <div class="progress-track" style="margin: 0.5rem 0 0.85rem 0;">
       <div class="progress-fill" id="hud-progress-bar"></div>
     </div>
 
-    <div class="telemetry-row">
-      <span>Story Stage Sequence:</span>
-      <span class="telemetry-val" id="hud-sequence-text" style="color: var(--accent);">Clip 01 (Scroll) ➡️ Clip 06 (Loop)</span>
-    </div>
-    <div class="telemetry-row">
-      <span>Active Screen:</span>
-      <span class="telemetry-val" id="hud-media-text">Clip 01 (Scrubbing Frame 0 / 118)</span>
-    </div>
-    <div class="telemetry-row">
-      <span>Astronaut Telemetry:</span>
-      <span class="telemetry-val" id="hud-astro-pos" style="color: var(--success);">Waiting at Final Stage (Mars Surface)</span>
+    <!-- Section 1: Active Stage Mission Story -->
+    <div class="console-story-section">
+      <h3 class="glass-card-title" id="stg-title">🚀 STAGE 1: LAUNCH PLATFORM & DEHYDRATED SEED</h3>
+      <div class="glass-theme-sub" id="stg-theme">Mass & Budget Trade-Off (มวลบรรทุก & งบประมาณ)</div>
+      <p class="glass-card-desc" id="stg-desc">
+        ก่อนปล่อยยานขึ้นสู่อวกาศ ทุกกรัมของน้ำหนักและทุกไบต์ของข้อมูลคือต้นทุนมหาศาล ฟอร์แมต .py3s เริ่มต้นด้วยโหมด Dehydrated Seed (0x4000) บันทึกเฉพาะสัมประสิทธิ์พารามิเตอร์และจุดยึดโครงสร้างหลัก ทำให้ไฟล์มีขนาดจิ๋วเพียง 53 KB – 3.2 MB ประหยัดแบนด์วิธกว่า 97%
+      </p>
     </div>
 
-    <div class="impact-box" id="impact-log">
-      <strong>⚠️ IMPACT HIT DETECTED!</strong><br/>
-      Velocity: 14.2 km/s | Raycast: Outer Shield Hull<br/>
-      Physics Collider absorption: 98.2% | Integrity: Grade S
-    </div>
+    <!-- Section 2: .py3s Format Breakthrough -->
+    <div class="console-format-section">
+      <div class="compare-header">
+        <span class="compare-icon">⚡</span>
+        <span class="compare-header-title" id="cmp-title">📦 ทำไม .py3s เหนือกว่าในด่านฐานปล่อย?</span>
+      </div>
 
-    <div class="tip-box" id="hud-tip">
-      🌌 <strong>การเดินทางต่อเนื่อง:</strong> เลื่อน Scroll ลงมาตามลำดับครบทั้ง 5 ด่าน: <strong>1 ➡️ 6</strong>, <strong>2 ➡️ 7</strong>, <strong>3 ➡️ 8</strong>, <strong>4 ➡️ 9</strong>, <strong>5 ➡️ 10</strong> และเมื่อถึงท้ายสุด จะเข้าสู่ <strong>3D Mars Simulation & Astronaut Walk</strong> ครับ!
-      <div style="margin-top: 0.45rem; padding-top: 0.35rem; border-top: 1px dashed rgba(56, 189, 248, 0.25);">
-        <a href="javascript:void(0)" onclick="toggleBenchmarkModal()" style="color: var(--accent); text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem;">
-          <span>⚡</span><span>คลิกดู Matrix เปรียบเทียบ: ทำไม .py3s เหนือกว่าทุกฟอร์แมต ➔</span>
-        </a>
+      <div class="compare-contrast-box">
+        <div class="contrast-row mine">
+          <div class="contrast-label">
+            <span class="badge-dot-cyan"></span>
+            <strong id="cmp-mine-label">🌟 .py3s (Dehydrated Seed):</strong>
+          </div>
+          <div class="contrast-value" id="cmp-mine-val">53 KB – 3.2 MB (เบากว่า 97%)</div>
+        </div>
+        <div class="contrast-row theirs">
+          <div class="contrast-label">
+            <span class="badge-dot-red"></span>
+            <strong id="cmp-theirs-label">❌ Inria PLY ดั้งเดิม:</strong>
+          </div>
+          <div class="contrast-value" id="cmp-theirs-val">120 – 500+ MB (เทอะทะเกินเพดานบรรทุก)</div>
+        </div>
+      </div>
+
+      <!-- 3 Telemetry Metric Chips -->
+      <div class="telemetry-chips" id="cmp-chips">
+        <div class="chip">
+          <span class="chip-lbl" id="chip-1-lbl">Payload Size</span>
+          <strong class="chip-val cyan" id="chip-1-val">3.2 MB</strong>
+        </div>
+        <div class="chip">
+          <span class="chip-lbl" id="chip-2-lbl">Bandwidth Saved</span>
+          <strong class="chip-val green" id="chip-2-val">97.6%</strong>
+        </div>
+        <div class="chip">
+          <span class="chip-lbl" id="chip-3-lbl">Inria PLY</span>
+          <strong class="chip-val red" id="chip-3-val">Heavy (>100MB)</strong>
+        </div>
       </div>
     </div>
+
+    <!-- Section 3: Telemetry Rows & Diagnostics -->
+    <div class="console-telemetry-section">
+      <div class="telemetry-row">
+        <span>Mission Story Progress:</span>
+        <span class="telemetry-val" id="hud-frame-pos">Stage 1 of 5 (0.0%)</span>
+      </div>
+      <div class="telemetry-row">
+        <span>Story Stage Sequence:</span>
+        <span class="telemetry-val" id="hud-sequence-text" style="color: var(--accent);">Clip 01 (Scroll) ➡️ Clip 06 (Loop)</span>
+      </div>
+      <div class="telemetry-row">
+        <span>Active Screen:</span>
+        <span class="telemetry-val" id="hud-media-text">Clip 01 (Scrubbing Frame 0 / 118)</span>
+      </div>
+      <div class="telemetry-row">
+        <span>Astronaut Telemetry:</span>
+        <span class="telemetry-val" id="hud-astro-pos" style="color: var(--success);">Waiting at Final Stage (Mars Surface)</span>
+      </div>
+
+      <div class="impact-box" id="impact-log">
+        <strong>⚠️ IMPACT HIT DETECTED!</strong><br/>
+        Velocity: 14.2 km/s | Raycast: Outer Shield Hull<br/>
+        Physics Collider absorption: 98.2% | Integrity: Grade S
+      </div>
+    </div>
+
+    <!-- Section 4: Action Button & Interactive Modal Link -->
+    <button class="btn-glass-action" onclick="toggleBenchmarkModal()" style="margin-top: 0.75rem;">
+      <span>📊</span><span>คลิกเปิดดูตารางเปรียบเทียบเต็ม 6 ฟอร์แมต & เครื่องคำนวณ ➔</span>
+    </button>
   </div>
 
   <!-- Floating Scroll Down Hint -->
@@ -1157,11 +1186,11 @@
       const chip3Lbl = document.getElementById('chip-3-lbl');
       const chip3Val = document.getElementById('chip-3-val');
 
-      // Micro-fade transition
-      const dock = document.getElementById('glass-left-dock');
-      if (dock) {
-        dock.style.opacity = '0.65';
-        setTimeout(() => { dock.style.opacity = '1'; }, 160);
+      // Micro-fade transition for unified console
+      const unifiedConsole = document.getElementById('glass-unified-console');
+      if (unifiedConsole) {
+        unifiedConsole.style.opacity = '0.75';
+        setTimeout(() => { unifiedConsole.style.opacity = '1'; }, 160);
       }
 
       if (badge) badge.innerText = data.stageBadge;

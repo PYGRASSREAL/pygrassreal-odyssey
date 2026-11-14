@@ -34,7 +34,7 @@ export function getActiveColliders() {
   return cachedColliders;
 }
 
-let activeShading = 'solid';
+let activeShading = 'splat';
 let terrainHeightFn = () => 0;
 let mainScene = null;
 let dropInViewer = null;
@@ -117,12 +117,13 @@ export function clearCurrentModel() {
 }
 
 export function setShadingMode(mode) {
+  if (mode !== 'collider' && mode !== 'splat') {
+    mode = 'splat';
+  }
   activeShading = mode;
-  const btnSolid = document.getElementById('btn-shade-solid');
   const btnCol = document.getElementById('btn-shade-collider');
   const btnSplat = document.getElementById('btn-shade-splat');
 
-  if (btnSolid) btnSolid.classList.toggle('active', mode === 'solid');
   if (btnCol) btnCol.classList.toggle('active', mode === 'collider');
   if (btnSplat) btnSplat.classList.toggle('active', mode === 'splat');
 
@@ -130,16 +131,13 @@ export function setShadingMode(mode) {
 }
 
 export function applyShadingMode() {
-  if (activeShading === 'solid') {
-    visualMeshGroup.visible = true;
-    colliderMeshGroup.visible = false;
-    splatContainerGroup.visible = false;
-  } else if (activeShading === 'collider') {
+  if (activeShading === 'collider') {
     // โหมด Collider: แสดงทั้ง 3DGS และ Wireframe ซ้อนทับกัน เพื่อเปรียบเทียบตำแหน่ง
     visualMeshGroup.visible = false;
     colliderMeshGroup.visible = true;
     splatContainerGroup.visible = true;
-  } else if (activeShading === 'splat') {
+  } else {
+    // โหมด 3D Gaussian Splats (Default Authentic 3DGS)
     visualMeshGroup.visible = false;
     colliderMeshGroup.visible = false;
     splatContainerGroup.visible = true;
