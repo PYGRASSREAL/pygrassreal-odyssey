@@ -168,6 +168,9 @@ function onMasterScroll() {
     if (v3dLeftpanel) v3dLeftpanel.classList.add('active');
     if (v3dWasdHud) v3dWasdHud.classList.add('active');
 
+    const leftDock = document.getElementById('glass-left-dock');
+    if (leftDock) leftDock.classList.add('hidden-in-3d');
+
     const subProgress = (progress - 0.85) / 0.15;
     if (hudTitle) hudTitle.innerText = "FINAL STAGE: 3D MARS SIMULATION & WALK";
     if (statusBadge) {
@@ -196,12 +199,19 @@ function onMasterScroll() {
   if (v3dWasdHud) v3dWasdHud.classList.remove('active');
   if (scrollCanvas) scrollCanvas.style.opacity = '1';
 
+  const leftDock = document.getElementById('glass-left-dock');
+  if (leftDock) leftDock.classList.remove('hidden-in-3d');
+
   let activeStage = TIMELINE_STAGES[0];
   for (const st of TIMELINE_STAGES) {
     if (progress >= st.start && progress < st.end) {
       activeStage = st;
       break;
     }
+  }
+
+  if (window.updateStageStory) {
+    window.updateStageStory(activeStage.id);
   }
 
   document.querySelectorAll('.stage-selector .stage-btn').forEach((b, idx) => {
