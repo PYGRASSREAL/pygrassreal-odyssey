@@ -211,7 +211,8 @@ export function updateAstronautPhysics(delta, getTerrainHeight, camera, controls
     astroPos.x = resolvedPos.x;
     astroPos.z = resolvedPos.z;
     if (resolvedPos.y !== astroPos.y && isGrounded) {
-      astroPos.y = resolvedPos.y;
+      // Smooth vertical step transition (UE5 stair stepping)
+      astroPos.y = THREE.MathUtils.lerp(astroPos.y, resolvedPos.y, 0.5);
     }
 
     const targetAngle = Math.atan2(moveX, moveZ);
@@ -239,7 +240,7 @@ export function updateAstronautPhysics(delta, getTerrainHeight, camera, controls
   }
 
   const groundTerrainY = getTerrainHeight(astroPos.x, astroPos.z);
-  const colliderY = getColliderSurfaceHeight(astroPos.x, astroPos.z, astroPos.y, 0.65);
+  const colliderY = getColliderSurfaceHeight(astroPos.x, astroPos.z, astroPos.y, 0.22);
   const groundY = (colliderY !== null && colliderY > groundTerrainY) ? colliderY : groundTerrainY;
   const marsGravity = 9.8 * 0.38;
 

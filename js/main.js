@@ -34,7 +34,9 @@ import {
   adjustSplatSize,
   adjustColliderHeight,
   adjustColliderOpacity,
-  realignModelToGround
+  realignModelToGround,
+  getColliderSurfaceHeight,
+  resolveCharacterCollision
 } from './modelManager.js';
 
 // Initialize 3D Engine
@@ -102,6 +104,8 @@ window.adjustColliderOpacity = adjustColliderOpacity;
 window.realignModelToGround = realignModelToGround;
 window.currentModelGroup = currentModelGroup;
 window.getModelBoundingBox = getModelBoundingBox;
+window.getColliderSurfaceHeight = getColliderSurfaceHeight;
+window.resolveCharacterCollision = resolveCharacterCollision;
 window.handleFileSelect = (e) => {
   if (e.target.files && e.target.files[0]) {
     processLoadedFile(e.target.files[0]);

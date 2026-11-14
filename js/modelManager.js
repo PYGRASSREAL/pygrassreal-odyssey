@@ -193,6 +193,8 @@ export function setupOptimizedColliderMesh(model) {
       const edges = new THREE.LineSegments(edgesGeo, lineMat);
       edges.name = 'ColliderEdges';
       edges.renderOrder = 999;
+      // ป้องกันไม่ให้ Raycast ชนเส้น LineSegments (แก้บั๊กคาแรคเตอร์เด้งขึ้นฟ้า)
+      edges.raycast = () => {};
       c.add(edges);
     }
   });
@@ -588,28 +590,33 @@ export function exportPrint3D() {
  * Traces the highest walkable surface of colliders at (x, z).
  * Supports stair climbing / step-up like Unreal Engine 5.
  */
-export function getColliderSurfaceHeight(x, z, currentY, maxStep = 0.55) {
+export function getColliderSurfaceHeight(x, z, currentY, maxStep = 0.22) {
   const colliders = [];
   colliderMeshGroup.traverse((c) => {
-    if (c.isMesh) colliders.push(c);
+    if (c.isMesh && !c.isLineSegments) colliders.push(c);
   });
   if (colliders.length === 0) {
     visualMeshGroup.traverse((c) => {
-      if (c.isMesh) colliders.push(c);
+      if (c.isMesh && !c.isLineSegments) colliders.push(c);
     });
   }
   if (colliders.length === 0) return null;
 
-  const rayOrigin = new THREE.Vector3(x, currentY + maxStep + 0.3, z);
-  const downRay = new THREE.Raycaster(rayOrigin, new THREE.Vector3(0, -1, 0), 0.01, maxStep + 1.8);
-  const hits = downRay.intersectObjects(colliders, true);
+  // ยิง Raycast ลงพื้นจากความสูงเหนือเท้าเล็กน้อย (currentY + maxStep + 0.05) ป้องกันไม่ให้ทะยานขึ้นยอดหลังคา
+  const rayOrigin = new THREE.Vector3(x, currentY + maxStep + 0.05, z);
+  const downRay = new THREE.Raycaster(rayOrigin, new THREE.Vector3(0, -1, 0), 0.01, maxStep + 0.45);
+  // ตั้ง recursive = false เพื่อตรวจจับเฉพาะระนาบ Mesh ฟิสิกส์จริง ไม่ตรวจเส้น LineSegments
+  const hits = downRay.intersectObjects(colliders, false);
 
   if (hits.length > 0) {
     for (const hit of hits) {
-      const normal = hit.face ? hit.face.normal.clone().applyQuaternion(hit.object.getWorldQuaternion(new THREE.Quaternion())) : new THREE.Vector3(0, 1, 0);
+      if (!hit.face) continue;
+      const normal = hit.face.normal.clone().applyQuaternion(hit.object.getWorldQuaternion(new THREE.Quaternion()));
+      // ตรวจจับเฉพาะระนาบพื้นที่เดินได้ (ความชันไม่เกิน ~63 องศา)
       if (normal.y >= 0.45) {
         const heightDiff = hit.point.y - currentY;
-        if (heightDiff <= maxStep && hit.point.y >= currentY - 0.8) {
+        // บันไดมาตรฐาน: ก้าวขึ้นได้ไม่เกิน 22 ซม. และก้าวลงได้ไม่เกิน 25 ซม. เพื่อความนุ่มนวลเหมือน UE5
+        if (heightDiff <= maxStep && hit.point.y >= currentY - 0.25) {
           return hit.point.y;
         }
       }
@@ -625,11 +632,11 @@ export function getColliderSurfaceHeight(x, z, currentY, maxStep = 0.55) {
 export function resolveCharacterCollision(newPos, oldPos, charRadius = 0.45) {
   const colliders = [];
   colliderMeshGroup.traverse((c) => {
-    if (c.isMesh) colliders.push(c);
+    if (c.isMesh && !c.isLineSegments) colliders.push(c);
   });
   if (colliders.length === 0) {
     visualMeshGroup.traverse((c) => {
-      if (c.isMesh) colliders.push(c);
+      if (c.isMesh && !c.isLineSegments) colliders.push(c);
     });
   }
 
@@ -658,9 +665,10 @@ export function resolveCharacterCollision(newPos, oldPos, charRadius = 0.45) {
     for (const h of checkHeights) {
       const rayOrigin = new THREE.Vector3(oldPos.x, oldPos.y + h, oldPos.z);
       const ray = new THREE.Raycaster(rayOrigin, dir, 0.01, maxDist);
-      const hits = ray.intersectObjects(colliders, true);
+      const hits = ray.intersectObjects(colliders, false);
       for (const hit of hits) {
-        const normal = hit.face ? hit.face.normal.clone().applyQuaternion(hit.object.getWorldQuaternion(new THREE.Quaternion())) : new THREE.Vector3(0, 1, 0);
+        if (!hit.face) continue;
+        const normal = hit.face.normal.clone().applyQuaternion(hit.object.getWorldQuaternion(new THREE.Quaternion()));
         // Vertical surfaces (wall, column, tree)
         if (normal.y < 0.45) {
           hitWall = true;
@@ -673,19 +681,25 @@ export function resolveCharacterCollision(newPos, oldPos, charRadius = 0.45) {
 
     if (hitWall && wallNormal) {
       // UE5 Wall sliding projection
-      const norm2D = new THREE.Vector2(wallNormal.x, wallNormal.z).normalize();
-      const move2D = new THREE.Vector2(moveVec.x, moveVec.z);
-      const dot = move2D.dot(norm2D);
-      if (dot < 0) {
-        move2D.sub(norm2D.multiplyScalar(dot));
-        resolvedPos.x = oldPos.x + move2D.x;
-        resolvedPos.z = oldPos.z + move2D.y;
+      const len2D = Math.hypot(wallNormal.x, wallNormal.z);
+      if (len2D > 0.001) {
+        const norm2D = new THREE.Vector2(wallNormal.x / len2D, wallNormal.z / len2D);
+        const move2D = new THREE.Vector2(moveVec.x, moveVec.z);
+        const dot = move2D.dot(norm2D);
+        if (dot < 0) {
+          move2D.sub(norm2D.clone().multiplyScalar(dot));
+          resolvedPos.x = oldPos.x + move2D.x;
+          resolvedPos.z = oldPos.z + move2D.y;
+        }
+      } else {
+        resolvedPos.x = oldPos.x;
+        resolvedPos.z = oldPos.z;
       }
     }
   }
 
   // 2. Walkable floor & stair step-up (like UE5 MaxStepHeight)
-  const stairY = getColliderSurfaceHeight(resolvedPos.x, resolvedPos.z, oldPos.y, 0.55);
+  const stairY = getColliderSurfaceHeight(resolvedPos.x, resolvedPos.z, oldPos.y, 0.22);
   if (stairY !== null) {
     resolvedPos.y = stairY;
   }
