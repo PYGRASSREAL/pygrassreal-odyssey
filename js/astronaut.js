@@ -206,7 +206,7 @@ export function updateAstronautPhysics(delta, getTerrainHeight, camera, controls
     const nextZ = astroPos.z + moveZ * moveSpeed * delta;
 
     const testPos = new THREE.Vector3(nextX, astroPos.y, nextZ);
-    const resolvedPos = resolveCharacterCollision(testPos, oldPos, 0.45);
+    const resolvedPos = resolveCharacterCollision(testPos, oldPos, 0.40);
 
     astroPos.x = resolvedPos.x;
     astroPos.z = resolvedPos.z;
@@ -228,7 +228,7 @@ export function updateAstronautPhysics(delta, getTerrainHeight, camera, controls
     if (astroLimbs.torso) astroLimbs.torso.position.y = 0.95 + Math.abs(Math.sin(walkAnimTime * 2)) * 0.05;
   } else {
     // Anti-penetration check: push out if currently stuck inside any collider
-    const unstickPos = resolveCharacterCollision(astroPos, astroPos, 0.45);
+    const unstickPos = resolveCharacterCollision(astroPos, astroPos, 0.40);
     astroPos.x = unstickPos.x;
     astroPos.z = unstickPos.z;
 
@@ -240,7 +240,7 @@ export function updateAstronautPhysics(delta, getTerrainHeight, camera, controls
   }
 
   const groundTerrainY = getTerrainHeight(astroPos.x, astroPos.z);
-  const colliderY = getColliderSurfaceHeight(astroPos.x, astroPos.z, astroPos.y, 0.22);
+  const colliderY = getColliderSurfaceHeight(astroPos.x, astroPos.z, astroPos.y, 0.20);
   const groundY = (colliderY !== null && colliderY > groundTerrainY) ? colliderY : groundTerrainY;
   const marsGravity = 9.8 * 0.38;
 
