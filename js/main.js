@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { initTimeline, jumpToTimeline, getCurrentPhase } from './timeline.js';
 import {
   initMarsScene,
@@ -84,6 +85,7 @@ window.toggleEnvironment = toggleEnvironment;
 window.toggleWindSim = toggleWindSim;
 window.reset3DCamera = () => reset3DCamera(astroPos);
 window.resetAstronautToLander = () => resetAstronautToLander(getTerrainHeight);
+window.THREE = THREE;
 window.astroPos = astroPos;
 window.loadPresetMarsCraft = () => createProceduralMarsCraft();
 window.loadSamplePy3s = (filename) => loadSamplePy3s(filename);
