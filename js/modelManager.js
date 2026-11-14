@@ -153,6 +153,13 @@ export function getModelBoundingBox() {
   return new THREE.Box3(new THREE.Vector3(-2, 0, -2), new THREE.Vector3(2, 3, 2));
 }
 
+let currentColliderLiftOffset = 0.04; // ยกขึ้น 0.04 ใน local space เพื่อให้เส้นโครงตาข่ายตรงกับยอดหลังคาและซุ้มประตูพอดี
+
+export function adjustColliderHeight(delta) {
+  currentColliderLiftOffset += delta;
+  alignMeshLayersWithSplat();
+}
+
 export function alignMeshLayersWithSplat() {
   if (!dropInViewer || !dropInViewer.splatMesh) return;
   let sBox = null;
@@ -169,10 +176,10 @@ export function alignMeshLayersWithSplat() {
     if (!model) return;
     if (currentFlipX) {
       model.rotation.set(Math.PI, 0, 0);
-      model.position.set(0, targetY, 0);
+      model.position.set(0, targetY - currentColliderLiftOffset, 0);
     } else {
       model.rotation.set(0, 0, 0);
-      model.position.set(0, 0, 0);
+      model.position.set(0, currentColliderLiftOffset, 0);
     }
     model.updateMatrixWorld(true);
   };
