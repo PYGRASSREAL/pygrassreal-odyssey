@@ -70,6 +70,17 @@ let onEnter3DCallback = null;
 let onLeave3DCallback = null;
 let sceneScrollY = 0;
 let sceneProgress = .88;
+let requestedFrame = null;
+let timelineUpdatePending = false;
+
+function scheduleTimelineUpdate() {
+  if (timelineUpdatePending) return;
+  timelineUpdatePending = true;
+  requestAnimationFrame(() => {
+    timelineUpdatePending = false;
+    onMasterScroll();
+  });
+}
 
 export function initTimeline({ onEnter3D, onLeave3D } = {}) {
   onEnter3DCallback = onEnter3D;
@@ -82,6 +93,8 @@ export function initTimeline({ onEnter3D, onLeave3D } = {}) {
 
   scrollCanvas = document.getElementById('scroll-canvas-layer');
   scrollCtx = scrollCanvas.getContext('2d');
+  // Once the timeline starts, the early first-paint loader must not replace it.
+  scrollCanvas.dataset.timelineActive = 'true';
   loopOverlay = document.getElementById('loop-overlay');
   threejsLayer = document.getElementById('threejs-layer');
   v3dTopbar = document.getElementById('v3d-topbar');
@@ -99,7 +112,7 @@ export function initTimeline({ onEnter3D, onLeave3D } = {}) {
   scrollHint = document.getElementById('scroll-hint');
   unifiedConsole = document.getElementById('glass-unified-console');
 
-  window.addEventListener('scroll', onMasterScroll, { passive: true });
+  window.addEventListener('scroll', scheduleTimelineUpdate, { passive: true });
   window.addEventListener('resize', () => {
     if (currentPhase === '3d') {
       const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
@@ -147,33 +160,51 @@ function preloadAllStages() {
 }
 
 function preloadStage(stageId, onComplete) {
-  const arr = stageFramesCache[stageId];
-  arr.length = 0;
-  const padClip = String(stageId).padStart(2, '0');
   let loaded = 0;
   const settled = () => {
     loaded++;
     if (loaded === totalFrames) {
-      if (currentPhase === '2d') onMasterScroll();
       onComplete?.();
     }
   };
 
   for (let i = 0; i < totalFrames; i++) {
-    const padFrame = String(i).padStart(4, '0');
-    const img = new Image();
-    img.onload = settled;
-    img.onerror = settled;
-    img.src = `assets/scroll_webp/clip_${padClip}/frame_${padFrame}.webp`;
-    arr.push(img);
+    const img = loadStageFrame(stageId, i);
+    if (img.complete) settled();
+    else {
+      img.addEventListener('load', settled, { once: true });
+      img.addEventListener('error', settled, { once: true });
+    }
   }
 }
 
-function renderSpecificFrame(clipId, frameIndex) {
+function loadStageFrame(clipId, frameIndex, priority = 'low') {
   const arr = stageFramesCache[clipId];
-  if (arr && arr[frameIndex]?.complete && arr[frameIndex].naturalWidth > 0) {
+  if (arr[frameIndex]) {
+    if (priority === 'high') arr[frameIndex].fetchPriority = 'high';
+    return arr[frameIndex];
+  }
+  const img = new Image();
+  arr[frameIndex] = img;
+  img.fetchPriority = priority;
+  img.onload = () => {
+    // Only the currently requested frame may trigger a repaint. Read the latest
+    // scroll position in that repaint instead of restoring a captured position.
+    if (currentPhase === '2d' && requestedFrame === img) scheduleTimelineUpdate();
+  };
+  const padClip = String(clipId).padStart(2, '0');
+  const padFrame = String(frameIndex).padStart(4, '0');
+  img.src = `assets/scroll_webp/clip_${padClip}/frame_${padFrame}.webp`;
+  return img;
+}
+
+function renderSpecificFrame(clipId, frameIndex) {
+  // Request the visible frame immediately, even if an earlier stage is loading.
+  const img = loadStageFrame(clipId, frameIndex, 'high');
+  requestedFrame = img;
+  if (img.complete && img.naturalWidth > 0) {
     scrollCtx.clearRect(0, 0, scrollCanvas.width, scrollCanvas.height);
-    scrollCtx.drawImage(arr[frameIndex], 0, 0, scrollCanvas.width, scrollCanvas.height);
+    scrollCtx.drawImage(img, 0, 0, scrollCanvas.width, scrollCanvas.height);
   }
 }
 
@@ -202,6 +233,7 @@ function onMasterScroll(forcedProgress) {
   // FINAL PHASE: 3D MARS SIMULATION & WASD CHARACTER (0.85 - 1.00)
   // -------------------------------------------------------------
   if (progress >= 0.85) {
+    requestedFrame = null;
     currentPhase = '3d';
     sceneProgress = progress;
     sceneScrollY = Math.round(maxScroll * progress);
@@ -287,7 +319,7 @@ function onMasterScroll(forcedProgress) {
   }
 
   if (window.updateStageStory) {
-    window.updateStageStory(activeStage.id, true);
+    window.updateStageStory(activeStage.id);
   }
 
   document.querySelectorAll('.stage-selector .stage-btn').forEach((b, idx) => {
@@ -320,6 +352,7 @@ function onMasterScroll(forcedProgress) {
     if (hudMediaText) hudMediaText.innerText = `Clip 0${activeStage.scrollClip} (Scrubbing Frame ${frameIndex} / ${totalFrames - 1})`;
     if (framePosText) framePosText.innerText = `Stage ${activeStage.id} of 5 (${(subFraction * 100).toFixed(1)}%)`;
   } else {
+    requestedFrame = null;
     if (loopOverlay) {
       if (loopOverlay.src.indexOf(activeStage.loopFile) === -1) {
         loopOverlay.src = activeStage.loopFile;

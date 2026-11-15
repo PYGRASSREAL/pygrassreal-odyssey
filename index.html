@@ -380,12 +380,12 @@
       const canvas = document.getElementById('scroll-canvas-layer');
       const ctx = canvas.getContext('2d');
       const img = new Image();
-      img.src = 'assets/scroll_webp/clip_01/frame_0000.webp';
       img.onload = function () {
-        if (document.getElementById('btn-stage-1').classList.contains('active')) {
+        if (!canvas.dataset.timelineActive && window.scrollY === 0) {
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         }
       };
+      img.src = 'assets/scroll_webp/clip_01/frame_0000.webp';
 
       window.addEventListener('pageshow', function (event) {
         if (event.persisted && window.scrollY === 0) {
@@ -399,7 +399,7 @@
   <script src="js/stageStories.js?v=20261115_en_v21"></script>
 
   <!-- Main Modular Application Script -->
-  <script type="module" src="js/main.js?v=20261115_assets_v24"></script>
+  <script type="module" src="js/main.js?v=20261115_scroll_v25"></script>
 
   <!-- Complete Benchmark Modal (Pre-rendered for Instant Access) -->
   <div class="benchmark-modal-backdrop" id="benchmark-modal" onclick="handleBackdropClick(event)">
