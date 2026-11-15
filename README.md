@@ -16,10 +16,10 @@
 
 ---
 
-## 🎬 Official Project Demonstration (<30s)
+## 🎮 Live Simulator Showcase: Mission Engineering in Action
 
-> **Official Simulation & Mission Design Showcase**  
-> *Continuous Animated Preview | 100% NASA Space Apps Challenge Compliant*
+> **Real-Time 3D Spacecraft Engineering & Telemetry Simulation**  
+> *Interactive browser gameplay showcasing `.py3s` spatial container hydration, 1:1 solid collision physics, and thermal expansion trade-offs.*
 
 <p align="center">
   <img src="assets/demo-animation.gif" alt="PyGrassReal Odyssey Mission Design Simulator" width="100%" style="border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.6);" />
