@@ -53,19 +53,19 @@ Powered by the **`.py3s` single-container open standard** (officially registered
 
 The `.py3s` spatial container (`model/vnd.pygrassreal.py3s`) bridges the critical gap between high-fidelity photorealism, low-latency client rendering, and deep-space telemetry constraints:
 
-| Technical Feature | ⭐ **`.py3s` (Dehydrated Seed)** | 🚀 **`.py3s` (Full Container)** | ☁️ **Niantic `.spz`** | 🌫️ **Vanilla `.splat`** | 📐 **Standard `.glb` (CAD)** | 📄 **Original `.ply` (Inria)** |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|
-| **Format Architecture** | Single Spatial Container | Single Spatial Container | Compressed Splat | Raw Binary Splat | Polygon Mesh | Raw Point Cloud Dump |
-| **Typical File Size** | **< 50 KB – 500 KB** 🏆 *(99.9% savings)* | **1.5 – 3.2 MB** 🏆 *(97.6% savings)* | ~15 – 25 MB | ~48 – 60 MB | ~25 – 35 MB | **120 – 150 MB** *(impractical)* |
-| **Photorealism (3DGS)** | ✅ **Ultra-Dense Radiance Field** | ✅ **Ultra-Dense Radiance Field** | ✅ Photorealistic | ✅ Photorealistic | ❌ Rigid polygon shading only | ✅ Photorealistic |
-| **1:1 Physics Collision Hull** | ✅ **Embedded** (`colliderData`) | ✅ **Embedded** (`colliderData`) | ❌ **None** (intangible cloud) | ❌ **None** (pass-through) | ⚠️ Expensive runtime MeshBVH | ❌ **None** (unstructured points) |
-| **Real-Time Kinetic Impact Test** | ✅ **Native** (Micrometeoroid test) | ✅ **Native** (0.07 ms Raycast) | ❌ Unsupported | ❌ Unsupported | ⚠️ Heavy CPU compute | ❌ Unsupported |
-| **In-Space 3D Printing Ready** | ✅ **Watertight Solid Inside** | ✅ **Export in 0s** (`print3mfData`) | ❌ **Cannot Print** | ❌ **Cannot Print** | ⚠️ Often non-manifold | ❌ **Cannot Print** |
-| **Browser Hydration Latency** | ⚡ **12 – 15 ms** (Zero GPU server) | ⚡ **10 – 12 ms** (Instant Mount) | ~80 – 150 ms | ~200 – 400 ms | ~100 – 300 ms | 🐢 > 1,500 – 4,000 ms |
-| **Downlink Time (Mars DSN @ 1 kbps)** | ⏱️ **6.8 seconds** 🚀 | ⏱️ **7.1 minutes** 🚀 | ⏱️ 33.3 minutes ⚠️ | ⏱️ 1.7 hours ❌ | ⏱️ 1.0 hour ❌ | 🚨 **3.3 days!** *(battery depletion)* |
-| **Daily Mars Quota Used (100 MB Cap)**| 🟢 **0.05%** | 🟢 **3.2%** | 🟡 15% | 🔴 48% | 🟡 28% | ⛔ **135%** *(exceeds daily cap)* |
-| **Data Integrity Verification** | ✅ **CRC-32 Checksum** in 128B Header | ✅ **CRC-32 Checksum** in 128B Header | ⚠️ Block-level gzip only | ❌ No checksum | ❌ No checksum | ❌ No checksum |
-| **Global Standardization** | 🌐 **IANA MIME Registered** | 🌐 **IANA MIME Registered** | 🏢 Proprietary Niantic | 📄 Unofficial community format | 🌐 Khronos Group Standard | 📄 Academic Stanford format |
+| Technical Feature | ⭐ **.py3s (Dehydrated Seed)** | 🌫️ **Vanilla .splat** | 📐 **Standard .glb (CAD)** | 📄 **Original .ply (Inria)** |
+|---|:---:|:---:|:---:|:---:|
+| **Format Architecture** | Single Spatial Container | Raw Binary Splat | Polygon Mesh | Raw Point Cloud Dump |
+| **Typical File Size** | **< 50 KB – 500 KB** 🏆 *(99.9% savings)* | ~48 – 60 MB | ~25 – 35 MB | **120 – 150 MB** *(impractical)* |
+| **Photorealism (3DGS)** | ✅ **Ultra-Dense Radiance Field** | ✅ Photorealistic | ❌ Rigid polygon shading only | ✅ Photorealistic |
+| **1:1 Physics Collision Hull** | ✅ **Embedded** (colliderData) | ❌ **None** (pass-through) | ⚠️ Expensive runtime MeshBVH | ❌ **None** (unstructured points) |
+| **Real-Time Kinetic Impact Test** | ✅ **Native** (Micrometeoroid test) | ❌ Unsupported | ⚠️ Heavy CPU compute | ❌ Unsupported |
+| **In-Space 3D Printing Ready** | ✅ **Watertight Solid Inside** | ❌ **Cannot Print** | ⚠️ Often non-manifold | ❌ **Cannot Print** |
+| **Browser Hydration Latency** | ⚡ **12 – 15 ms** (Zero GPU server) | ~200 – 400 ms | ~100 – 300 ms | 🐢 > 1,500 – 4,000 ms |
+| **Downlink Time (Mars DSN @ 1 kbps)** | ⏱️ **6.8 seconds** 🚀 | ⏱️ 1.7 hours ❌ | ⏱️ 1.0 hour ❌ | 🚨 **3.3 days!** *(battery depletion)* |
+| **Daily Mars Quota Used (100 MB Cap)**| 🟢 **0.05%** | 🔴 48% | 🟡 28% | ⛔ **135%** *(exceeds daily cap)* |
+| **Data Integrity Verification** | ✅ **CRC-32 Checksum** in 128B Header | ❌ No checksum | ❌ No checksum | ❌ No checksum |
+| **Global Standardization** | 🌐 **IANA MIME Registered** | 📄 Unofficial community format | 🌐 Khronos Group Standard | 📄 Academic Stanford format |
 
 ### 🔑 4 Decisive Advantages for NASA Space Apps & Aerospace Engineering:
 1. **All-in-One Spatial Container:** Unifies visual radiance fields, physics collision bounds, and additive manufacturing geometry into a single container—eliminating multi-file dependencies.
