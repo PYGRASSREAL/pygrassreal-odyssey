@@ -27,6 +27,13 @@ export function initPhysicsHelp({ modes, onOpen, onClose }) {
       <button type="button" id="physics-help-close" aria-label="Close guide">✕</button></header>
     <div class="physics-help-content" tabindex="0" aria-label="Guide Content">
       <p id="physics-help-intro">Overview of physics modes, deformation dynamics, and usage guidelines.</p>
+      <section class="physics-help-controls" aria-labelledby="physics-help-assets-title">
+        <h3 id="physics-help-assets-title">Import &amp; Place .py3s Assets</h3>
+        <p><strong>1. Import into Assets.</strong> Drag one or more <strong>.py3s</strong> files from your computer into the left <strong>ASSET (.PY3S)</strong> panel or the <strong>+ Add .py3s</strong> drop area. You can also click <strong>+ Add .py3s</strong> to choose files.</p>
+        <p><strong>2. Place in the scene.</strong> Importing adds files to the Asset library only. It does not place models in the scene or create Layers. Drag an Asset from the left panel onto the 3D ground and release it at the desired position. A placement preview follows the cursor; a Layer is created after the drop. You can also click an Asset to place it automatically.</p>
+        <p><strong>3. Adjust the model.</strong> Select its entry in <strong>LAYERS &amp; OUTLINER</strong>, then use <strong>Move</strong>, <strong>Rotate</strong>, or <strong>Scale</strong>. Use <strong>Undo / Redo</strong> to undo or restore a placement.</p>
+        <p>Importing the same filename updates its Asset entry without adding another Layer. Only <strong>.py3s</strong> files are supported.</p>
+      </section>
       <section class="physics-help-controls" aria-labelledby="physics-help-controls-title">
         <h3 id="physics-help-controls-title">Mode Selection</h3>
         <p>Approach an object and press <kbd>E</kbd> to inspect and open the physics menu. A cyan outline highlights the selected instance.</p>

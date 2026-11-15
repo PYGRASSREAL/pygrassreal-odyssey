@@ -17,6 +17,26 @@ export const assetLibrary = [
     isDefault: false,
     type: 'sample',
     filename: 'sci-fi-spacecraft-probe.py3s'
+  },
+  {
+    id: 'asset_mars_rover',
+    name: 'mars-rover-model.py3s',
+    displayName: 'Mars Rover Model',
+    sizeStr: formatFileSize(5078908),
+    icon: './assets/logo-icon-mark.webp',
+    isDefault: false,
+    type: 'sample',
+    filename: 'mars-rover-model.py3s'
+  },
+  {
+    id: 'asset_mars_habitat_dome',
+    name: 'mars-habitat-dome.py3s',
+    displayName: 'Mars Habitat Dome',
+    sizeStr: formatFileSize(5334802),
+    icon: './assets/logo-icon-mark.webp',
+    isDefault: false,
+    type: 'sample',
+    filename: 'mars-habitat-dome.py3s'
   }
 ];
 
@@ -34,16 +54,13 @@ let pendingDeleteAssetId = null;
 let pendingDeleteAssetTimeout = null;
 
 let onSpawnFromAssetCallback = null;
-let onFilesUploadedCallback = null;
 let getPlacedInstancesFn = () => [];
 
 export function registerAssetBrowserHandlers({
   onSpawnFromAsset = null,
-  onFilesUploaded = null,
   getPlacedInstances = null
 } = {}) {
   if (onSpawnFromAsset) onSpawnFromAssetCallback = onSpawnFromAsset;
-  if (onFilesUploaded) onFilesUploadedCallback = onFilesUploaded;
   if (getPlacedInstances) getPlacedInstancesFn = getPlacedInstances;
 }
 
@@ -197,7 +214,7 @@ export function renderPy3sFileList() {
 }
 
 /**
- * Handles dragged & dropped multiple files (.py3s container only).
+ * Imports .py3s files into the library. Scene placement is a separate action.
  */
 export async function processLoadedFiles(files) {
   if (!files || files.length === 0) return;
@@ -257,14 +274,6 @@ export async function processLoadedFiles(files) {
         existing.icon = './assets/logo-icon-mark.webp';
         renderPy3sFileList();
 
-        // Spawn on 3D ground upon dragging/reloading
-        if (onFilesUploadedCallback) {
-          await onFilesUploadedCallback(existing);
-        } else if (onSpawnFromAssetCallback) {
-          await onSpawnFromAssetCallback(existing.id);
-        } else if (window.spawnModelFromAsset) {
-          await window.spawnModelFromAsset(existing.id);
-        }
         continue;
       }
 
@@ -281,15 +290,6 @@ export async function processLoadedFiles(files) {
       };
       assetLibrary.push(asset);
       renderPy3sFileList();
-
-      // Spawn exactly ONE piece on 3D ground upon loading
-      if (onFilesUploadedCallback) {
-        await onFilesUploadedCallback(asset);
-      } else if (onSpawnFromAssetCallback) {
-        await onSpawnFromAssetCallback(id);
-      } else if (window.spawnModelFromAsset) {
-        await window.spawnModelFromAsset(id);
-      }
     }
   } finally {
     setTimeout(() => {

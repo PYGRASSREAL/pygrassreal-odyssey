@@ -195,9 +195,6 @@ export function initModelManager(scene, getTerrainHeight, camera = null, rendere
     onSpawnFromAsset: async (assetId) => {
       await spawnModelFromAsset(assetId);
     },
-    onFilesUploaded: async (asset) => {
-      await spawnModelFromAsset(asset.id);
-    },
     getPlacedInstances: () => placedInstances
   });
 
