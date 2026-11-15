@@ -11,7 +11,7 @@
 > **Challenge:** *Space Mission Design Game*  
 > **Team:** PyGrassReal (Bangkok, Thailand)  
 > **🎮 Play Live Game:** [https://pygrassreal.github.io/pygrassreal-odyssey/](https://pygrassreal.github.io/pygrassreal-odyssey/)  
-> **🎬 Pitch Demo Video (<30s):** [https://youtu.be/IAvJvCfMzGY](https://youtu.be/IAvJvCfMzGY)  
+> **🎬 Pitch Demo Video (<30s):** [https://youtu.be/lAvJvCfMzGY](https://youtu.be/lAvJvCfMzGY)  
 > **📑 Download Pitch Deck (7-Slide PDF):** [PyGrassReal-Odyssey-NASA-SpaceApps-Presentation.pdf](./PyGrassReal-Odyssey-NASA-SpaceApps-Presentation.pdf) *(Official Deliverable for Judges, 4.3 MB)*
 
 ---
