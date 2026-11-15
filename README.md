@@ -16,29 +16,14 @@
 
 ---
 
-## 🎬 Official Project Demonstration Video (<30s)
+## 🎬 Official Project Demonstration (<30s)
 
-> **Official Video Deliverable for Judges & Evaluators**  
-> *Duration: 13.4s | Format: H.264 / AAC 1080p | 100% NASA Space Apps Challenge Compliant*
-
-<p align="center">
-  <a href="https://github.com/PYGRASSREAL/pygrassreal-odyssey/raw/main/PyGrassReal-Odyssey-Demo.mp4" target="_blank" title="Click to Watch Official Pitch Demo Video">
-    <img src="assets/demo-video-poster.jpg" alt="PyGrassReal Odyssey Pitch Demo Video - Click to Play" width="100%" style="border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.6);" />
-  </a>
-</p>
+> **Official Simulation & Mission Design Showcase**  
+> *Continuous Animated Preview | 100% NASA Space Apps Challenge Compliant*
 
 <p align="center">
-  <em>👆 <b>Click the preview image above to play the full demo video</b> (H.264 MP4 · 1080p HD)</em>
+  <img src="assets/demo-animation.gif" alt="PyGrassReal Odyssey Mission Design Simulator" width="100%" style="border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.6);" />
 </p>
-
-<details>
-<summary><b>🔗 Direct Video Links & Streaming Mirrors</b></summary>
-
-- 🎥 **Direct Video File (GitHub Repo):** [`PyGrassReal-Odyssey-Demo.mp4`](./PyGrassReal-Odyssey-Demo.mp4)
-- 🌐 **Direct Raw Stream (MP4):** [https://github.com/PYGRASSREAL/pygrassreal-odyssey/raw/main/PyGrassReal-Odyssey-Demo.mp4](https://github.com/PYGRASSREAL/pygrassreal-odyssey/raw/main/PyGrassReal-Odyssey-Demo.mp4)
-- 🚀 **GitHub Pages Stream:** [https://pygrassreal.github.io/pygrassreal-odyssey/PyGrassReal-Odyssey-Demo.mp4](https://pygrassreal.github.io/pygrassreal-odyssey/PyGrassReal-Odyssey-Demo.mp4)
-- 📺 **YouTube Mirror:** [https://youtu.be/IAvJvCfMzGY](https://youtu.be/IAvJvCfMzGY)
-</details>
 
 ---
 
