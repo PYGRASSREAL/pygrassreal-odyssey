@@ -88,7 +88,7 @@ This project leverages authentic open data and scientific reference materials pr
 
 In strict compliance with the **2026 NASA Space Apps Challenge Project Submission Guide**:
 - **Engineering & Architectural Co-Pilots:** **Google Gemini** and **Antigravity (Google DeepMind)** were utilized as intelligent coding and architecture co-pilots for Three.js 3D scene engineering, modular optimization, WebWorker physics compute, and test verification.
-- **Generative Concept Media:** **ChatGPT** and generative video models were utilized for mission visual concept art and motion sequence generation.
+- **Generative Concept Media:** **ChatGPT** and **Google Omni** were utilized for mission visual concept art and motion sequence generation.
 - **Watermarks & Attribution:** All AI-assisted visuals include visible watermarks and explicit attribution in metadata.
 - **Zero NASA Branding:** All generated media strictly avoid NASA insignias, logos, or flags (`14 CFR 1221`).
 - **Original Innovation & Logic:** The `.py3s` container architecture, trade-off simulator mechanics, and 1:1 physics collision engines were conceived, engineered, and implemented originally for this challenge.
