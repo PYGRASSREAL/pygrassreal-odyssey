@@ -76,7 +76,7 @@ import {
   resetModelTransform,
   snapModelToGround,
   selectModel
-} from './modelManager.js?v=20261115_en_v22';
+} from './modelManager.js?v=20261115_assets_v24';
 import {
   getTransformControls,
   updateGumballUI,
@@ -86,7 +86,7 @@ import { initHistoryManager, undo, redo } from './historyManager.js?v=20261115_e
 import { createSceneFrameBudget } from './scenePerformance.js?v=20261115_en_v18';
 import { getSelectedInstance } from './outlinerManager.js?v=20261115_en_v18';
 import { initInstancePhysics, updateInstancePhysics, applyInstancePhysics, closePhysicsMenu, renderPhysicsInteraction, PHYSICS_MODES } from './instancePhysics.js?v=20261115_en_v21';
-import { initPhysicsHelp } from './physicsHelp.js?v=20261115_en_v18';
+import { initPhysicsHelp } from './physicsHelp.js?v=20261115_assets_v24';
 import {
   initBenchmarkModal,
   toggleBenchmarkModal,

@@ -78,7 +78,7 @@ import {
   processLoadedFiles,
   processLoadedFile,
   activatePy3sFile
-} from './assetBrowser.js?v=20261115_en_v19';
+} from './assetBrowser.js?v=20261115_assets_v24';
 
 // Central scene node groups
 export let currentModelGroup = new THREE.Group();
