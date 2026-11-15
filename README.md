@@ -10,7 +10,8 @@
 > **Official Entry for NASA International Space Apps Challenge 2026**  
 > **Challenge:** *Space Mission Design Game*  
 > **Team:** PyGrassReal (Bangkok, Thailand)  
-> **🎮 Play Live Game:** [https://pygrassreal.github.io/pygrassreal-odyssey/](https://pygrassreal.github.io/pygrassreal-odyssey/)
+> **🎮 Play Live Game:** [https://pygrassreal.github.io/pygrassreal-odyssey/](https://pygrassreal.github.io/pygrassreal-odyssey/)  
+> **📑 Download Pitch Deck (7-Slide PDF):** [PyGrassReal-Odyssey-NASA-SpaceApps-Presentation.pdf](./PyGrassReal-Odyssey-NASA-SpaceApps-Presentation.pdf) *(Official Deliverable for Judges, 4.3 MB)*
 
 ---
 
@@ -124,6 +125,23 @@ Experience the interactive Martian landing site and test `.py3s` spatial physics
   node scripts/test_character_actions.cjs
   ```
 </details>
+
+---
+
+## 📑 Presentation Deck for Judges (7-Slide PDF)
+
+In accordance with the **NASA Space Apps Challenge Project Submission Guide**, the official 7-slide project presentation deck is available for instant download and review:
+
+👉 **[Download Official 7-Slide Presentation Deck (PDF)](./PyGrassReal-Odyssey-NASA-SpaceApps-Presentation.pdf)** *(16:9 Landscape, 4.3 MB)*
+
+### Deck Structure & Slide Overview:
+- **Slide 1: Title & Challenge:** PyGrassReal Odyssey — Space Mission Design Game (Team PyGrassReal, Bangkok, Thailand).
+- **Slide 2: Problem & Space Trade-offs:** The challenge of deep-space telemetry bottlenecks, payload mass, and radiation budgets.
+- **Slide 3: Core Breakthrough (`.py3s`):** Dehydrated Seed compression achieving >97% telemetry bandwidth savings and 12ms hydration.
+- **Slide 4: Real-time Physics & Collision:** Snug-fit 1:1 BVH collision hull enabling real-time kinetic debris impact tests and solid astronaut interaction.
+- **Slide 5: In-Space Additive Manufacturing:** Embedded watertight 3MF package ready for 1-click STEM and orbital 3D printing.
+- **Slide 6: Deep-Space Telemetry Benchmark:** Interplanetary comparison against Inria PLY, Vanilla Splat, Niantic SPZ, and CAD GLB.
+- **Slide 7: Team, Open Standards & Acknowledgments:** Global IANA MIME assignment (`model/vnd.pygrassreal.py3s`), MIT License, and transparent AI disclosure.
 
 ---
 
