@@ -1,14 +1,16 @@
 # 🚀 PyGrassReal Odyssey: Space Mission Design Game
 
 [![NASA Space Apps 2026](https://img.shields.io/badge/NASA%20Space%20Apps-2026%20Global%20Challenge-0B3D91?style=for-the-badge&logo=nasa&logoColor=white)](https://www.spaceappschallenge.org/)
-[![IANA Media Type](https://img.shields.io/badge/IANA%20MIME-model%2Fvnd.pygrassreal.py3s-0284c7?style=for-the-badge)](https://www.iana.org/assignments/media-types/media-types.xhtml)
 [![NVIDIA Inception](https://img.shields.io/badge/NVIDIA%20Inception-Program%20Member-76B900?style=for-the-badge&logo=nvidia&logoColor=white)](https://www.nvidia.com/en-us/startups/)
+[![IANA Media Type](https://img.shields.io/badge/IANA%20MIME-model%2Fvnd.pygrassreal.py3s-0284c7?style=for-the-badge)](https://www.iana.org/assignments/media-types/media-types.xhtml)
+[![Format Specification](https://img.shields.io/badge/.py3s%20Format-Specification%20%26%20SDK-7c3aed?style=for-the-badge&logo=github&logoColor=white)](https://github.com/PYGRASSREAL/pygrassreal-py3s-format)
 [![License: MIT](https://img.shields.io/badge/License-MIT-emerald.svg?style=for-the-badge)](LICENSE)
 
 > **Official Entry for NASA International Space Apps Challenge 2026**  
 > **Challenge:** *Space Mission Design Game*  
-> **Team:** PyGrassReal (Solo — Bangkok, Thailand)  
-> **Live Web Application:** [https://pygrassreal.github.io/pygrassreal-odyssey/](https://pygrassreal.github.io/pygrassreal-odyssey/)
+> **Team:** PyGrassReal AI (NVIDIA Inception Program Member — Bangkok, Thailand)  
+> **Live Web Application:** [https://pygrassreal.github.io/pygrassreal-odyssey/](https://pygrassreal.github.io/pygrassreal-odyssey/)  
+> **Official .py3s Specification & Codec SDK:** [https://github.com/PYGRASSREAL/pygrassreal-py3s-format](https://github.com/PYGRASSREAL/pygrassreal-py3s-format)
 
 ---
 
@@ -241,9 +243,17 @@ python -m http.server 8000
 
 ---
 
-## 📄 License & Intellectual Property
+## 🏛️ Open Standard, Format Specification & Industry Backing
+
+- **NVIDIA Inception Program:** PyGrassReal AI is an official member of the **[NVIDIA Inception Program](https://www.nvidia.com/en-us/startups/)**, nurturing cutting-edge AI, high-performance spatial computing, and next-generation 3D graphics technologies.
+- **Official .py3s Specification Repository:** The complete binary container specification, 128-byte header architecture, CRC-32 checksum algorithm, C++ Unreal/Unity bindings, and TypeScript/Wasm decoder SDK are published under the open-source MIT License at:  
+  👉 **[https://github.com/PYGRASSREAL/pygrassreal-py3s-format](https://github.com/PYGRASSREAL/pygrassreal-py3s-format)**
+- **Global IANA Media Type Assignment:** Officially registered and recognized in the IANA MIME registry as [`model/vnd.pygrassreal.py3s`](https://www.iana.org/assignments/media-types/media-types.xhtml).
+- **Intellectual Property Protection:** Department of Intellectual Property (DIP) Record No. ว1.001520.
+
+---
+
+## 📄 License
 
 - **Source Code & Documentation:** Licensed under the [MIT License](LICENSE).
-- **Format Specification:** The `.py3s` format is an open standard created by **PyGrassReal AI** (NVIDIA Inception Program Member), registered under IANA MIME `model/vnd.pygrassreal.py3s` and Department of Intellectual Property (DIP) Record No. ว1.001520.
-
-Developed with ❤️ by **[PyGrassReal AI](https://pygrassreal.ai)** for the **NASA Space Apps Challenge 2026**.
+- Developed with ❤️ by **[PyGrassReal AI](https://pygrassreal.ai)** for the **NASA Space Apps Challenge 2026**.
