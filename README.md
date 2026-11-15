@@ -11,8 +11,20 @@
 > **Challenge:** *Space Mission Design Game*  
 > **Team:** PyGrassReal (Bangkok, Thailand)  
 > **🎮 Play Live Game:** [https://pygrassreal.github.io/pygrassreal-odyssey/](https://pygrassreal.github.io/pygrassreal-odyssey/)  
-> **🎬 Pitch Demo Video (25s):** [https://youtu.be/IAvJvCfMzGY](https://youtu.be/IAvJvCfMzGY)  
+> **🎬 Pitch Demo Video (<30s):** [Direct MP4 Stream](https://github.com/PYGRASSREAL/pygrassreal-odyssey/raw/main/PyGrassReal-Odyssey-Demo.mp4) | [GitHub File](./PyGrassReal-Odyssey-Demo.mp4) | [YouTube Mirror](https://youtu.be/IAvJvCfMzGY)  
 > **📑 Download Pitch Deck (7-Slide PDF):** [PyGrassReal-Odyssey-NASA-SpaceApps-Presentation.pdf](./PyGrassReal-Odyssey-NASA-SpaceApps-Presentation.pdf) *(Official Deliverable for Judges, 4.3 MB)*
+
+---
+
+## 🎬 Official Project Demonstration Video (<30s)
+
+> **Official Video Deliverable for Judges & Evaluators**  
+> *Duration: 13.4s | Format: H.264 / AAC 1080p | 100% NASA Space Apps Challenge Compliant*
+
+- 🎥 **Direct Video File (GitHub Repo):** [PyGrassReal-Odyssey-Demo.mp4](./PyGrassReal-Odyssey-Demo.mp4)
+- 🌐 **Direct Raw Stream (MP4):** [https://github.com/PYGRASSREAL/pygrassreal-odyssey/raw/main/PyGrassReal-Odyssey-Demo.mp4](https://github.com/PYGRASSREAL/pygrassreal-odyssey/raw/main/PyGrassReal-Odyssey-Demo.mp4)
+- 🚀 **GitHub Pages Stream:** [https://pygrassreal.github.io/pygrassreal-odyssey/PyGrassReal-Odyssey-Demo.mp4](https://pygrassreal.github.io/pygrassreal-odyssey/PyGrassReal-Odyssey-Demo.mp4)
+- 📺 **YouTube Mirror:** [https://youtu.be/IAvJvCfMzGY](https://youtu.be/IAvJvCfMzGY)
 
 ---
 
