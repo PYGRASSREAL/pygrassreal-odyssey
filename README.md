@@ -38,7 +38,7 @@ Powered by the **`.py3s` single-container open standard** (officially registered
    - **Time & Trajectory:** Orbital transit windows and delta-v conservation.
 
 3. **Real-time 3D Simulation with `.py3s`:**
-   - **Dual-Layer Architecture:** Simultaneously renders dense radiance fields (`spzData`) and solid collision hulls (`colliderData`).
+   - **Dual-Layer Architecture:** Simultaneously renders dense radiance fields (`splatData`) and solid collision hulls (`colliderData`).
    - **Debris & Micrometeoroid Impact Test:** Interactive physical collision detection showing real-time subsystem damage when structural shielding is compromised.
    - **Ultra-lightweight:** 90% footprint reduction compared to raw 50–200 MB PLY files (~3–5 MB per asset), loading instantly via client-side WebAssembly and WebGL.
 
@@ -51,12 +51,12 @@ Powered by the **`.py3s` single-container open standard** (officially registered
 
 The `.py3s` spatial container (`model/vnd.pygrassreal.py3s`) bridges the critical gap between high-fidelity photorealism, low-latency client rendering, and deep-space telemetry constraints:
 
-| Technical Feature | ⭐ **.py3s (Dehydrated Seed)** | 🌫️ **Vanilla .splat** | 📐 **Standard .glb (CAD)** | 📄 **Original .ply (Inria)** |
+| Technical Feature | ⭐ **`.py3s` (Dehydrated Seed)** | 🌫️ **Vanilla `.splat`** | 📐 **Standard `.glb` (CAD)** | 📄 **Original `.ply` (Inria)** |
 |---|:---:|:---:|:---:|:---:|
 | **Format Architecture** | Single Spatial Container | Raw Binary Splat | Polygon Mesh | Raw Point Cloud Dump |
 | **Typical File Size** | **< 50 KB – 500 KB** 🏆 *(99.9% savings)* | ~48 – 60 MB | ~25 – 35 MB | **120 – 150 MB** *(impractical)* |
 | **Photorealism (3DGS)** | ✅ **Ultra-Dense Radiance Field** | ✅ Photorealistic | ❌ Rigid polygon shading only | ✅ Photorealistic |
-| **1:1 Physics Collision Hull** | ✅ **Embedded** (colliderData) | ❌ **None** (pass-through) | ⚠️ Expensive runtime MeshBVH | ❌ **None** (unstructured points) |
+| **1:1 Physics Collision Hull** | ✅ **Embedded** (`colliderData`) | ❌ **None** (pass-through) | ⚠️ Expensive runtime MeshBVH | ❌ **None** (unstructured points) |
 | **Real-Time Kinetic Impact Test** | ✅ **Native** (Micrometeoroid test) | ❌ Unsupported | ⚠️ Heavy CPU compute | ❌ Unsupported |
 | **In-Space 3D Printing Ready** | ✅ **Watertight Solid Inside** | ❌ **Cannot Print** | ⚠️ Often non-manifold | ❌ **Cannot Print** |
 | **Browser Hydration Latency** | ⚡ **12 – 15 ms** (Zero GPU server) | ~200 – 400 ms | ~100 – 300 ms | 🐢 > 1,500 – 4,000 ms |
@@ -65,11 +65,11 @@ The `.py3s` spatial container (`model/vnd.pygrassreal.py3s`) bridges the critica
 | **Data Integrity Verification** | ✅ **CRC-32 Checksum** in 128B Header | ❌ No checksum | ❌ No checksum | ❌ No checksum |
 | **Global Standardization** | 🌐 **IANA MIME Registered** | 📄 Unofficial community format | 🌐 Khronos Group Standard | 📄 Academic Stanford format |
 
-### 🔑 4 Decisive Advantages for NASA Space Apps & Aerospace Engineering:
-1. **All-in-One Spatial Container:** Unifies visual radiance fields, physics collision bounds, and additive manufacturing geometry into a single container—eliminating multi-file dependencies.
-2. **Dehydrated Seed & Instant Hydration:** Ships across the wire as a lightweight parametric seed (< 50 KB – 3.2 MB) and expands dynamically in client RAM/VRAM into a rich 35–50 MB scene in **12 milliseconds with zero server GPU overhead**.
-3. **Overcoming 3DGS Intangibility:** While conventional Gaussian Splats are purely visual "illusions" that objects pass through, `.py3s` features an embedded **1:1 Physics Collider** capable of real-time kinetic impact and damage simulation.
-4. **Deep-Space Mission Feasible:** Transmitting a 135 MB PLY model over deep-space telemetry (1 kbps) would take **over 3 days** and consume a spacecraft's entire daily downlink quota. `.py3s` transmits in **seconds**, saving 99% transmitter power and orbital bandwidth.
+### 🔑 Key Breakthroughs:
+- 📦 **All-in-One Spatial Container:** Radiance field (3DGS) + 1:1 Physics Collider + 3D Printing geometry in a single file.
+- ⚡ **Zero-GPU Instant Hydration:** Ships in kilobytes (< 50 KB – 3.2 MB) and expands to 35–50 MB in **12 ms** in-browser.
+- 💥 **Real Kinetic Physics:** Solves 3DGS intangibility with native collision hulls for real-time impact simulations.
+- 📡 **Deep-Space Link Ready:** Transmits in seconds over 1 kbps Mars links (vs. 3.3 days for raw PLY), saving 99% transmitter power.
 
 *(Note: Live Benchmark & Deep Space Link Calculator can also be tested interactively directly inside the application via the **"⚡ .py3s Format Benchmark"** button on the top navigation bar).*
 
@@ -135,20 +135,11 @@ Experience the interactive Martian landing site and test `.py3s` spatial physics
 
 ---
 
-## 🚀 Quickstart & Local Development
-
-Clone the repository and serve locally using any standard static file server:
+## 🚀 Local Development (Optional)
 
 ```bash
-# Clone the repository
-git clone https://github.com/PYGRASSREAL/pygrassreal-odyssey.git
-cd pygrassreal-odyssey
-
-# Start a local web server (e.g. Python)
-python -m http.server 8000
-
-# Open in browser
-# http://localhost:8000
+git clone https://github.com/PYGRASSREAL/pygrassreal-odyssey.git && cd pygrassreal-odyssey
+python -m http.server 8000 # Open http://localhost:8000
 ```
 
 ---
