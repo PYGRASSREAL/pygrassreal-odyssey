@@ -10,9 +10,7 @@
 > **Official Entry for NASA International Space Apps Challenge 2026**  
 > **Challenge:** *Space Mission Design Game*  
 > **Team:** PyGrassReal AI (NVIDIA Inception Program Member — Bangkok, Thailand)  
-> **Official Website:** [https://pygrassreal.ai](https://pygrassreal.ai)  
-> **Live Web Application:** [https://pygrassreal.github.io/pygrassreal-odyssey/](https://pygrassreal.github.io/pygrassreal-odyssey/)  
-> **Official .py3s Specification & Codec SDK:** [https://github.com/PYGRASSREAL/pygrassreal-py3s-format](https://github.com/PYGRASSREAL/pygrassreal-py3s-format)
+> **🎮 Play Live Game:** [https://pygrassreal.github.io/pygrassreal-odyssey/](https://pygrassreal.github.io/pygrassreal-odyssey/)
 
 ---
 
