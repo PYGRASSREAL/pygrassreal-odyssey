@@ -9,7 +9,7 @@
 
 > **Official Entry for NASA International Space Apps Challenge 2026**  
 > **Challenge:** *Space Mission Design Game*  
-> **Team:** PyGrassReal AI (NVIDIA Inception Program Member — Bangkok, Thailand)  
+> **Team:** PyGrassReal (Solo Developer — Bangkok, Thailand)  
 > **🎮 Play Live Game:** [https://pygrassreal.github.io/pygrassreal-odyssey/](https://pygrassreal.github.io/pygrassreal-odyssey/)
 
 ---
@@ -86,11 +86,12 @@ This project leverages authentic open data and scientific reference materials pr
 
 ## 🤖 AI & Super Intelligence (SI) Disclosure
 
-In compliance with the **2026 NASA Space Apps Challenge Project Submission Guide**:
-- **Generative Media:** Visual concept art was accelerated using ChatGPT (GPT-4o image generation) and transformed into cinematic sequence animations via Omni video processing.
-- **Watermarks & Attribution:** All AI-assisted visuals are explicitly watermarked and disclosed in metadata.
-- **No NASA Branding:** AI-generated media strictly avoids NASA logos, insignias, or mission identifiers (`14 CFR 1221`).
-- **Original Code & Implementation:** The game logic, Three.js 3D rendering pipeline, `.py3s` container codec, and physics hit-testing were designed and implemented specifically for this challenge.
+In strict compliance with the **2026 NASA Space Apps Challenge Project Submission Guide**:
+- **Engineering & Architectural Co-Pilots:** **Google Gemini** and **Antigravity (Google DeepMind)** were utilized as intelligent coding and architecture co-pilots for Three.js 3D scene engineering, modular optimization, WebWorker physics compute, and test verification.
+- **Generative Concept Media:** **ChatGPT (GPT-4o)** was utilized for mission narrative ideation and visual concept art, with motion sequences animated via Omni video generation.
+- **Watermarks & Attribution:** All AI-assisted visuals include visible watermarks and explicit attribution in metadata.
+- **Zero NASA Branding:** All generated media strictly avoid NASA insignias, logos, or flags (`14 CFR 1221`).
+- **Original Innovation & Logic:** The `.py3s` container architecture, trade-off simulator mechanics, and 1:1 physics collision engines were conceived and directed originally by a solo engineer specifically for this challenge.
 
 ---
 
@@ -158,4 +159,4 @@ python -m http.server 8000 # Open http://localhost:8000
 ## 📄 License
 
 - **Source Code & Documentation:** Licensed under the [MIT License](LICENSE).
-- Developed with ❤️ by **[PyGrassReal AI](https://pygrassreal.ai)** for the **NASA Space Apps Challenge 2026**.
+- Developed with ❤️ by **PyGrassReal (Solo Developer)** for the **NASA Space Apps Challenge 2026**.
