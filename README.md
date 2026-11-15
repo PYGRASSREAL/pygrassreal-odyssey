@@ -8,7 +8,7 @@
 > **Official Entry for NASA International Space Apps Challenge 2026**  
 > **Challenge:** *Space Mission Design Game*  
 > **Team:** PyGrassReal (Solo — Bangkok, Thailand)  
-> **Live Web Application:** [https://pygrassreal.github.io/odyssey/](https://pygrassreal.github.io/odyssey/)
+> **Live Web Application:** [https://pygrassreal.github.io/pygrassreal-odyssey/](https://pygrassreal.github.io/pygrassreal-odyssey/)
 
 ---
 
