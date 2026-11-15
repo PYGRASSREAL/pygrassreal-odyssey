@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { initTimeline, jumpToTimeline, getCurrentPhase } from './timeline.js?v=20261115_en_v18';
+import { initTimeline, jumpToTimeline, getCurrentPhase } from './timeline.js?v=20261115_en_v19';
 import {
   initMarsScene,
   getTerrainHeight,

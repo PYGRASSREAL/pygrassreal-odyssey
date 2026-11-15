@@ -108,9 +108,13 @@ export function initTimeline({ onEnter3D, onLeave3D } = {}) {
     } else onMasterScroll();
   });
 
-  // Ensure initial scroll position and state are cleanly synced
-  window.scrollTo(0, 0);
-  onMasterScroll(0.00);
+  // Ensure initial scroll position and state are cleanly synced without overriding user early scroll
+  if (window.scrollY > 0) {
+    onMasterScroll();
+  } else {
+    window.scrollTo(0, 0);
+    onMasterScroll(0.00);
+  }
 
   preloadAllStages();
 }
