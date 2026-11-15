@@ -1,5 +1,12 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
+import { conformGridToTerrain } from './modelGrounding.js';
+
+THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
+THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
+THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
 let scene, camera, renderer, controls;
 let marsTerrainMesh = null;
@@ -9,7 +16,20 @@ let isWindActive = false;
 let isMarsEnvActive = true;
 let isCameraFollow = true;
 
+const terrainRaycaster = new THREE.Raycaster();
+terrainRaycaster.firstHitOnly = true;
+const rayDown = new THREE.Vector3(0, -1, 0);
+const rayOrigin = new THREE.Vector3();
+
 export function getTerrainHeight(x, z) {
+  if (marsTerrainMesh && marsTerrainMesh.geometry && marsTerrainMesh.geometry.boundsTree) {
+    rayOrigin.set(x, 50, z);
+    terrainRaycaster.set(rayOrigin, rayDown);
+    const hits = terrainRaycaster.intersectObject(marsTerrainMesh, false);
+    if (hits.length > 0) {
+      return hits[0].point.y;
+    }
+  }
   const dist = Math.sqrt(x * x + z * z);
   if (dist > 4.5) {
     return Math.sin(x * 0.2) * Math.cos(z * 0.2) * 0.8 + Math.sin(x * 0.5) * 0.3 - 0.25;
@@ -23,12 +43,15 @@ export function initMarsScene(canvasElement) {
   scene.fog = new THREE.FogExp2(0x180b07, 0.025);
 
   camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-  camera.position.set(1.5, 3.2, 7.8);
+  camera.position.set(4.7, 3.3, 6.5);
 
   renderer = new THREE.WebGLRenderer({ canvas: canvasElement, antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  // Keep splat overdraw bounded on high-DPI screens; HUD text stays at CSS resolution.
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMap.enabled = true;
+  renderer.shadowMap.autoUpdate = false;
+  renderer.shadowMap.needsUpdate = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
   controls = new OrbitControls(camera, renderer.domElement);
@@ -37,7 +60,7 @@ export function initMarsScene(canvasElement) {
   controls.maxPolarAngle = Math.PI / 2 + 0.02;
   controls.minDistance = 1.2;
   controls.maxDistance = 50;
-  controls.target.set(0.6, 1.3, 0.6);
+  controls.target.set(2.5, 1.15, 2.5);
 
   const ambient = new THREE.AmbientLight(0xffeedd, 0.8);
   scene.add(ambient);
@@ -45,15 +68,26 @@ export function initMarsScene(canvasElement) {
   const sun = new THREE.DirectionalLight(0xffa257, 2.2);
   sun.position.set(12, 18, 10);
   sun.castShadow = true;
-  sun.shadow.mapSize.width = 2048;
-  sun.shadow.mapSize.height = 2048;
+  sun.shadow.mapSize.width = 512;
+  sun.shadow.mapSize.height = 512;
+  sun.shadow.camera.left = -8; sun.shadow.camera.right = 8;
+  sun.shadow.camera.top = 8; sun.shadow.camera.bottom = -8;
+  sun.shadow.camera.near = .5; sun.shadow.camera.far = 60;
+  sun.shadow.camera.updateProjectionMatrix();
+  sun.shadow.bias = -.0005;
+  sun.shadow.normalBias = .035;
   scene.add(sun);
 
   const cyanRim = new THREE.DirectionalLight(0x38bdf8, 1.2);
   cyanRim.position.set(-10, 8, -10);
   scene.add(cyanRim);
 
+  const cameraFill = new THREE.DirectionalLight(0xfff5ea, 1.2);
+  cameraFill.position.set(8, 12, 16);
+  scene.add(cameraFill);
+
   gridHelper = new THREE.GridHelper(30, 30, 0x38bdf8, 0x1e293b);
+  gridHelper.name = 'TerrainGrid';
   gridHelper.position.y = 0;
   scene.add(gridHelper);
 
@@ -82,6 +116,7 @@ function createMarsTerrain() {
     pos.setY(i, getTerrainHeight(x, z));
   }
   geo.computeVertexNormals();
+  geo.computeBoundsTree();
 
   const mat = new THREE.MeshStandardMaterial({
     color: 0x933b1e,
@@ -92,6 +127,62 @@ function createMarsTerrain() {
   marsTerrainMesh = new THREE.Mesh(geo, mat);
   marsTerrainMesh.receiveShadow = true;
   scene.add(marsTerrainMesh);
+  void conformGridToTerrain(gridHelper, getTerrainHeight);
+
+  // Asynchronously load real NASA Apollo 12 Terrain model
+  const loader = new GLTFLoader();
+  loader.load('./assets/models/Apollo_12_Terrain.glb', (gltf) => {
+    const terrain = gltf.scene.getObjectByProperty('isMesh', true);
+    if (!terrain) return;
+
+    terrain.geometry.rotateX(Math.PI / 2);
+    terrain.geometry.center();
+    terrain.geometry.computeVertexNormals();
+
+    const terrainScale = 0.16;
+    terrain.scale.setScalar(terrainScale);
+
+    terrain.material = new THREE.MeshStandardMaterial({
+      color: 0x933b1e, // Mars terrain palette
+      roughness: 0.90,
+      metalness: 0.08,
+      flatShading: true
+    });
+    terrain.receiveShadow = true;
+    // A large terrain casting into a small directional shadow map creates a
+    // dark rectangular frustum footprint. Only objects cast onto this surface.
+    terrain.castShadow = false;
+
+    // Compute BVH for rapid terrain collision and exact surface height
+    terrain.geometry.computeBoundsTree();
+    terrain.updateMatrixWorld(true);
+
+    // Align center landing site elevation to Y = 0
+    const tempRay = new THREE.Raycaster();
+    tempRay.firstHitOnly = true;
+    tempRay.set(new THREE.Vector3(0, 50, 0), new THREE.Vector3(0, -1, 0));
+    const hits = tempRay.intersectObject(terrain, false);
+    const centerElevation = hits.length > 0 ? hits[0].point.y : 0;
+    terrain.position.y = -centerElevation;
+    terrain.updateMatrixWorld(true);
+
+    // Swap temporary mesh with Apollo 12 terrain
+    if (marsTerrainMesh) {
+      scene.remove(marsTerrainMesh);
+      marsTerrainMesh.geometry.dispose();
+      marsTerrainMesh.material.dispose();
+    }
+    marsTerrainMesh = terrain;
+    marsTerrainMesh.visible = isMarsEnvActive;
+    scene.add(marsTerrainMesh);
+    void conformGridToTerrain(gridHelper, getTerrainHeight);
+    window.dispatchEvent(new CustomEvent('odyssey-terrain-ready'));
+
+    if (renderer) renderer.shadowMap.needsUpdate = true;
+    console.log('[MarsScene] Apollo 12 Terrain loaded & aligned to Y=0 successfully');
+  }, undefined, (err) => {
+    console.warn('[MarsScene] Failed to load Apollo_12_Terrain.glb, keeping fallback:', err);
+  });
 }
 
 function createWindSimulation() {
@@ -147,7 +238,10 @@ export function toggleCameraFollow() {
   const btn = document.getElementById('btn-cam-follow');
   const txt = document.getElementById('cam-follow-text');
   if (btn) btn.classList.toggle('active', isCameraFollow);
-  if (txt) txt.innerText = isCameraFollow ? 'Follow Astronaut' : 'Free Camera';
+  if (txt) txt.innerText = isCameraFollow ? 'Follow' : 'Free';
+  if (isCameraFollow && window.astroPos) {
+    reset3DCamera(window.astroPos);
+  }
 }
 
 export function getIsCameraFollow() {
@@ -156,8 +250,9 @@ export function getIsCameraFollow() {
 
 export function reset3DCamera(astroPos) {
   if (!camera || !controls) return;
-  camera.position.set(astroPos.x + 3.5, astroPos.y + 3.5, astroPos.z + 5.5);
-  controls.target.set(astroPos.x, astroPos.y + 1.2, astroPos.z);
+  const targetPos = astroPos || (window.astroPos ? window.astroPos : { x: 2.5, y: -0.05, z: 2.5 });
+  controls.target.set(targetPos.x, targetPos.y + 1.15, targetPos.z);
+  camera.position.set(targetPos.x + 2.2, targetPos.y + 2.2, targetPos.z + 4.0);
   controls.update();
 }
 
@@ -210,5 +305,38 @@ function createImpactShockwave(pos) {
     else scene.remove(ring);
   }
   expand();
+}
+
+export function setGridVisible(visible) {
+  if (gridHelper) {
+    gridHelper.visible = visible;
+  }
+  updateGridXYUI(visible);
+}
+
+export function isGridVisible() {
+  return gridHelper ? gridHelper.visible : true;
+}
+
+export function toggleGridVisible() {
+  if (gridHelper) {
+    gridHelper.visible = !gridHelper.visible;
+    updateGridXYUI(gridHelper.visible);
+    return gridHelper.visible;
+  }
+  return true;
+}
+
+export function updateGridXYUI(visible) {
+  const btn = document.getElementById('btn-toggle-grid');
+  const sw = document.getElementById('switch-grid');
+  if (btn) btn.classList.toggle('active', visible);
+  if (sw) sw.classList.toggle('active', visible);
+}
+
+if (typeof window !== 'undefined') {
+  window.toggleGridXY = toggleGridVisible;
+  window.setGridVisible = setGridVisible;
+  window.isGridVisible = isGridVisible;
 }
 

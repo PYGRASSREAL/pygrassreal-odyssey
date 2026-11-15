@@ -1,0 +1,156 @@
+/* Shared glass finish. Loaded last so component layout and interaction stay intact. */
+:root {
+  /* Readable fallback for browsers without backdrop-filter. */
+  --glass-tint: rgba(9, 18, 30, 0.92);
+  --glass-filter: none;
+  --glass-sheen: linear-gradient(145deg, rgba(225, 245, 255, 0.09), rgba(225, 245, 255, 0.015) 55%);
+  --glass-edge: rgba(183, 226, 248, 0.3);
+  --glass-shadow: 0 12px 32px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.035);
+  --glass-inset: rgba(7, 17, 31, 0.18);
+  --glass-control: rgba(17, 36, 54, 0.3);
+  --glass-muted: #bfd0df;
+}
+
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root {
+    --glass-tint: rgba(9, 18, 30, 0.52);
+    --glass-filter: blur(8px) saturate(120%);
+  }
+}
+
+/* Blur only the outer surfaces, never the scene canvas or nested controls. */
+:is(.top-nav, .viewer3d-leftpanel, .wasd-controller-hud, .py3s-layer-panel,
+    .viewer3d-topbar, .object-physics-menu, .object-physics-parameters,
+    .object-interaction-prompt, .physics-help-button, .physics-help-dialog) {
+  background: var(--glass-sheen), var(--glass-tint);
+  -webkit-backdrop-filter: var(--glass-filter);
+  backdrop-filter: var(--glass-filter);
+  border-color: var(--glass-edge);
+  box-shadow: var(--glass-shadow);
+  color: #f8fafc;
+}
+
+:is(.viewer3d-leftpanel, .wasd-controller-hud, .py3s-layer-panel) {
+  border-radius: 16px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(169, 222, 245, 0.42) transparent;
+}
+
+.top-nav {
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.stage-selector {
+  background: rgba(8, 21, 35, 0.22);
+  border-color: rgba(183, 226, 248, 0.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+.stage-btn {
+  color: var(--glass-muted);
+}
+
+.badge-nasa {
+  background: rgba(56, 189, 248, 0.1);
+  border-color: rgba(125, 211, 252, 0.5);
+  color: #9de3ff;
+  border-radius: 6px;
+}
+
+/* Transparent inset surfaces prevent stacks of dark cards obscuring the glass. */
+:is(.rhino-layers-container, .gumball-controller-box, .gumball-coords-display,
+    .py3s-file-list-container) {
+  background: var(--glass-inset);
+  border-color: rgba(183, 226, 248, 0.17);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.rhino-table-header {
+  background: rgba(192, 229, 249, 0.065);
+  border-color: rgba(183, 226, 248, 0.16);
+  color: var(--glass-muted);
+}
+
+:is(.py3s-file-slot, .py3s-file-row, .shading-toggle-btn, .wasd-enable-toggle,
+    .btn-quick-action, .wasd-key, .gumball-mode-btn, .gumball-action-btn) {
+  background: linear-gradient(145deg, rgba(225, 245, 255, 0.045), transparent), var(--glass-control);
+  border-color: rgba(183, 226, 248, 0.23);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.065), 0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+:is(.py3s-file-slot, .py3s-file-row, .shading-toggle-btn, .wasd-enable-toggle,
+    .btn-quick-action, .wasd-key, .gumball-mode-btn, .gumball-action-btn):hover:not(:disabled):not(.disabled) {
+  background: rgba(125, 211, 252, 0.17);
+  border-color: rgba(165, 230, 255, 0.65);
+}
+
+:is(.shading-toggle-btn, .wasd-enable-toggle, .gumball-mode-btn, .py3s-file-row, .wasd-key).active {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.28), rgba(14, 116, 144, 0.2));
+  border-color: rgba(125, 211, 252, 0.8);
+  box-shadow: inset 0 1px 0 rgba(225, 245, 255, 0.22), 0 0 12px rgba(56, 189, 248, 0.14);
+  color: #e0f7ff;
+}
+
+.rhino-layer-row.selected {
+  background: rgba(56, 189, 248, 0.18);
+  box-shadow: inset 0 1px 0 rgba(225, 245, 255, 0.07);
+}
+
+:is(.panel-title, .layer-panel-title, .wasd-hud-title, .coord-label,
+    .rhino-layer-row.selected .rhino-layer-name) {
+  color: #91dfff;
+}
+
+:is(.file-slot-meta, .file-row-meta, .rhino-layer-desc, .mode-desc,
+    .wasd-enable-toggle .mode-desc, .gumball-label, .physics-menu-hint,
+    .physics-parameter-hint, #physics-heatmap-row, #physics-help-intro,
+    .physics-help-note, .physics-help-footer) {
+  color: var(--glass-muted);
+}
+
+.asset-add-slot {
+  background: rgba(125, 211, 252, 0.045);
+  border-color: rgba(183, 226, 248, 0.35);
+}
+
+#btn-instance-physics {
+  background: rgba(56, 189, 248, 0.1);
+  border-color: rgba(125, 211, 252, 0.35);
+  color: #b0e8ff;
+}
+
+.physics-help-button:hover {
+  background: linear-gradient(145deg, rgba(125, 211, 252, 0.17), rgba(125, 211, 252, 0.04)), var(--glass-tint);
+  border-color: #a5e6ff;
+}
+
+.object-interaction-prompt::after {
+  background: rgba(25, 46, 61, 0.85);
+  border-color: var(--glass-edge);
+}
+
+.physics-help-dialog::backdrop {
+  background: rgba(2, 6, 17, 0.42);
+}
+
+:is(.physics-help-mode, .physics-help-controls) {
+  background: var(--glass-inset);
+  border-color: rgba(183, 226, 248, 0.18);
+}
+
+:is(.top-nav, .viewer3d-leftpanel, .wasd-controller-hud, .py3s-layer-panel) :is(button, [tabindex]):focus-visible {
+  outline: 2px solid #bae6fd;
+  outline-offset: 3px;
+}
+
+/* Respect users who need a solid reading surface. */
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --glass-tint: rgba(9, 18, 30, 0.97);
+    --glass-filter: none;
+  }
+}

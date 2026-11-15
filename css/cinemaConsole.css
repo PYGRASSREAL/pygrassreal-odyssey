@@ -1,0 +1,548 @@
+/* =========================================================================
+   PyGrassReal Odyssey - Cinema Stage Header & Unified Frosted Glass Console
+   Top Stage Story, .py3s Breakthrough Comparison, Telemetry Metrics
+   ========================================================================= */
+
+    /* Top Benchmark Glowing Button */
+    .benchmark-pill-btn {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(16, 185, 129, 0.25)) !important;
+      border: 1px solid #38bdf8 !important;
+      color: #ffffff !important;
+      font-size: 0.76rem !important;
+      font-weight: 700 !important;
+      padding: 0.35rem 0.85rem !important;
+      border-radius: 9999px !important;
+      cursor: pointer !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 0.45rem !important;
+      transition: all 0.25s ease !important;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.35) !important;
+    }
+
+    .benchmark-pill-btn:hover {
+      background: #38bdf8 !important;
+      color: #05070d !important;
+      box-shadow: 0 0 24px rgba(56, 189, 248, 0.7) !important;
+      transform: translateY(-1px);
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #38bdf8;
+      box-shadow: 0 0 8px #38bdf8;
+      animation: pulseDot 1.4s infinite ease-in-out;
+    }
+
+    @keyframes pulseDot {
+
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      50% {
+        transform: scale(1.6);
+        opacity: 0.4;
+      }
+    }
+
+    /* =========================================================================
+       TOP-LEFT CINEMATIC STAGE HEADER OVERLAY (PURE TEXT / NO BACKGROUND GUI)
+       ========================================================================= */
+    .stage-cinema-header {
+      position: fixed;
+      top: 4.8rem;
+      left: 1.75rem;
+      z-index: 50;
+      max-width: 720px;
+      padding: 0 !important;
+      background: transparent !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      border: none !important;
+      box-shadow: none !important;
+      pointer-events: none;
+      transform: translateY(0);
+      transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: transform;
+    }
+
+    .stage-cinema-header.pushed-up {
+      transform: translateY(calc(-100% - 6rem));
+      pointer-events: none;
+    }
+
+    .cinema-stage-title {
+      font-size: 1.6rem;
+      font-weight: 850;
+      color: #ffffff;
+      line-height: 1.25;
+      letter-spacing: 0.015em;
+      text-transform: uppercase;
+      margin: 0 0 0.3rem 0;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95), 0 0 20px rgba(0, 0, 0, 0.9), 0 0 30px rgba(56, 189, 248, 0.4);
+    }
+
+    .cinema-stage-theme {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #7dd3fc;
+      line-height: 1.35;
+      letter-spacing: 0.01em;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.95), 0 0 16px rgba(0, 0, 0, 0.85);
+    }
+
+    @media (max-width: 900px) {
+      .stage-cinema-header {
+        top: 4.2rem;
+        left: 1rem;
+        max-width: calc(100vw - 2rem);
+      }
+
+      .cinema-stage-title {
+        font-size: 1.2rem;
+      }
+
+      .cinema-stage-theme {
+        font-size: 0.85rem;
+      }
+    }
+
+    /* =========================================================================
+       ULTRA-TRANSPARENT FROSTED GLASS CONSOLE (RIGHT SIDE UNIFIED HUD)
+       ========================================================================= */
+    .unified-right-console {
+      position: fixed;
+      right: 1.5rem;
+      bottom: 1.5rem;
+      width: 580px;
+      max-width: calc(100vw - 3rem);
+      max-height: calc(100vh - 5.5rem);
+      overflow-y: auto;
+      overflow-x: hidden;
+      z-index: 55;
+
+      /* Low-Blur Sharp Glassmorphism (High clarity, minimal frost) */
+      background: rgba(6, 14, 30, 0.65) !important;
+      backdrop-filter: blur(8px) saturate(140%) !important;
+      -webkit-backdrop-filter: blur(8px) saturate(140%) !important;
+      border: 1px solid rgba(56, 189, 248, 0.35) !important;
+      border-radius: 20px !important;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.72),
+        inset 0 1px 0 rgba(255, 255, 255, 0.18),
+        0 0 24px rgba(56, 189, 248, 0.14) !important;
+      padding: 1.35rem 1.6rem;
+      color: #f8fafc;
+
+      /* Smooth Slow Push-Down State */
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(calc(100% + 3.5rem));
+      transition: transform 0.95s cubic-bezier(0.19, 1, 0.22, 1),
+        opacity 0.75s cubic-bezier(0.19, 1, 0.22, 1),
+        background 0.3s ease,
+        border-color 0.3s ease;
+      will-change: transform, opacity;
+    }
+
+    /* Cinematic Slow Push-Up */
+    .unified-right-console.pop-active {
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      transform: translateY(0) !important;
+      transition: transform 1.25s cubic-bezier(0.16, 1, 0.3, 1),
+        opacity 1.0s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    /* Push-Up to Final 3D */
+    .unified-right-console.pushed-up {
+      pointer-events: none !important;
+      transform: translateY(-100vh) !important;
+      transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    .unified-right-console:hover {
+      background: rgba(6, 14, 30, 0.52) !important;
+      border-color: rgba(56, 189, 248, 0.6) !important;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75),
+        inset 0 1px 0 rgba(255, 255, 255, 0.28),
+        0 0 36px rgba(56, 189, 248, 0.28) !important;
+    }
+
+    .unified-right-console::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .unified-right-console::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 4px;
+    }
+
+    .unified-right-console::-webkit-scrollbar-thumb {
+      background: rgba(56, 189, 248, 0.4);
+      border-radius: 4px;
+    }
+
+    /* Top HUD Header */
+    .hud-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .stage-pill {
+      font-size: 0.65rem;
+      font-family: monospace;
+      font-weight: 800;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      padding: 0.18rem 0.55rem;
+      border-radius: 9999px;
+      letter-spacing: 0.05em;
+    }
+
+    .stage-clip {
+      font-size: 0.65rem;
+      font-family: monospace;
+      color: #94a3b8;
+    }
+
+    .constraint-pill {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #f59e0b;
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      padding: 0.18rem 0.55rem;
+      border-radius: 9999px;
+    }
+
+    .status-pill {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 0.18rem 0.55rem;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .status-scrubbing {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent, #38bdf8);
+      border: 1px solid var(--accent, #38bdf8);
+    }
+
+    .status-looping {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid #10b981;
+      animation: pulse 1.2s infinite;
+    }
+
+    .status-3d {
+      background: rgba(224, 104, 71, 0.25);
+      color: #e06847;
+      border: 1px solid #e06847;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 3px;
+      overflow: hidden;
+      margin: 0.5rem 0 0.85rem 0;
+    }
+
+    .top-progress-track {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 3.5px;
+      background: rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+      z-index: 52;
+    }
+
+    .top-progress-track .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #38bdf8, #10b981);
+      width: 0%;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.8), 0 0 18px rgba(16, 185, 129, 0.6);
+      transition: width 0.1s linear;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #38bdf8, #10b981);
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+
+    /* Section 1: Active Stage Mission Story */
+    .console-story-section {
+      padding-bottom: 0.75rem;
+      margin-bottom: 0.75rem;
+      border-bottom: 1px solid rgba(56, 189, 248, 0.18);
+    }
+
+    .glass-card-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.35;
+      margin-bottom: 0.28rem;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .glass-theme-sub {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #38bdf8;
+      margin-bottom: 0.55rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .glass-card-desc {
+      font-size: 0.92rem;
+      color: #e2e8f0;
+      line-height: 1.6;
+      transition: opacity 0.25s ease;
+    }
+
+    /* Section 2: .py3s Format Breakthrough */
+    .console-format-section {
+      padding-bottom: 0.2rem;
+      margin-bottom: 0;
+      border-bottom: none;
+    }
+
+    .compare-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.55rem;
+    }
+
+    .compare-icon {
+      font-size: 1.1rem;
+      color: #38bdf8;
+    }
+
+    .compare-header-title {
+      font-size: 0.98rem;
+      font-weight: 800;
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+
+    .compare-contrast-box {
+      background: rgba(8, 18, 38, 0.55);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      margin-bottom: 0.65rem;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .contrast-row {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.88rem;
+      line-height: 1.4;
+    }
+
+    .contrast-label {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.88rem;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .badge-dot-cyan {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #38bdf8;
+      box-shadow: 0 0 6px #38bdf8;
+    }
+
+    .badge-dot-red {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #ef4444;
+      box-shadow: 0 0 6px #ef4444;
+    }
+
+    .contrast-row.mine strong {
+      color: #38bdf8;
+      font-size: 0.88rem;
+    }
+
+    .contrast-row.mine .contrast-value {
+      color: #86efac;
+      font-weight: 600;
+      padding-left: 0;
+      font-size: 0.88rem;
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    .contrast-row.theirs strong {
+      color: #fca5a5;
+      font-size: 0.88rem;
+    }
+
+    .contrast-row.theirs .contrast-value {
+      color: #94a3b8;
+      padding-left: 0;
+      font-size: 0.88rem;
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    /* Telemetry Chips */
+    .telemetry-chips {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.45rem;
+    }
+
+    .chip {
+      background: rgba(8, 18, 38, 0.55);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border: 1px solid rgba(56, 189, 248, 0.20);
+      border-radius: 10px;
+      padding: 0.5rem 0.55rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.18rem;
+      text-align: center;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .chip-lbl {
+      font-size: 0.68rem;
+      color: #94a3b8;
+      font-family: monospace;
+      text-transform: uppercase;
+    }
+
+    .chip-val {
+      font-size: 0.90rem;
+      font-weight: 800;
+      font-family: monospace;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .chip-val.cyan {
+      color: #38bdf8;
+    }
+
+    .chip-val.green {
+      color: #34d399;
+    }
+
+    .chip-val.red {
+      color: #f87171;
+    }
+
+    /* Section 3: Telemetry Rows */
+    .console-telemetry-section {
+      display: flex;
+      flex-direction: column;
+      gap: 0.28rem;
+    }
+
+    .telemetry-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: #94a3b8;
+      font-family: monospace;
+    }
+
+    .telemetry-val {
+      color: #f8fafc;
+      font-weight: 600;
+    }
+
+    .btn-glass-action {
+      width: 100%;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(16, 185, 129, 0.2));
+      border: 1px solid #38bdf8;
+      color: #ffffff;
+      font-size: 0.73rem;
+      font-weight: 700;
+      padding: 0.52rem 0.75rem;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      transition: all 0.2s;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+    }
+
+    .btn-glass-action:hover {
+      background: #38bdf8;
+      color: #05070d;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.6);
+      transform: translateY(-1px);
+    }
+
+    /* 3D Mode Adaptation */
+    .unified-right-console.mode-3d .console-story-section,
+    .unified-right-console.mode-3d .console-format-section {
+      display: none;
+    }
+
+    @media (max-width: 900px) {
+      .unified-right-console {
+        width: 360px;
+        right: 1rem;
+        bottom: 1rem;
+        padding: 1rem;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .unified-right-console {
+        width: calc(100vw - 1.5rem);
+        right: 0.75rem;
+        left: 0.75rem;
+        bottom: 0.75rem;
+        max-height: 52vh;
+      }
+    }

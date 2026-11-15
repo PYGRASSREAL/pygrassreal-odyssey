@@ -1,0 +1,226 @@
+/* =========================================================================
+   PyGrassReal Odyssey - Base & Design System
+   Variables, Reset, Master Viewports, Top Navigation Bar & Scroll Track
+   ========================================================================= */
+
+    :root {
+      --bg: #05070d;
+      --card-bg: rgba(13, 19, 33, 0.92);
+      --border: rgba(56, 189, 248, 0.28);
+      --accent: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.45);
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --success: #10b981;
+      --mars: #e06847;
+      --mars-glow: rgba(224, 104, 71, 0.45);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      overflow-x: hidden;
+      overflow-y: auto;
+      scroll-behavior: auto;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Keep wheel zoom and drag autoscroll inside the final 3D workspace without locking the document scroll. */
+    html.scene-3d-active {
+      overscroll-behavior: none;
+    }
+
+    html.scene-3d-active #v3d-leftpanel,
+    html.scene-3d-active #v3d-layer-panel,
+    html.scene-3d-active #v3d-wasd-hud {
+      overscroll-behavior: contain;
+    }
+
+    /* Fixed Fullscreen Background Viewports */
+    .master-viewport {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+      overflow: hidden;
+      background: #020408;
+      pointer-events: none;
+    }
+
+    /* 2D Stage Screen Viewport (Entire Stage 1-5 World that pushes up into 3D) */
+    .stage2d-viewport {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      transform: translateY(0);
+      transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: transform;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .stage2d-viewport.pushed-up {
+      transform: translateY(-100%);
+      pointer-events: none;
+    }
+
+    #scroll-canvas-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 2;
+    }
+
+    #loop-overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+      z-index: 3;
+    }
+
+    #loop-overlay.active {
+      opacity: 1;
+    }
+
+    #threejs-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 4;
+      pointer-events: none;
+      transform: translateY(100%);
+      transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: transform;
+    }
+
+    #threejs-layer.active {
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, transparent 40%, rgba(5, 7, 13, 0.75) 100%),
+        linear-gradient(to bottom, rgba(5, 7, 13, 0.7) 0%, transparent 20%, transparent 75%, rgba(5, 7, 13, 0.9) 100%);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    /* Top Global Header Bar */
+    .top-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 50;
+      padding: 0.65rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(to bottom, rgba(5, 7, 13, 0.95), rgba(5, 7, 13, 0.6));
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .badge-nasa {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+    }
+
+    .brand-title {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+
+    /* Continuous Scroll Track (Long Track for all 5 stages + final 3D) */
+    .continuous-scroll-track {
+      position: relative;
+      z-index: 10;
+      height: 1200vh;
+      pointer-events: none;
+    }
+
+    .scroll-hint-bar {
+      position: fixed;
+      bottom: 2.2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 30;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      pointer-events: none;
+      animation: bounce 2s infinite;
+      transition: opacity 0.3s;
+    }
+
+    @keyframes bounce {
+
+      0%,
+      20%,
+      50%,
+      80%,
+      100% {
+        transform: translate(-50%, 0);
+      }
+
+      40% {
+        transform: translate(-50%, -8px);
+      }
+
+      60% {
+        transform: translate(-50%, -4px);
+      }
+    }
+
+    #model-file-input {
+      display: none;
+    }
+

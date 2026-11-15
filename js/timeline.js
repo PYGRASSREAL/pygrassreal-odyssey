@@ -5,7 +5,7 @@
 export const TIMELINE_STAGES = [
   {
     id: 1,
-    title: "STAGE 1: LAUNCH PLATFORM (1 ➡️ 6)",
+    title: "STAGE 1: LAUNCH PLATFORM",
     scrollClip: 1,
     loopClip: 6,
     loopFile: "assets/loops/loop_clip_06.webp",
@@ -16,7 +16,7 @@ export const TIMELINE_STAGES = [
   },
   {
     id: 2,
-    title: "STAGE 2: ASCEND INTO ORBIT (2 ➡️ 7)",
+    title: "STAGE 2: ASCEND INTO ORBIT",
     scrollClip: 2,
     loopClip: 7,
     loopFile: "assets/loops/loop_clip_07.webp",
@@ -27,7 +27,7 @@ export const TIMELINE_STAGES = [
   },
   {
     id: 3,
-    title: "STAGE 3: DEFLECTOR SHIELD (3 ➡️ 8)",
+    title: "STAGE 3: DEFLECTOR SHIELD",
     scrollClip: 3,
     loopClip: 8,
     loopFile: "assets/loops/loop_clip_08.webp",
@@ -38,7 +38,7 @@ export const TIMELINE_STAGES = [
   },
   {
     id: 4,
-    title: "STAGE 4: SOLAR PLASMA CRUISE (4 ➡️ 9)",
+    title: "STAGE 4: SOLAR PLASMA CRUISE",
     scrollClip: 4,
     loopClip: 9,
     loopFile: "assets/loops/loop_clip_09.webp",
@@ -49,7 +49,7 @@ export const TIMELINE_STAGES = [
   },
   {
     id: 5,
-    title: "STAGE 5: MARS TOUCHDOWN (5 ➡️ 10)",
+    title: "STAGE 5: MARS TOUCHDOWN",
     scrollClip: 5,
     loopClip: 10,
     loopFile: "assets/loops/loop_clip_10.webp",
@@ -63,15 +63,22 @@ export const TIMELINE_STAGES = [
 const totalFrames = 119;
 const stageFramesCache = { 1: [], 2: [], 3: [], 4: [], 5: [] };
 
-let scrollCanvas, scrollCtx, loopOverlay, threejsLayer, v3dTopbar, v3dLeftpanel, v3dWasdHud;
-let progressBar, framePosText, statusBadge, hudTitle, hudSequenceText, hudMediaText, hudAstroPos, scrollHint;
+let scrollCanvas, scrollCtx, loopOverlay, threejsLayer, v3dTopbar, v3dLeftpanel, v3dWasdHud, v3dLayerPanel;
+let progressBar, framePosText, statusBadge, hudTitle, hudSequenceText, hudMediaText, hudAstroPos, scrollHint, unifiedConsole;
 let currentPhase = '2d'; // '2d' | '3d'
 let onEnter3DCallback = null;
 let onLeave3DCallback = null;
+let sceneScrollY = 0;
+let sceneProgress = .88;
 
 export function initTimeline({ onEnter3D, onLeave3D } = {}) {
   onEnter3DCallback = onEnter3D;
   onLeave3DCallback = onLeave3D;
+
+  if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+  }
+  document.documentElement.classList.remove('scene-3d-active');
 
   scrollCanvas = document.getElementById('scroll-canvas-layer');
   scrollCtx = scrollCanvas.getContext('2d');
@@ -80,6 +87,7 @@ export function initTimeline({ onEnter3D, onLeave3D } = {}) {
   v3dTopbar = document.getElementById('v3d-topbar');
   v3dLeftpanel = document.getElementById('v3d-leftpanel');
   v3dWasdHud = document.getElementById('v3d-wasd-hud');
+  v3dLayerPanel = document.getElementById('v3d-layer-panel');
 
   progressBar = document.getElementById('hud-progress-bar');
   framePosText = document.getElementById('hud-frame-pos');
@@ -89,8 +97,20 @@ export function initTimeline({ onEnter3D, onLeave3D } = {}) {
   hudMediaText = document.getElementById('hud-media-text');
   hudAstroPos = document.getElementById('hud-astro-pos');
   scrollHint = document.getElementById('scroll-hint');
+  unifiedConsole = document.getElementById('glass-unified-console');
 
   window.addEventListener('scroll', onMasterScroll, { passive: true });
+  window.addEventListener('resize', () => {
+    if (currentPhase === '3d') {
+      const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+      sceneScrollY = Math.round(maxScroll * sceneProgress);
+      window.scrollTo({ top: sceneScrollY, behavior: 'instant' });
+    } else onMasterScroll();
+  });
+
+  // Ensure initial scroll position and state are cleanly synced
+  window.scrollTo(0, 0);
+  onMasterScroll(0.00);
 
   preloadAllStages();
 }
@@ -100,13 +120,16 @@ export function getCurrentPhase() {
 }
 
 export function jumpToTimeline(targetProgress) {
-  const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-  window.scrollTo({ top: maxScroll * targetProgress, behavior: 'smooth' });
+  if (targetProgress < 0.85) {
+    document.documentElement.classList.remove('scene-3d-active');
+  }
+  const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+  window.scrollTo({ top: maxScroll * targetProgress, behavior: 'auto' });
+  onMasterScroll(targetProgress);
 }
 
 function preloadAllStages() {
   preloadStage(1, () => {
-    renderSpecificFrame(1, 0);
     preloadStage(2, () => {
       preloadStage(3, () => {
         preloadStage(4, () => {
@@ -124,31 +147,46 @@ function preloadStage(stageId, onComplete) {
   arr.length = 0;
   const padClip = String(stageId).padStart(2, '0');
   let loaded = 0;
+  const settled = () => {
+    loaded++;
+    if (loaded === totalFrames) {
+      if (currentPhase === '2d') onMasterScroll();
+      onComplete?.();
+    }
+  };
 
   for (let i = 0; i < totalFrames; i++) {
     const padFrame = String(i).padStart(4, '0');
     const img = new Image();
+    img.onload = settled;
+    img.onerror = settled;
     img.src = `assets/scroll_webp/clip_${padClip}/frame_${padFrame}.webp`;
-    img.onload = () => {
-      loaded++;
-      if (loaded === totalFrames && onComplete) onComplete();
-    };
     arr.push(img);
   }
 }
 
 function renderSpecificFrame(clipId, frameIndex) {
   const arr = stageFramesCache[clipId];
-  if (arr && arr[frameIndex] && arr[frameIndex].complete) {
+  if (arr && arr[frameIndex]?.complete && arr[frameIndex].naturalWidth > 0) {
     scrollCtx.clearRect(0, 0, scrollCanvas.width, scrollCanvas.height);
     scrollCtx.drawImage(arr[frameIndex], 0, 0, scrollCanvas.width, scrollCanvas.height);
   }
 }
 
-function onMasterScroll() {
+function onMasterScroll(forcedProgress) {
+  const explicitNavigation = typeof forcedProgress === 'number';
   const scrollY = window.scrollY;
-  const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-  const progress = Math.min(Math.max(scrollY / (maxScroll || 1), 0), 1);
+  const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+  const progress = (typeof forcedProgress === 'number')
+    ? forcedProgress
+    : Math.min(Math.max(scrollY / (maxScroll || 1), 0), 1);
+
+  // When inside 3D, maintain 3D mode unless the user scrolls back up into 2D story (< 0.85)
+  if (currentPhase === '3d' && !explicitNavigation && progress >= 0.85) {
+    return;
+  }
+
+  const previousPhase = currentPhase;
 
   if (progressBar) progressBar.style.width = (progress * 100).toFixed(1) + '%';
   if (scrollHint) {
@@ -161,18 +199,39 @@ function onMasterScroll() {
   // -------------------------------------------------------------
   if (progress >= 0.85) {
     currentPhase = '3d';
-    if (scrollCanvas) scrollCanvas.style.opacity = '0';
-    if (loopOverlay) loopOverlay.classList.remove('active');
+    sceneProgress = progress;
+    sceneScrollY = Math.round(maxScroll * progress);
+    document.documentElement.classList.add('scene-3d-active');
+    const stage2dViewport = document.getElementById('stage2d-viewport');
+    if (stage2dViewport) stage2dViewport.classList.add('pushed-up');
     if (threejsLayer) threejsLayer.classList.add('active');
     if (v3dTopbar) v3dTopbar.classList.add('active');
     if (v3dLeftpanel) v3dLeftpanel.classList.add('active');
     if (v3dWasdHud) v3dWasdHud.classList.add('active');
+    if (v3dLayerPanel) v3dLayerPanel.classList.add('active');
+
+    const cinHeader = document.getElementById('stage-cinema-header');
+    if (cinHeader) cinHeader.classList.add('pushed-up');
 
     const leftDock = document.getElementById('glass-left-dock');
     if (leftDock) leftDock.classList.add('hidden-in-3d');
+    if (unifiedConsole) {
+      unifiedConsole.classList.remove('pop-active');
+      unifiedConsole.classList.add('mode-3d');
+      unifiedConsole.classList.add('pushed-up');
+    }
+
+    if (window.resetCurrentStageId) window.resetCurrentStageId();
 
     const subProgress = (progress - 0.85) / 0.15;
-    if (hudTitle) hudTitle.innerText = "FINAL STAGE: 3D MARS SIMULATION & WALK";
+    if (hudTitle) hudTitle.innerText = "PREVIEW .PY3S: 3D MARS SIMULATION & WALK";
+
+    const cinBadge = document.getElementById('cin-stage-badge');
+    const cinClips = document.getElementById('cin-clips');
+    const cinConstraint = document.getElementById('cin-constraint');
+    if (cinBadge) cinBadge.innerText = "PREVIEW .PY3S";
+    if (cinClips) cinClips.innerText = "Interactive Engine";
+    if (cinConstraint) cinConstraint.innerText = "🪐 Mars Touchdown & Walk";
     if (statusBadge) {
       statusBadge.innerText = "WASD WALKING ACTIVE";
       statusBadge.className = "status-pill status-3d";
@@ -185,7 +244,11 @@ function onMasterScroll() {
     const btn3d = document.getElementById('btn-stage-3d');
     if (btn3d) btn3d.classList.add('active');
 
-    if (onEnter3DCallback) onEnter3DCallback();
+    if (previousPhase !== '3d') {
+      if (onEnter3DCallback) onEnter3DCallback();
+      else if (window.reset3DCamera) window.reset3DCamera();
+      if (window.renderPy3sFileList) window.renderPy3sFileList();
+    }
     return;
   }
 
@@ -193,14 +256,23 @@ function onMasterScroll() {
   // 2D PHASES: STAGES 1, 2, 3, 4, 5 (0.00 - 0.85)
   // -------------------------------------------------------------
   currentPhase = '2d';
+  document.documentElement.classList.remove('scene-3d-active');
+  const stage2dViewport = document.getElementById('stage2d-viewport');
+  if (stage2dViewport) stage2dViewport.classList.remove('pushed-up');
   if (threejsLayer) threejsLayer.classList.remove('active');
   if (v3dTopbar) v3dTopbar.classList.remove('active');
   if (v3dLeftpanel) v3dLeftpanel.classList.remove('active');
   if (v3dWasdHud) v3dWasdHud.classList.remove('active');
-  if (scrollCanvas) scrollCanvas.style.opacity = '1';
+  if (v3dLayerPanel) v3dLayerPanel.classList.remove('active');
 
   const leftDock = document.getElementById('glass-left-dock');
   if (leftDock) leftDock.classList.remove('hidden-in-3d');
+  const cinHeader = document.getElementById('stage-cinema-header');
+  if (cinHeader) cinHeader.classList.remove('pushed-up');
+  if (unifiedConsole) {
+    unifiedConsole.classList.remove('mode-3d');
+    unifiedConsole.classList.remove('pushed-up');
+  }
 
   let activeStage = TIMELINE_STAGES[0];
   for (const st of TIMELINE_STAGES) {
@@ -211,7 +283,7 @@ function onMasterScroll() {
   }
 
   if (window.updateStageStory) {
-    window.updateStageStory(activeStage.id);
+    window.updateStageStory(activeStage.id, true);
   }
 
   document.querySelectorAll('.stage-selector .stage-btn').forEach((b, idx) => {
@@ -228,6 +300,10 @@ function onMasterScroll() {
 
   if (progress < activeStage.loopStart) {
     if (loopOverlay) loopOverlay.classList.remove('active');
+    if (unifiedConsole) {
+      unifiedConsole.classList.remove('pushed-up');
+      unifiedConsole.classList.remove('pop-active');
+    }
 
     const subFraction = Math.min(Math.max(stageProgress / scrubRange, 0), 1);
     const frameIndex = Math.min(Math.floor(subFraction * totalFrames), totalFrames - 1);
@@ -246,6 +322,11 @@ function onMasterScroll() {
       }
       loopOverlay.classList.add('active');
     }
+    if (unifiedConsole) {
+      unifiedConsole.classList.remove('mode-3d');
+      unifiedConsole.classList.remove('pushed-up');
+      unifiedConsole.classList.add('pop-active');
+    }
 
     if (statusBadge) {
       statusBadge.innerText = `ANIME LOOP: CLIP 0${activeStage.loopClip}`;
@@ -255,6 +336,6 @@ function onMasterScroll() {
     if (framePosText) framePosText.innerText = `Stage ${activeStage.id} Climax (Looping Seamlessly)`;
   }
 
-  if (onLeave3DCallback) onLeave3DCallback();
+  if (previousPhase === '3d' && onLeave3DCallback) onLeave3DCallback();
 }
 

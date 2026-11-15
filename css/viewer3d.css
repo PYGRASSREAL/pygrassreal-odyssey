@@ -1,0 +1,1002 @@
+/* =========================================================================
+   PyGrassReal Odyssey - 3D Simulation & Interactive Viewport
+   Top Mode Bar, Left Tools Panel (.py3s), WASD HUD & Gumball Transform Controls
+   ========================================================================= */
+
+    /* 3D Top Floating Mode Bar (Only visible at Stage 6 Final 3D) */
+    .viewer3d-topbar {
+      position: fixed;
+      top: 4.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(-25px);
+      display: flex;
+      gap: 0.5rem;
+      background: rgba(13, 19, 33, 0.94);
+      border: 1px solid var(--border);
+      border-radius: 9999px;
+      padding: 0.35rem 0.75rem;
+      backdrop-filter: blur(12px);
+      z-index: 65;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.45s ease 0.08s, transform 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.08s;
+      max-width: 95vw;
+      overflow-x: auto;
+    }
+
+    .viewer3d-topbar.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .ctrl-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.2s;
+    }
+
+    .ctrl-btn:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .ctrl-btn.active {
+      background: var(--mars);
+      color: #fff;
+      border-color: var(--mars);
+      box-shadow: 0 0 10px var(--mars-glow);
+    }
+
+    .ctrl-btn.cyan.active {
+      background: var(--accent);
+      color: #05070d;
+      border-color: var(--accent);
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    /* 3D Left Dock: Flex Column container preventing any panel collisions */
+    .viewer3d-left-dock {
+      position: fixed;
+      top: 4.8rem;
+      bottom: 1.25rem;
+      left: 1.25rem;
+      width: 305px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      z-index: 50;
+      pointer-events: none;
+    }
+
+    /* 3D Left Floating Tools Panel (Tall column extending down to WASD HUD) */
+    .viewer3d-leftpanel {
+      position: fixed;
+      top: 4.8rem;
+      bottom: calc(320px + 1.5rem);
+      left: 1.25rem;
+      width: 295px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.85rem 0.95rem;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(50px);
+      transition: opacity 0.5s ease 0.1s, transform 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.1s;
+      z-index: 50;
+    }
+
+    .viewer3d-leftpanel.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    /* Elegant Custom Scrollbar for Leftpanel */
+    .viewer3d-leftpanel::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .viewer3d-leftpanel::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 4px;
+    }
+
+    .viewer3d-leftpanel::-webkit-scrollbar-thumb {
+      background: rgba(56, 189, 248, 0.35);
+      border-radius: 4px;
+    }
+
+    .viewer3d-leftpanel::-webkit-scrollbar-thumb:hover {
+      background: var(--accent);
+    }
+
+    .panel-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    /* Clean Unified Single-File Slot (.py3s) */
+    .py3s-file-slot-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .py3s-file-slot {
+      display: flex !important;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0.42rem 0.55rem;
+      background: rgba(8, 18, 38, 0.65);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      user-select: none;
+    }
+
+    .py3s-file-slot:hover {
+      background: rgba(56, 189, 248, 0.14);
+      border-color: #38bdf8;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+      transform: translateY(-1px);
+    }
+
+    .file-slot-icon {
+      font-size: 1.05rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+    }
+
+    .file-slot-icon-img {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+      filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.45));
+    }
+
+    .file-slot-info {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .file-slot-name {
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: #f8fafc;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.25;
+    }
+
+    .file-slot-meta {
+      font-size: 0.60rem;
+      color: #94a3b8;
+      font-family: monospace;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.2;
+    }
+
+    .py3s-file-slot .btn-layer-del {
+      margin-left: auto;
+      flex-shrink: 0;
+      width: 26px;
+      height: 24px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 5px;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      background: rgba(239, 68, 68, 0.14);
+      color: #fca5a5;
+      font-size: 0.72rem;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .py3s-file-slot .btn-layer-del:hover {
+      background: rgba(239, 68, 68, 0.35);
+      border-color: #ef4444;
+      color: #ffffff;
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+      transform: scale(1.05);
+    }
+
+    .py3s-file-slot .btn-layer-del.confirming {
+      width: auto !important;
+      min-width: 58px !important;
+      padding: 0.15rem 0.4rem !important;
+    }
+
+    /* +Add Underneath .py3s File */
+    .asset-add-slot {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.38rem 0.6rem;
+      background: rgba(56, 189, 248, 0.04);
+      border: 1px dashed rgba(56, 189, 248, 0.35);
+      border-radius: 7px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      margin-bottom: 0.75rem;
+      user-select: none;
+    }
+
+    .asset-add-slot:hover,
+    .asset-add-slot.dragover {
+      background: rgba(56, 189, 248, 0.14);
+      border-color: #38bdf8;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .asset-add-slot .slot-plus {
+      font-size: 0.72rem;
+      color: #38bdf8;
+    }
+
+    .asset-add-slot .slot-text {
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: #38bdf8;
+      letter-spacing: 0.02em;
+    }
+
+    /* .py3s Container File List & 2-Step Confirm Delete */
+    .py3s-file-list-container {
+      margin-top: 0.65rem;
+      margin-bottom: 0.65rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      background: rgba(4, 10, 24, 0.45);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 9px;
+      padding: 0.55rem;
+      max-height: 190px;
+      overflow-y: auto;
+    }
+
+    .py3s-file-list-container::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .py3s-file-list-container::-webkit-scrollbar-thumb {
+      background: rgba(56, 189, 248, 0.35);
+      border-radius: 3px;
+    }
+
+    .file-list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #38bdf8;
+      text-transform: uppercase;
+      padding: 0 0.15rem 0.25rem 0.15rem;
+      border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+      margin-bottom: 0.25rem;
+    }
+
+    .file-list-items {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .py3s-file-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.45rem 0.55rem;
+      background: rgba(8, 18, 38, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 7px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .py3s-file-row:hover {
+      background: rgba(56, 189, 248, 0.08);
+      border-color: rgba(56, 189, 248, 0.35);
+    }
+
+    .py3s-file-row.active {
+      background: rgba(56, 189, 248, 0.16);
+      border-color: #38bdf8;
+      box-shadow: inset 0 0 10px rgba(56, 189, 248, 0.25), 0 0 8px rgba(56, 189, 248, 0.2);
+    }
+
+    .file-row-main {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .file-row-icon {
+      font-size: 0.95rem;
+      flex-shrink: 0;
+    }
+
+    .file-row-text {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .file-row-name {
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: #f8fafc;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 145px;
+    }
+
+    .py3s-file-row.active .file-row-name {
+      color: #38bdf8;
+      font-weight: 700;
+    }
+
+    .file-row-meta {
+      font-size: 0.62rem;
+      color: #94a3b8;
+      font-family: monospace;
+    }
+
+    .py3s-file-row.draggable-asset {
+      cursor: grab;
+      user-select: none;
+    }
+
+    .py3s-file-row.draggable-asset:active {
+      cursor: grabbing;
+    }
+
+    .file-row-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      flex-shrink: 0;
+    }
+
+    .btn-spawn-to-3d {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.22), rgba(16, 185, 129, 0.22));
+      border: 1px solid rgba(56, 189, 248, 0.55);
+      color: #38bdf8;
+      border-radius: 5px;
+      padding: 0.2rem 0.45rem;
+      font-size: 0.65rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      transition: all 0.18s ease;
+      white-space: nowrap;
+    }
+
+    .btn-spawn-to-3d:hover {
+      background: #38bdf8;
+      color: #05070d;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.7);
+      transform: scale(1.04);
+    }
+
+    #threejs-layer.drag-over {
+      outline: 2px dashed #38bdf8;
+      box-shadow: inset 0 0 35px rgba(56, 189, 248, 0.4);
+    }
+
+    .btn-py3s-del {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+      border-radius: 6px;
+      padding: 0.25rem 0.45rem;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+      margin-left: 0.4rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 32px;
+      height: 26px;
+    }
+
+    .btn-py3s-del:hover {
+      background: rgba(239, 68, 68, 0.35);
+      border-color: #ef4444;
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+    }
+
+    .btn-py3s-del.confirming {
+      background: #dc2626 !important;
+      border-color: #f87171 !important;
+      color: #ffffff !important;
+      font-size: 0.66rem !important;
+      font-weight: 800 !important;
+      padding: 0.25rem 0.55rem !important;
+      min-width: 82px !important;
+      animation: pulseRedAlert 0.7s infinite alternate ease-in-out;
+      box-shadow: 0 0 16px rgba(239, 68, 68, 0.95);
+    }
+
+    @keyframes pulseRedAlert {
+      0% {
+        transform: scale(1);
+        box-shadow: 0 0 6px rgba(239, 68, 68, 0.6);
+      }
+
+      100% {
+        transform: scale(1.05);
+        box-shadow: 0 0 18px rgba(239, 68, 68, 1);
+      }
+    }
+
+    /* Shading Mode Toggle List (Inside Left Panel) */
+    .shading-toggle-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .shading-toggle-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.55rem 0.7rem;
+      background: rgba(8, 18, 38, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      text-align: left;
+    }
+
+    .shading-toggle-btn:hover {
+      background: rgba(56, 189, 248, 0.08);
+      border-color: rgba(56, 189, 248, 0.35);
+    }
+
+    .shading-toggle-btn.active {
+      background: rgba(56, 189, 248, 0.14);
+      border-color: #38bdf8;
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.22);
+    }
+
+    .toggle-btn-left {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .mode-icon {
+      font-size: 1.15rem;
+    }
+
+    .mode-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+
+    .mode-title {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.2;
+    }
+
+    .shading-toggle-btn.active .mode-title {
+      color: #38bdf8;
+    }
+
+    .mode-desc {
+      font-size: 0.62rem;
+      color: #94a3b8;
+      line-height: 1.2;
+    }
+
+    /* Enable Toggle Switch UI (iOS / Sci-Fi pill switch) */
+    .toggle-switch-ui {
+      width: 36px;
+      height: 20px;
+      background: rgba(255, 255, 255, 0.18);
+      border-radius: 9999px;
+      padding: 2px;
+      display: flex;
+      align-items: center;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      flex-shrink: 0;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .toggle-knob {
+      width: 14px;
+      height: 14px;
+      background: #94a3b8;
+      border-radius: 50%;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: translateX(0);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    }
+
+    .toggle-switch-ui.active {
+      background: #38bdf8;
+      border-color: #38bdf8;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
+    }
+
+    .toggle-switch-ui.active .toggle-knob {
+      background: #ffffff;
+      transform: translateX(16px);
+      box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+    }
+
+
+    /* On-Screen WASD HUD Controller (Anchored at Bottom-Left Corner, matching Top Panel proportions) */
+    .wasd-controller-hud {
+      position: fixed;
+      bottom: 1.25rem;
+      left: 1.25rem;
+      width: 295px;
+      box-sizing: border-box;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.85rem 0.95rem;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(60px);
+      transition: opacity 0.5s ease 0.1s, transform 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.1s;
+      z-index: 55;
+    }
+
+    .wasd-controller-hud.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    /* Undo / Redo Quick Actions Toolbar */
+    .hud-quick-toolbar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.4rem;
+      width: 100%;
+      margin-bottom: 0.45rem;
+    }
+
+    .btn-quick-action {
+      background: rgba(8, 18, 38, 0.65);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      color: #cbd5e1;
+      border-radius: 8px;
+      padding: 0.32rem 0.5rem;
+      font-size: 0.68rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      transition: all 0.18s ease;
+      user-select: none;
+    }
+
+    .btn-quick-action:hover:not(.disabled):not(:disabled) {
+      background: rgba(56, 189, 248, 0.18);
+      border-color: #38bdf8;
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .btn-quick-action.disabled,
+    .btn-quick-action:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      border-color: rgba(255, 255, 255, 0.08);
+      color: #64748b;
+      box-shadow: none;
+      transform: none;
+    }
+
+    /* 3DGS + Collider Enable Switch (Placed on top of WASD) */
+    .wasd-enable-toggle {
+      width: 100%;
+      padding: 0.38rem 0.5rem;
+      background: rgba(8, 18, 38, 0.65);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 8px;
+      margin-bottom: 0.45rem;
+      gap: 0.35rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+    }
+
+    .wasd-enable-toggle:hover {
+      background: rgba(56, 189, 248, 0.12);
+      border-color: rgba(56, 189, 248, 0.45);
+    }
+
+    .wasd-enable-toggle.active {
+      background: rgba(56, 189, 248, 0.16);
+      border-color: #38bdf8;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
+    }
+
+    .wasd-enable-toggle .mode-icon {
+      font-size: 0.95rem;
+    }
+
+    .wasd-enable-toggle .mode-title {
+      font-size: 0.68rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .wasd-enable-toggle .mode-desc {
+      font-size: 0.54rem;
+      color: #94a3b8;
+      line-height: 1.1;
+    }
+
+    .wasd-enable-toggle .toggle-switch-ui {
+      width: 32px;
+      height: 18px;
+    }
+
+    .wasd-enable-toggle .toggle-knob {
+      width: 12px;
+      height: 12px;
+    }
+
+    .wasd-enable-toggle .toggle-switch-ui.active .toggle-knob {
+      transform: translateX(14px);
+    }
+
+    .wasd-divider {
+      width: 100%;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.08);
+      margin-bottom: 0.45rem;
+    }
+
+    .wasd-hud-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.35rem;
+      margin-bottom: 0.45rem;
+      user-select: none;
+      width: 100%;
+    }
+
+    .wasd-hud-title {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.64rem;
+      font-weight: 700;
+      color: #38bdf8;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .btn-cam-follow-pill {
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      color: #38bdf8;
+      border-radius: 12px;
+      padding: 0.12rem 0.45rem;
+      font-size: 0.60rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      transition: all 0.18s ease;
+      user-select: none;
+    }
+
+    .btn-cam-follow-pill:hover {
+      background: rgba(56, 189, 248, 0.28);
+      border-color: #38bdf8;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+    }
+
+    .btn-cam-follow-pill.active {
+      background: rgba(56, 189, 248, 0.22);
+      border-color: #38bdf8;
+      color: #f0f9ff;
+    }
+
+    .btn-cam-follow-pill .cam-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #38bdf8;
+      box-shadow: 0 0 6px #38bdf8;
+      display: inline-block;
+    }
+
+    .btn-cam-follow-pill:not(.active) .cam-dot {
+      background: #94a3b8;
+      box-shadow: none;
+    }
+
+    .btn-cam-follow-pill:not(.active) {
+      opacity: 0.6;
+      border-color: rgba(255, 255, 255, 0.2);
+      color: #94a3b8;
+    }
+
+    .wasd-grid {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .wasd-row {
+      display: flex;
+      gap: 0.45rem;
+    }
+
+    .wasd-key {
+      width: 58px;
+      height: 52px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #38bdf8;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.08s ease;
+      touch-action: manipulation;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    }
+
+    .wasd-key:hover {
+      background: rgba(56, 189, 248, 0.25);
+      border-color: #38bdf8;
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .wasd-key.pressed,
+    .wasd-key:active {
+      background: #38bdf8 !important;
+      color: #05070d !important;
+      box-shadow: 0 0 18px rgba(56, 189, 248, 0.85) !important;
+      transform: scale(0.93) translateY(1px);
+    }
+
+    .wasd-space {
+      width: 186px;
+      height: 36px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+    }
+
+
+    /* =========================================================================
+       3D TRANSFORM CONTROLS (MOVE / ROTATE / SCALE)
+       ========================================================================= */
+    .gumball-controller-box {
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(56, 189, 248, 0.28);
+      border-radius: 10px;
+      padding: 0.65rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      backdrop-filter: blur(8px);
+    }
+
+    .gumball-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 0.4rem;
+      gap: 0.4rem;
+    }
+
+    .gumball-header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .gumball-status-indicator {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #64748b;
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+    }
+
+    .gumball-status-indicator.active {
+      background: #38bdf8;
+      box-shadow: 0 0 10px #38bdf8;
+    }
+
+    .gumball-label {
+      font-size: 0.58rem;
+      font-weight: 600;
+      color: #f1f5f9;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.25;
+    }
+
+    .gumball-mode-toolbar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.35rem;
+    }
+
+    .gumball-mode-btn {
+      background: rgba(30, 41, 59, 0.7);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 6px;
+      color: #cbd5e1;
+      padding: 0.5rem 0.25rem;
+      min-height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .gumball-mode-name {
+      font-size: 0.74rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .gumball-mode-btn:hover {
+      background: rgba(56, 189, 248, 0.22);
+      border-color: #38bdf8;
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    .gumball-mode-btn.active {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.45), rgba(3, 105, 161, 0.6));
+      border-color: #38bdf8;
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    }
+
+    .gumball-coords-display {
+      background: rgba(3, 7, 18, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      padding: 0.35rem 0.55rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    .coord-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .coord-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      color: #38bdf8;
+      letter-spacing: 0.04em;
+    }
+
+    .coord-val {
+      font-size: 0.67rem;
+      color: #f8fafc;
+      font-weight: 500;
+    }
+
+    .gumball-actions-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.35rem;
+    }
+
+    .gumball-action-btn {
+      background: rgba(30, 41, 59, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 6px;
+      color: #cbd5e1;
+      font-size: 0.67rem;
+      font-weight: 600;
+      padding: 0.35rem 0.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.3rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .gumball-action-btn:hover {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: #38bdf8;
+      color: #ffffff;
+    }

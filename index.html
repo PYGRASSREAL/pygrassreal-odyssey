@@ -1,9 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>PyGrassReal Odyssey: Space Mission Design Game | NASA Space Apps Challenge</title>
+  <link rel="icon" type="image/png" href="assets/logo-icon-192.png" />
+
+  <script>
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+    window.scrollTo(0, 0);
+  </script>
 
   <!-- Self-Contained Three.js Addons & Codec -->
   <script type="importmap">
@@ -17,565 +29,277 @@
     }
   </script>
 
-  <!-- Modular CSS Stylesheet with Cache Buster -->
-  <link rel="stylesheet" href="css/styles.css?v=20261114_11" />
+  <!-- Modular CSS Architecture (Parallel High-Performance Loading) -->
+  <link rel="stylesheet" href="css/base.css?v=20261115_en_v12" />
+  <link rel="stylesheet" href="css/timeline.css?v=20261115_en_v12" />
+  <link rel="stylesheet" href="css/viewer3d.css?v=20261115_clean_icons" />
+  <link rel="stylesheet" href="css/outliner.css?v=20261115_en_v11" />
+  <link rel="stylesheet" href="css/benchmark-modal.css?v=20261115_en_v11" />
+  <link rel="stylesheet" href="css/glassmorphism.css?v=20261115_en_v11" />
+  <link rel="stylesheet" href="css/instancePhysics.css?v=20261115_en_v11" />
+  <link rel="stylesheet" href="css/physicsHelp.css?v=20261115_en_v11" />
 
-  <!-- Critical Inline Styles (Guarantees Instant Frosted Glass Rendering & Bypasses Cache) -->
-  <style>
-    /* Top Benchmark Glowing Button */
-    .benchmark-pill-btn {
-      background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(16, 185, 129, 0.25)) !important;
-      border: 1px solid #38bdf8 !important;
-      color: #ffffff !important;
-      font-size: 0.76rem !important;
-      font-weight: 700 !important;
-      padding: 0.35rem 0.85rem !important;
-      border-radius: 9999px !important;
-      cursor: pointer !important;
-      display: inline-flex !important;
-      align-items: center !important;
-      gap: 0.45rem !important;
-      transition: all 0.25s ease !important;
-      box-shadow: 0 0 16px rgba(56, 189, 248, 0.35) !important;
-    }
-    .benchmark-pill-btn:hover {
-      background: #38bdf8 !important;
-      color: #05070d !important;
-      box-shadow: 0 0 24px rgba(56, 189, 248, 0.7) !important;
-      transform: translateY(-1px);
-    }
-    .pulse-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #38bdf8;
-      box-shadow: 0 0 8px #38bdf8;
-      animation: pulseDot 1.4s infinite ease-in-out;
-    }
-    @keyframes pulseDot {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.6); opacity: 0.4; }
-    }
-
-    /* =========================================================================
-       ULTRA-TRANSPARENT FROSTED GLASS CONSOLE (RIGHT SIDE UNIFIED HUD)
-       ========================================================================= */
-    .unified-right-console {
-      position: fixed;
-      right: 1.5rem;
-      bottom: 1.5rem;
-      width: 440px;
-      max-width: calc(100vw - 3rem);
-      max-height: calc(100vh - 5.5rem);
-      overflow-y: auto;
-      overflow-x: hidden;
-      z-index: 55;
-      
-      /* Ultra-Transparent Frosted Glassmorphism */
-      background: rgba(6, 14, 30, 0.40) !important;
-      backdrop-filter: blur(30px) saturate(220%) !important;
-      -webkit-backdrop-filter: blur(30px) saturate(220%) !important;
-      border: 1px solid rgba(56, 189, 248, 0.32) !important;
-      border-radius: 20px !important;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 
-                  inset 0 1px 0 rgba(255, 255, 255, 0.20),
-                  0 0 30px rgba(56, 189, 248, 0.16) !important;
-      padding: 1.2rem 1.35rem;
-      color: #f8fafc;
-
-      /* สถานะซ่อนอยู่ใต้ขอบล่างหน้าจอ (Smooth Slow Push-Down State) */
-      opacity: 0;
-      pointer-events: none;
-      transform: translateY(calc(100% + 3.5rem));
-      transition: transform 0.95s cubic-bezier(0.19, 1, 0.22, 1),
-                  opacity 0.75s cubic-bezier(0.19, 1, 0.22, 1),
-                  background 0.3s ease, 
-                  border-color 0.3s ease;
-      will-change: transform, opacity;
-    }
-
-    /* เอฟเฟกต์ดันขึ้นมาจากขอบล่างหน้าจออย่างช้าๆ นุ่มนวล (Cinematic Slow Push-Up) */
-    .unified-right-console.pop-active {
-      opacity: 1 !important;
-      pointer-events: auto !important;
-      transform: translateY(0) !important;
-      transition: transform 1.25s cubic-bezier(0.16, 1, 0.3, 1),
-                  opacity 1.0s cubic-bezier(0.16, 1, 0.3, 1) !important;
-    }
-    .unified-right-console:hover {
-      background: rgba(6, 14, 30, 0.52) !important;
-      border-color: rgba(56, 189, 248, 0.6) !important;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75), 
-                  inset 0 1px 0 rgba(255, 255, 255, 0.28),
-                  0 0 36px rgba(56, 189, 248, 0.28) !important;
-    }
-
-    .unified-right-console::-webkit-scrollbar { width: 5px; }
-    .unified-right-console::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); border-radius: 4px; }
-    .unified-right-console::-webkit-scrollbar-thumb { background: rgba(56, 189, 248, 0.4); border-radius: 4px; }
-
-    /* Top HUD Header */
-    .hud-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 0.5rem;
-      flex-wrap: wrap;
-    }
-    .stage-pill {
-      font-size: 0.65rem;
-      font-family: monospace;
-      font-weight: 800;
-      color: #38bdf8;
-      background: rgba(56, 189, 248, 0.15);
-      border: 1px solid rgba(56, 189, 248, 0.4);
-      padding: 0.18rem 0.55rem;
-      border-radius: 9999px;
-      letter-spacing: 0.05em;
-    }
-    .stage-clip {
-      font-size: 0.65rem;
-      font-family: monospace;
-      color: #94a3b8;
-    }
-    .constraint-pill {
-      font-size: 0.68rem;
-      font-weight: 700;
-      color: #f59e0b;
-      background: rgba(245, 158, 11, 0.12);
-      border: 1px solid rgba(245, 158, 11, 0.35);
-      padding: 0.18rem 0.55rem;
-      border-radius: 9999px;
-    }
-    .status-pill {
-      font-size: 0.68rem;
-      font-weight: 700;
-      padding: 0.18rem 0.55rem;
-      border-radius: 9999px;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-    .status-scrubbing {
-      background: rgba(56, 189, 248, 0.15);
-      color: var(--accent, #38bdf8);
-      border: 1px solid var(--accent, #38bdf8);
-    }
-    .status-looping {
-      background: rgba(16, 185, 129, 0.2);
-      color: #34d399;
-      border: 1px solid #10b981;
-      animation: pulse 1.2s infinite;
-    }
-    .status-3d {
-      background: rgba(224, 104, 71, 0.25);
-      color: #e06847;
-      border: 1px solid #e06847;
-    }
-
-    .progress-track {
-      width: 100%;
-      height: 5px;
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 3px;
-      overflow: hidden;
-      margin: 0.5rem 0 0.85rem 0;
-    }
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #38bdf8, #10b981);
-      width: 0%;
-      transition: width 0.1s linear;
-    }
-
-    /* Section 1: Active Stage Mission Story */
-    .console-story-section {
-      padding-bottom: 0.75rem;
-      margin-bottom: 0.75rem;
-      border-bottom: 1px solid rgba(56, 189, 248, 0.18);
-    }
-    .glass-card-title {
-      font-size: 0.95rem;
-      font-weight: 800;
-      color: #ffffff;
-      line-height: 1.3;
-      margin-bottom: 0.2rem;
-      letter-spacing: -0.01em;
-    }
-    .glass-theme-sub {
-      font-size: 0.74rem;
-      font-weight: 600;
-      color: #38bdf8;
-      margin-bottom: 0.45rem;
-    }
-    .glass-card-desc {
-      font-size: 0.76rem;
-      color: #cbd5e1;
-      line-height: 1.45;
-      transition: opacity 0.25s ease;
-    }
-
-    /* Section 2: .py3s Format Breakthrough */
-    .console-format-section {
-      padding-bottom: 0.2rem;
-      margin-bottom: 0;
-      border-bottom: none;
-    }
-    .compare-header {
-      display: flex;
-      align-items: center;
-      gap: 0.45rem;
-      margin-bottom: 0.55rem;
-    }
-    .compare-icon {
-      font-size: 0.95rem;
-      color: #38bdf8;
-    }
-    .compare-header-title {
-      font-size: 0.8rem;
-      font-weight: 800;
-      color: #ffffff;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
-    }
-
-    .compare-contrast-box {
-      background: rgba(8, 18, 38, 0.40);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(56, 189, 248, 0.22);
-      border-radius: 12px;
-      padding: 0.65rem 0.8rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.45rem;
-      margin-bottom: 0.65rem;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
-    }
-    .contrast-row {
-      display: flex;
-      flex-direction: column;
-      gap: 0.12rem;
-      font-size: 0.72rem;
-      line-height: 1.35;
-    }
-    .contrast-label {
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-    }
-    .badge-dot-cyan {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #38bdf8;
-      box-shadow: 0 0 6px #38bdf8;
-    }
-    .badge-dot-red {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #ef4444;
-      box-shadow: 0 0 6px #ef4444;
-    }
-    .contrast-row.mine strong { color: #38bdf8; }
-    .contrast-row.mine .contrast-value { color: #86efac; font-weight: 600; padding-left: 0.8rem; }
-    .contrast-row.theirs strong { color: #fca5a5; }
-    .contrast-row.theirs .contrast-value { color: #94a3b8; padding-left: 0.8rem; }
-
-    /* Telemetry Chips */
-    .telemetry-chips {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.4rem;
-    }
-    .chip {
-      background: rgba(8, 18, 38, 0.45);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(56, 189, 248, 0.18);
-      border-radius: 10px;
-      padding: 0.4rem 0.45rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.15rem;
-      text-align: center;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
-    }
-    .chip-lbl {
-      font-size: 0.58rem;
-      color: #94a3b8;
-      font-family: monospace;
-      text-transform: uppercase;
-    }
-    .chip-val {
-      font-size: 0.72rem;
-      font-weight: 800;
-      font-family: monospace;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .chip-val.cyan { color: #38bdf8; }
-    .chip-val.green { color: #34d399; }
-    .chip-val.red { color: #f87171; }
-
-    /* Section 3: Telemetry Rows */
-    .console-telemetry-section {
-      display: flex;
-      flex-direction: column;
-      gap: 0.28rem;
-    }
-    .telemetry-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.75rem;
-      color: #94a3b8;
-      font-family: monospace;
-    }
-    .telemetry-val { color: #f8fafc; font-weight: 600; }
-
-    .btn-glass-action {
-      width: 100%;
-      background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(16, 185, 129, 0.2));
-      border: 1px solid #38bdf8;
-      color: #ffffff;
-      font-size: 0.73rem;
-      font-weight: 700;
-      padding: 0.52rem 0.75rem;
-      border-radius: 8px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.4rem;
-      transition: all 0.2s;
-      box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
-    }
-    .btn-glass-action:hover {
-      background: #38bdf8;
-      color: #05070d;
-      box-shadow: 0 0 20px rgba(56, 189, 248, 0.6);
-      transform: translateY(-1px);
-    }
-
-    /* 3D Mode Adaptation */
-    .unified-right-console.mode-3d .console-story-section,
-    .unified-right-console.mode-3d .console-format-section {
-      display: none;
-    }
-
-    @media (max-width: 900px) {
-      .unified-right-console {
-        width: 360px;
-        right: 1rem;
-        bottom: 1rem;
-        padding: 1rem;
-      }
-    }
-    @media (max-width: 600px) {
-      .unified-right-console {
-        width: calc(100vw - 1.5rem);
-        right: 0.75rem;
-        left: 0.75rem;
-        bottom: 0.75rem;
-        max-height: 52vh;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="css/cinemaConsole.css?v=20261115_en_v11" />
+  <link rel="stylesheet" href="css/frosted-theme.css?v=20261115_en_v11" />
 </head>
+
 <body>
 
   <!-- Top Global Navigation Bar -->
   <header class="top-nav">
     <div class="brand">
-      <span class="badge-nasa">NASA SPACE APPS 2026</span>
       <span class="brand-title">PyGrassReal Odyssey</span>
+      <span class="badge-nasa">NASA SPACE APPS 2026</span>
     </div>
 
-    <!-- 5 Stage Sequence Selector (1->6, 2->7, 3->8, 4->9, 5->10 ➡️ 3D Final) -->
+    <!-- 5 Stage Sequence Selector (Stage 1-5 + 3D Preview) -->
     <div class="stage-selector">
       <button class="stage-btn active" id="btn-stage-1" onclick="jumpToTimeline(0.00)">
-        <span>🚀</span><span>Stage 1 (1 ➡️ 6)</span>
+        <span>Stage 1</span>
       </button>
       <button class="stage-btn" id="btn-stage-2" onclick="jumpToTimeline(0.18)">
-        <span>🛰️</span><span>Stage 2 (2 ➡️ 7)</span>
+        <span>Stage 2</span>
       </button>
       <button class="stage-btn" id="btn-stage-3" onclick="jumpToTimeline(0.35)">
-        <span>🛡️</span><span>Stage 3 (3 ➡️ 8)</span>
+        <span>Stage 3</span>
       </button>
       <button class="stage-btn" id="btn-stage-4" onclick="jumpToTimeline(0.52)">
-        <span>📡</span><span>Stage 4 (4 ➡️ 9)</span>
+        <span>Stage 4</span>
       </button>
       <button class="stage-btn" id="btn-stage-5" onclick="jumpToTimeline(0.69)">
-        <span>🔴</span><span>Stage 5 (5 ➡️ 10)</span>
+        <span>Stage 5</span>
       </button>
       <button class="stage-btn mars-btn" id="btn-stage-3d" onclick="jumpToTimeline(0.88)">
-        <span>🪐</span><span>Final 3D Simulation</span>
+        <span>Preview .py3s</span>
       </button>
+    </div>
+
+    <!-- Top Master Progress Track Bar (Transferred from Bottom-Right Console) -->
+    <div class="top-progress-track">
+      <div class="progress-fill" id="hud-progress-bar"></div>
     </div>
   </header>
 
+  <!-- Top-Left Cinematic Stage Header Overlay (Per-Stage Reactive) -->
+  <div class="stage-cinema-header" id="stage-cinema-header">
+    <h2 class="cinema-stage-title" id="cin-stage-title">STAGE 1: LAUNCH PLATFORM & DEHYDRATED SEED</h2>
+    <div class="cinema-stage-theme" id="cin-stage-theme">Mass & Budget Trade-Off (Payload Mass vs Mission Budget)</div>
+  </div>
+
   <!-- Single Master Viewport -->
   <div class="master-viewport">
-    <canvas id="scroll-canvas-layer" width="1280" height="720"></canvas>
-    <img id="loop-overlay" src="assets/loops/loop_clip_06.webp" alt="Anime Loop" />
+    <!-- 2D Stage Screen Viewport (Entire Stage 1-5 World that pushes up into 3D) -->
+    <div class="stage2d-viewport" id="stage2d-viewport">
+      <canvas id="scroll-canvas-layer" width="1280" height="720"></canvas>
+      <img id="loop-overlay" src="assets/loops/loop_clip_06.webp" alt="Anime Loop" />
+    </div>
     <div id="threejs-layer">
       <canvas id="threejs-canvas"></canvas>
     </div>
     <div class="vignette"></div>
   </div>
 
-  <!-- 3D Top Floating Mode Bar (Visible ONLY at final 3D stage) -->
-  <div class="viewer3d-topbar" id="v3d-topbar">
-    <button class="ctrl-btn cyan" id="btn-shade-collider" onclick="setShadingMode('collider')">
-      <span>🛡️</span><span>3DGS + Collider</span>
-    </button>
-    <button class="ctrl-btn active" id="btn-shade-splat" onclick="setShadingMode('splat')">
-      <span>✨</span><span>3D Gaussian Splats</span>
-    </button>
+  <!-- 3D Left Floating Tools Panel (Visible ONLY at final 3D stage) -->
+  <div class="viewer3d-leftpanel" id="v3d-leftpanel">
+    <div class="panel-title">
+      <span>📦</span><span>ASSET (.PY3S)</span>
+    </div>
+
+    <!-- Single / Unified .py3s File Slot Container -->
+    <div class="py3s-file-slot-container" id="py3s-file-list-container">
+      <!-- Dynamically rendered file slot -->
+    </div>
+
+    <!-- +Add Underneath the .py3s File (Click or Drag .py3s) -->
+    <div class="asset-add-slot" id="drop-zone" onclick="document.getElementById('model-file-input').click()"
+      title="Click to select file or drag .py3s here">
+      <span class="slot-plus">➕</span>
+      <span class="slot-text">+ Add .py3s (Drag & drop file here)</span>
+    </div>
+    <input type="file" id="model-file-input" accept=".py3s" multiple style="display: none;"
+      onchange="handleFileSelect(event)" />
   </div>
 
-  <!-- 3D Unified Left Dock (Ensures Leftpanel and WASD Controller NEVER collide) -->
-  <div class="viewer3d-left-dock" id="v3d-left-dock">
-    <!-- 3D Left Model Loader Panel (Visible ONLY at final 3D stage) -->
-    <div class="viewer3d-leftpanel" id="v3d-leftpanel">
-      <div class="panel-title">
-        <span>📦</span><span>NASA Model & Asset Loader</span>
-      </div>
-
-      <div class="dropzone" id="drop-zone" onclick="document.getElementById('model-file-input').click()">
-        <div class="dropzone-icon">🚀</div>
-        <div class="dropzone-text"><strong>วางโมเดล NASA หรือคลิกเลือกไฟล์</strong></div>
-        <div class="dropzone-hint">รองรับ: .py3s, .splat, .spz, .ply, .glb, .gltf, .obj</div>
-      </div>
-      <input type="file" id="model-file-input" accept=".py3s,.splat,.spz,.ply,.glb,.gltf,.obj" onchange="handleFileSelect(event)" />
-
-      <div class="panel-title" style="margin-top: 0.65rem;">
-        <span>🎯</span><span>Presets</span>
-      </div>
-      <button class="btn-action" onclick="resetAstronautToLander()">
-        <span>👨‍🚀</span><span>Reset Astronaut to Lander</span>
+  <!-- On-Screen WASD HUD Controller (Anchored at Bottom-Left Corner) -->
+  <div class="wasd-controller-hud" id="v3d-wasd-hud">
+    <!-- Quick Actions Toolbar: Undo / Redo -->
+    <div class="hud-quick-toolbar">
+      <button class="btn-quick-action disabled" id="btn-undo" onclick="window.historyUndo()" title="Undo (Ctrl+Z)">
+        <span class="action-icon">↩️</span>
+        <span class="action-text">Undo</span>
       </button>
-      <button class="btn-action" style="border: 1px solid rgba(56, 189, 248, 0.4); background: rgba(56, 189, 248, 0.08);" onclick="loadSamplePy3s('thai_temple_gate_262k.py3s')">
-        <span>🏛️</span><span>Thai Temple Gate (262k Full 3DGS Splat)</span>
-      </button>
-      <button class="btn-action" onclick="loadPresetMarsCraft()">
-        <span>🛰️</span><span>Procedural Mars Lander (12k Splats)</span>
-      </button>
-      <button class="btn-action" onclick="loadSamplePy3s('matchanu_micro_53kb.py3s')">
-        <span>⚡</span><span>NASA Sample Seed (53 KB .py3s - 4k Splats)</span>
-      </button>
-      <button class="btn-action" onclick="loadSamplePy3s('matchanu_ultralight_850kb.py3s')">
-        <span>✨</span><span>NASA Splat Cloud (850 KB .py3s - 65k Splats)</span>
-      </button>
-
-      <div class="panel-title" style="margin-top: 0.65rem;">
-        <span>🎛️</span><span>Model & Splat Controls</span>
-      </div>
-      <div style="display: flex; gap: 0.35rem; margin-bottom: 0.35rem;">
-        <button class="btn-action" style="flex: 1;" onclick="flipModelOrientation()" title="กลับหัวโมเดล 180°">
-          <span>🔄</span><span>กลับหัว 180°</span>
-        </button>
-        <button class="btn-action" style="flex: 1;" onclick="realignModelToGround()" title="จัดวางแนบพื้นดาวอังคาร">
-          <span>📍</span><span>วางติดพื้น</span>
-        </button>
-      </div>
-      <div style="display: flex; gap: 0.35rem; margin-bottom: 0.35rem;">
-        <button class="btn-action" style="flex: 1;" onclick="adjustModelScale(1.25)" title="ขยายขนาดโมเดล">
-          <span>➕</span><span>ขยายโมเดล</span>
-        </button>
-        <button class="btn-action" style="flex: 1;" onclick="adjustModelScale(0.8)" title="ย่อขนาดโมเดล">
-          <span>➖</span><span>ย่อโมเดล</span>
-        </button>
-      </div>
-      <div style="display: flex; gap: 0.35rem; margin-bottom: 0.35rem;">
-        <button class="btn-action" style="flex: 1;" onclick="adjustSplatSize(1.3)" title="ขยายขนาดเม็ด Splat ให้เต็ม">
-          <span>✨</span><span>ขยายเม็ด Splat</span>
-        </button>
-        <button class="btn-action" style="flex: 1;" onclick="adjustSplatSize(0.75)" title="ลดขนาดเม็ด Splat">
-          <span>🔍</span><span>ลดเม็ด Splat</span>
-        </button>
-      </div>
-      <div style="display: flex; gap: 0.35rem; margin-bottom: 0.35rem;">
-        <button class="btn-action" style="flex: 1;" onclick="adjustColliderHeight(0.01)" title="ยกตำแหน่ง Collider ขึ้น">
-          <span>⬆️</span><span>ยก Collider ขึ้น</span>
-        </button>
-        <button class="btn-action" style="flex: 1;" onclick="adjustColliderHeight(-0.01)" title="ลดตำแหน่ง Collider ลง">
-          <span>⬇️</span><span>ลด Collider ลง</span>
-        </button>
-      </div>
-      <div style="display: flex; gap: 0.35rem; margin-bottom: 0.35rem;">
-        <button class="btn-action" style="flex: 1;" onclick="adjustColliderOpacity(-0.06)" title="ลดความเข้มของเส้นโครงตาข่าย Collider">
-          <span>👓</span><span>ลดความเข้มเส้น</span>
-        </button>
-        <button class="btn-action" style="flex: 1;" onclick="adjustColliderOpacity(0.06)" title="เพิ่มความเข้มของเส้นโครงตาข่าย Collider">
-          <span>💡</span><span>เพิ่มความเข้มเส้น</span>
-        </button>
-      </div>
-
-      <div class="panel-title" style="margin-top: 0.65rem;">
-        <span>💥</span><span>Physics & Print 3D</span>
-      </div>
-      <button class="btn-action btn-impact" onclick="fireImpactTest()">
-        <span>☄️</span><span>Debris Impact Test (Hit Raycast)</span>
-      </button>
-      <button class="btn-action" onclick="exportPrint3D()">
-        <span>🖨️</span><span>Export for Print 3D (.3mf)</span>
-      </button>
-
-      <div class="panel-title" style="margin-top: 0.65rem;">
-        <span>🏆</span><span>Format Superiority</span>
-      </div>
-      <button class="btn-action btn-benchmark-action" onclick="toggleBenchmarkModal()">
-        <span>📊</span><span>.py3s vs Industry Comparison</span>
+      <button class="btn-quick-action disabled" id="btn-redo" onclick="window.historyRedo()" title="Redo (Ctrl+Y)">
+        <span class="action-icon">↪️</span>
+        <span class="action-text">Redo</span>
       </button>
     </div>
 
-    <!-- On-Screen WASD HUD Controller (Visible ONLY at final 3D stage) -->
-    <div class="wasd-controller-hud" id="v3d-wasd-hud">
-      <div class="panel-title" style="margin-bottom: 0.25rem;">
-        <span>🎮</span><span>Character Controls</span>
-      </div>
-      <p style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.35rem;">
-        กดปุ่มคีย์บอร์ด <strong>W A S D</strong> (หรือคลิกปุ่มบนจอ)
-      </p>
-      <div class="wasd-grid">
-        <div class="wasd-key" id="key-w" onpointerdown="setVirtualKey('w', true)" onpointerup="setVirtualKey('w', false)" onpointerleave="setVirtualKey('w', false)">W</div>
-        <div class="wasd-row">
-          <div class="wasd-key" id="key-a" onpointerdown="setVirtualKey('a', true)" onpointerup="setVirtualKey('a', false)" onpointerleave="setVirtualKey('a', false)">A</div>
-          <div class="wasd-key" id="key-s" onpointerdown="setVirtualKey('s', true)" onpointerup="setVirtualKey('s', false)" onpointerleave="setVirtualKey('s', false)">S</div>
-          <div class="wasd-key" id="key-d" onpointerdown="setVirtualKey('d', true)" onpointerup="setVirtualKey('d', false)" onpointerleave="setVirtualKey('d', false)">D</div>
+    <!-- Grid X-Y Enable Switch (Toggle Ground Plane Grid) -->
+    <button class="shading-toggle-btn wasd-enable-toggle active" id="btn-toggle-grid" onclick="window.toggleGridXY()"
+      title="Toggle Grid X-Y (Ground Plane Grid)">
+      <div class="toggle-btn-left">
+        <span class="mode-icon">🌐</span>
+        <div class="mode-info">
+          <span class="mode-title">Grid X-Y</span>
+          <span class="mode-desc">Ground Plane Grid</span>
         </div>
-        <div class="wasd-key wasd-space" id="key-space" onpointerdown="setVirtualKey('space', true)" onpointerup="setVirtualKey('space', false)" onpointerleave="setVirtualKey('space', false)">SPACE: HOP</div>
+      </div>
+      <div class="toggle-switch-ui active" id="switch-grid">
+        <span class="toggle-knob"></span>
+      </div>
+    </button>
+
+    <!-- 3DGS + Collider Enable Switch (Moved directly on top of WASD) -->
+    <button class="shading-toggle-btn wasd-enable-toggle" id="btn-shade-collider" onclick="toggleColliderMode()"
+      title="Toggle Physics Collider Wireframe">
+      <div class="toggle-btn-left">
+        <span class="mode-icon">🛡️</span>
+        <div class="mode-info">
+          <span class="mode-title">3DGS + Collider</span>
+          <span class="mode-desc">1:1 Physics Mesh Wireframe</span>
+        </div>
+      </div>
+      <div class="toggle-switch-ui" id="switch-collider">
+        <span class="toggle-knob"></span>
+      </div>
+    </button>
+
+    <div class="wasd-divider"></div>
+
+    <!-- Character Controls Header & Keys -->
+    <div class="wasd-hud-header">
+      <div class="wasd-hud-title">
+        <span>🎮</span>
+        <span>WASD</span>
+      </div>
+      <button class="btn-cam-follow-pill active" id="btn-cam-follow" onclick="window.toggleCameraFollow()"
+        title="Camera Mode: Follow (Track Character) / Free (Orbit)">
+        <span class="cam-dot"></span>
+        <span id="cam-follow-text">Follow</span>
+      </button>
+    </div>
+    <div class="wasd-grid">
+      <div class="wasd-key" id="key-w" onpointerdown="setVirtualKey('w', true)" onpointerup="setVirtualKey('w', false)"
+        onpointerleave="setVirtualKey('w', false)">W</div>
+      <div class="wasd-row">
+        <div class="wasd-key" id="key-a" onpointerdown="setVirtualKey('a', true)"
+          onpointerup="setVirtualKey('a', false)" onpointerleave="setVirtualKey('a', false)">A</div>
+        <div class="wasd-key" id="key-s" onpointerdown="setVirtualKey('s', true)"
+          onpointerup="setVirtualKey('s', false)" onpointerleave="setVirtualKey('s', false)">S</div>
+        <div class="wasd-key" id="key-d" onpointerdown="setVirtualKey('d', true)"
+          onpointerup="setVirtualKey('d', false)" onpointerleave="setVirtualKey('d', false)">D</div>
+      </div>
+      <button type="button" class="wasd-key wasd-space wasd-shift" id="key-shift" title="Hold Shift + WASD to Sprint"
+        onpointerdown="this.setPointerCapture(event.pointerId); setVirtualKey('shift', true)"
+        onpointerup="setVirtualKey('shift', false)" onpointercancel="setVirtualKey('shift', false)">SHIFT : RUN</button>
+      <div class="wasd-key wasd-space" id="key-space" onpointerdown="setVirtualKey('space', true)"
+        onpointerup="setVirtualKey('space', false)" onpointerleave="setVirtualKey('space', false)">SPACE : HOP</div>
+    </div>
+  </div>
+
+  <!-- Top-Right 3DGS Multi-Layer & Transform Inspector Panel (Rhino 3D + Unreal Engine Outliner) -->
+  <div class="py3s-layer-panel" id="v3d-layer-panel">
+    <!-- Header: Rhino / Unreal Outliner -->
+    <div class="layer-panel-header" style="margin-bottom: 0.55rem;">
+      <div class="layer-panel-title">
+        <span>📑</span><span>Layers & Outliner</span>
+      </div>
+      <span class="layer-badge-py3s"
+        style="color: #38bdf8; border-color: rgba(56, 189, 248, 0.4); background: rgba(56, 189, 248, 0.15);">Rhino /
+        UE5</span>
+    </div>
+
+    <!-- Rhino 3D Style Layers Table (Columns: Vis 👁️, Lock 🔒, Layer Name, Delete 🗑️) -->
+    <div class="rhino-layers-container">
+      <div class="rhino-table-header">
+        <span class="rhino-col-vis" title="Visibility (Show/Hide)">👁️</span>
+        <span class="rhino-col-lock" title="Lock (Freeze Transform)">🔒</span>
+        <span class="rhino-col-name">LAYER (.PY3S)</span>
+        <span class="rhino-col-del" title="Delete Layer">🗑️</span>
+      </div>
+
+      <div class="rhino-table-body" id="rhino-table-body">
+        <!-- Rendered dynamically by updateRhinoLayersUI() for each 3D model instance placed on the ground -->
+      </div>
+    </div>
+
+    <!-- Section 2: Transform Controller (No Rhino) -->
+    <div class="transform-controller-section"
+      style="padding-top: 0.65rem; border-top: 1px solid rgba(56, 189, 248, 0.2); flex-shrink: 0;">
+      <div class="layer-panel-header" style="margin-bottom: 0.45rem; border-bottom: none; padding-bottom: 0;">
+        <div class="layer-panel-title">
+          <span>Transform</span>
+        </div>
+        <span class="layer-badge-py3s"
+          style="background: rgba(56, 189, 248, 0.2); border-color: #38bdf8; color: #7dd3fc;">Interactive Gizmo</span>
+      </div>
+
+      <div class="gumball-controller-box" id="gumball-controller-box">
+        <!-- Gumball Status & Toggle Button (CAD Button instead of iOS switch) -->
+        <div class="gumball-header-row">
+          <div class="gumball-header-left">
+            <span class="gumball-status-indicator active" id="gumball-status-dot"></span>
+            <span class="gumball-label" id="gumball-status-text">Target: Active Model (MOVE)</span>
+          </div>
+          <button class="rhino-gizmo-toggle-btn active" id="switch-gumball" onclick="toggleGumball()"
+            title="Toggle 3D Transform Gizmo">
+            <span>🎯 GIZMO ON</span>
+          </button>
+        </div>
+
+        <!-- Mode Buttons: Move, Rotate, Scale -->
+        <div class="gumball-mode-toolbar">
+          <button class="gumball-mode-btn active" id="btn-gumball-translate" onclick="setGumballMode('translate')"
+            title="Move / Translate (X, Y, Z - Shortcut: G)">
+            <span class="gumball-mode-name">Move</span>
+          </button>
+          <button class="gumball-mode-btn" id="btn-gumball-rotate" onclick="setGumballMode('rotate')"
+            title="Rotate (X, Y, Z - Shortcut: R)">
+            <span class="gumball-mode-name">Rotate</span>
+          </button>
+          <button class="gumball-mode-btn" id="btn-gumball-scale" onclick="setGumballMode('scale')"
+            title="Scale (Uniform Scale - Shortcut: C)">
+            <span class="gumball-mode-name">Scale</span>
+          </button>
+        </div>
+
+        <!-- Real-time Coordinates Readout -->
+        <button type="button" id="btn-instance-physics" disabled title="Select physics mode for target model (E)">
+          <span>Select Model for Physics</span><kbd>E</kbd>
+        </button>
+        <div class="gumball-coords-display" id="gumball-coords-display">
+          <div class="coord-item"><span class="coord-label">POS</span> <span class="coord-val" id="coord-pos">X:0.0
+              Y:0.0
+              Z:0.0</span></div>
+          <div class="coord-item"><span class="coord-label">ROT</span> <span class="coord-val" id="coord-rot">0° 0°
+              0°</span></div>
+          <div class="coord-item"><span class="coord-label">SCL</span> <span class="coord-val"
+              id="coord-scl">1.00x</span>
+          </div>
+        </div>
+
+        <!-- Reset Actions -->
+        <div class="gumball-actions-row">
+          <button class="gumball-action-btn" onclick="snapModelToGround()" title="Snap Model to Ground Surface">
+            <span>📍</span><span>Snap Ground</span>
+          </button>
+          <button class="gumball-action-btn" onclick="resetModelTransform()"
+            title="Reset Transform (Position, Rotation, Scale)">
+            <span>↺</span><span>Reset</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Unified Right-Side Frosted Glass Mission Console (Ultra-Transparent Glassmorphism) -->
   <div class="unified-right-console" id="glass-unified-console">
-    <!-- Top HUD Header -->
-    <div class="hud-header">
-      <div style="display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;">
-        <span class="stage-pill" id="stg-badge">STAGE 1 OF 5</span>
-        <span class="stage-clip" id="stg-clips">Clip 01 ➡️ 06</span>
-        <span class="constraint-pill" id="stg-constraint">⚖️ Mass vs Budget</span>
-      </div>
-      <span id="hud-status-badge" class="status-pill status-scrubbing">SCROLL SCRUB</span>
-      <span id="hud-title" style="display: none;">STAGE 1: LAUNCH PLATFORM (1 ➡️ 6)</span>
-    </div>
-
-    <!-- Progress Track Bar -->
-    <div class="progress-track" style="margin: 0.5rem 0 0.85rem 0;">
-      <div class="progress-fill" id="hud-progress-bar"></div>
-    </div>
-
     <!-- Section 1: Active Stage Mission Story -->
     <div class="console-story-section">
-      <h3 class="glass-card-title" id="stg-title">🚀 STAGE 1: LAUNCH PLATFORM & DEHYDRATED SEED</h3>
-      <div class="glass-theme-sub" id="stg-theme">Mass & Budget Trade-Off (มวลบรรทุก & งบประมาณ)</div>
+      <h3 class="glass-card-title" id="stg-title">STAGE 1: LAUNCH PLATFORM & DEHYDRATED SEED</h3>
+      <div class="glass-theme-sub" id="stg-theme">Mass & Budget Trade-Off (Payload Mass vs Mission Budget)</div>
       <p class="glass-card-desc" id="stg-desc">
-        ก่อนปล่อยยานขึ้นสู่อวกาศ ทุกกรัมของน้ำหนักและทุกไบต์ของข้อมูลคือต้นทุนมหาศาล ฟอร์แมต .py3s เริ่มต้นด้วยโหมด Dehydrated Seed (0x4000) บันทึกเฉพาะสัมประสิทธิ์พารามิเตอร์และจุดยึดโครงสร้างหลัก ทำให้ไฟล์มีขนาดจิ๋วเพียง 53 KB – 3.2 MB ประหยัดแบนด์วิธกว่า 97%
+        Prior to orbital launch, every gram of payload and every byte of telemetry carries exponential costs. The .py3s format initiates in Dehydrated Seed mode (0x4000), storing only foundational parametric coefficients and structural anchors. This compresses the asset down to an ultra-compact 53 KB – 3.2 MB, saving over 97% bandwidth.
       </p>
     </div>
 
@@ -583,7 +307,7 @@
     <div class="console-format-section">
       <div class="compare-header">
         <span class="compare-icon">⚡</span>
-        <span class="compare-header-title" id="cmp-title">📦 ทำไม .py3s เหนือกว่าในด่านฐานปล่อย?</span>
+        <span class="compare-header-title" id="cmp-title">Why .py3s Wins at Launch Platform?</span>
       </div>
 
       <div class="compare-contrast-box">
@@ -592,14 +316,14 @@
             <span class="badge-dot-cyan"></span>
             <strong id="cmp-mine-label">🌟 .py3s (Dehydrated Seed):</strong>
           </div>
-          <div class="contrast-value" id="cmp-mine-val">53 KB – 3.2 MB (เบากว่า 97%)</div>
+          <div class="contrast-value" id="cmp-mine-val">53 KB – 3.2 MB (>97% Bandwidth Saved)</div>
         </div>
         <div class="contrast-row theirs">
           <div class="contrast-label">
             <span class="badge-dot-red"></span>
-            <strong id="cmp-theirs-label">❌ Inria PLY ดั้งเดิม:</strong>
+            <strong id="cmp-theirs-label">❌ Legacy Inria PLY:</strong>
           </div>
-          <div class="contrast-value" id="cmp-theirs-val">120 – 500+ MB (เทอะทะเกินเพดานบรรทุก)</div>
+          <div class="contrast-value" id="cmp-theirs-val">120 – 500+ MB (Exceeds Payload Limit)</div>
         </div>
       </div>
 
@@ -632,69 +356,79 @@
 
   <!-- Instant Fast First Frame Loader -->
   <script>
-    (function() {
+    (function () {
       const canvas = document.getElementById('scroll-canvas-layer');
       const ctx = canvas.getContext('2d');
       const img = new Image();
       img.src = 'assets/scroll_webp/clip_01/frame_0000.webp';
-      img.onload = function() {
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      img.onload = function () {
+        if (document.getElementById('btn-stage-1').classList.contains('active')) {
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        }
       };
+
+      window.addEventListener('pageshow', function () {
+        window.scrollTo(0, 0);
+        if (window.jumpToTimeline) window.jumpToTimeline(0.00);
+      });
     })();
   </script>
 
+  <!-- Stage Mission Stories Library -->
+  <script src="js/stageStories.js?v=20261115_en_v21"></script>
+
   <!-- Main Modular Application Script -->
-  <script type="module" src="js/main.js"></script>
+  <script type="module" src="js/main.js?v=20261115_en_v22"></script>
 
   <!-- Complete Benchmark Modal (Pre-rendered for Instant Access) -->
   <div class="benchmark-modal-backdrop" id="benchmark-modal" onclick="handleBackdropClick(event)">
     <div class="benchmark-modal-container">
-      
+
       <!-- Modal Header -->
       <div class="bm-header">
         <div class="bm-header-left">
           <span class="bm-badge">IANA: model/vnd.pygrassreal.py3s</span>
           <h2 class="bm-title">🚀 SPATIAL FORMAT BENCHMARK: .py3s vs INDUSTRY STANDARDS</h2>
-          <p class="bm-subtitle">การเปรียบเทียบเชิงวิศวกรรมอวกาศลึก (Deep Space Telemetry) และประสิทธิภาพเว็บ 3D ระดับโลก</p>
+          <p class="bm-subtitle">Deep Space Telemetry Engineering Comparison & Global Web 3D Performance</p>
         </div>
-        <button class="bm-close-btn" onclick="toggleBenchmarkModal()" title="ปิดหน้าต่าง (ESC)">✕</button>
+        <button class="bm-close-btn" onclick="toggleBenchmarkModal()" title="Close [ESC]">✕</button>
       </div>
 
       <!-- Tab Navigation Bar -->
       <div class="bm-tabs">
         <button class="bm-tab-btn active" id="bm-tab-matrix" onclick="switchBenchmarkTab('matrix')">
-          <span>📊</span><span>Matrix เปรียบเทียบสเปก</span>
+          <span>📊</span><span>Specification Matrix</span>
         </button>
         <button class="bm-tab-btn" id="bm-tab-deepspace" onclick="switchBenchmarkTab('deepspace')">
-          <span>🛰️</span><span>วิกฤตแบนด์วิธอวกาศลึก (DSN)</span>
+          <span>🛰️</span><span>Deep Space Bottleneck (DSN)</span>
         </button>
         <button class="bm-tab-btn" id="bm-tab-hydration" onclick="switchBenchmarkTab('hydration')">
-          <span>⚡</span><span>กลไก Dehydrated Seed & 12ms</span>
+          <span>⚡</span><span>Dehydrated Seed & 12ms</span>
         </button>
         <button class="bm-tab-btn" id="bm-tab-physics" onclick="switchBenchmarkTab('physics')">
           <span>🛡️</span><span>Visual + Physics + 3D Print</span>
         </button>
         <button class="bm-tab-btn" id="bm-tab-calc" onclick="switchBenchmarkTab('calc')">
-          <span>🧮</span><span>เครื่องคำนวณการส่งข้อมูลจำลอง</span>
+          <span>🧮</span><span>Transmission Calculator</span>
         </button>
       </div>
 
       <!-- Modal Body Content -->
       <div class="bm-body">
-        
+
         <!-- TAB 1: FULL SPECIFICATION MATRIX -->
         <div class="bm-tab-content active" id="content-matrix">
           <div class="bm-section-intro">
-            <h3>🏆 ตารางเปรียบเทียบมาตรฐานฟอร์แมต 3D & Spatial Computing</h3>
-            <p>เปรียบเทียบฟอร์แมต <strong>.py3s</strong> ของ PyGrassReal กับฟอร์แมตกระแสหลักของวงการ 3D Gaussian Splatting และ CAD ในทุกมิติวิศวกรรม:</p>
+            <h3>🏆 3D & Spatial Computing Format Standards Matrix</h3>
+            <p>Comprehensive engineering benchmark comparing PyGrassReal <strong>.py3s</strong> against legacy 3D Gaussian Splatting and CAD formats across aerospace engineering dimensions:</p>
           </div>
 
           <div class="bm-table-wrapper">
             <table class="bm-table">
               <thead>
                 <tr>
-                  <th>เกณฑ์การเปรียบเทียบ</th>
-                  <th class="col-highlight">🌟 PyGrassReal .py3s (ของคุณ)</th>
+                  <th>Evaluation Metric</th>
+                  <th class="col-highlight">🌟 PyGrassReal .py3s</th>
                   <th>Inria 3DGS (.ply)</th>
                   <th>Vanilla Splat (.splat)</th>
                   <th>Niantic (.spz)</th>
@@ -704,120 +438,120 @@
               </thead>
               <tbody>
                 <tr>
-                  <td><strong>โครงสร้างไฟล์ (Container)</strong></td>
+                  <td><strong>File Architecture</strong></td>
                   <td class="col-highlight"><span class="badge-win">All-in-One Spatial Container</span><br><small>Visual + Collider + 3MF + Meta</small></td>
-                  <td><span class="badge-fail">Raw Point List</span><br><small>ตารางเม็ดสีเดี่ยว ไม่มีโครง</small></td>
-                  <td><span class="badge-fail">Raw Binary Splats</span><br><small>32-byte struct เดี่ยว</small></td>
-                  <td><span class="badge-mid">Compressed Splat Only</span><br><small>เก็บเฉพาะเม็ด Splat</small></td>
-                  <td><span class="badge-mid">Chunked Splat Stream</span><br><small>สตรีมเม็ดสี k-d tree</small></td>
-                  <td><span class="badge-neutral">Polygonal Mesh</span><br><small>ผิวสามเหลี่ยม CAD ทั่วไป</small></td>
+                  <td><span class="badge-fail">Raw Point List</span><br><small>Unstructured point list</small></td>
+                  <td><span class="badge-fail">Raw Binary Splats</span><br><small>Single 32-byte struct</small></td>
+                  <td><span class="badge-mid">Compressed Splat Only</span><br><small>Splat points only</small></td>
+                  <td><span class="badge-mid">Chunked Splat Stream</span><br><small>k-d tree splat stream</small></td>
+                  <td><span class="badge-neutral">Polygonal Mesh</span><br><small>Standard polygonal mesh</small></td>
                 </tr>
                 <tr>
-                  <td><strong>ขนาดไฟล์เฉลี่ย (File Size)</strong></td>
-                  <td class="col-highlight"><span class="val-good">50 KB – 3.2 MB</span><br><small>(ประหยัดแบนด์วิธ >95%)</small></td>
-                  <td><span class="val-bad">100 – 500+ MB</span><br><small>(มหาศาล เกินขีดจำกัด)</small></td>
-                  <td><span class="val-bad">30 – 100 MB</span><br><small>(หนักเกินไปสำหรับเน็ตเบา)</small></td>
-                  <td><span class="val-mid">5 – 25 MB</span><br><small>(บีบอัดได้ดีพอใช้)</small></td>
-                  <td><span class="val-mid">10 – 35 MB</span><br><small>(ขนาดปานกลาง)</small></td>
-                  <td><span class="val-mid">5 – 50 MB</span><br><small>(ขึ้นกับความละเอียด Mesh)</small></td>
+                  <td><strong>Average File Size</strong></td>
+                  <td class="col-highlight"><span class="val-good">50 KB – 3.2 MB</span><br><small>(>95% Bandwidth Saved)</small></td>
+                  <td><span class="val-bad">100 – 500+ MB</span><br><small>(Massive / Prohibitive)</small></td>
+                  <td><span class="val-bad">30 – 100 MB</span><br><small>(Too heavy for low bitrate)</small></td>
+                  <td><span class="val-mid">5 – 25 MB</span><br><small>(Moderate compression)</small></td>
+                  <td><span class="val-mid">10 – 35 MB</span><br><small>(Moderate size)</small></td>
+                  <td><span class="val-mid">5 – 50 MB</span><br><small>(Depends on polygon count)</small></td>
                 </tr>
                 <tr>
-                  <td><strong>ส่งตรงดาวอังคาร Mars Direct (1 kbps)</strong></td>
-                  <td class="col-highlight"><span class="badge-win">~7 นาที (Seed: 40 วินาที)</span><br><small>ส่งจบในคาบสัญญาณเดียว</small></td>
-                  <td><span class="badge-fail">11 วัน 2 ชั่วโมง!</span><br><small>เป็นไปไม่ได้ในภารกิจจริง</small></td>
-                  <td><span class="badge-fail">4 วัน 4 ชั่วโมง</span><br><small>เสี่ยงคลื่นหลุด 100%</small></td>
-                  <td><span class="badge-fail">34 ชั่วโมง 40 นาที</span><br><small>เกินหน้าต่างวงโคจร</small></td>
-                  <td><span class="badge-fail">23 – 80 ชั่วโมง</span><br><small>เกินหน้าต่างวงโคจร</small></td>
-                  <td><span class="badge-fail">11 – 110 ชั่วโมง</span><br><small>เกินหน้าต่างวงโคจร</small></td>
+                  <td><strong>Direct-to-Earth Mars Link (1 kbps)</strong></td>
+                  <td class="col-highlight"><span class="badge-win">~7 Min (Seed: 40s)</span><br><small>Completes in a single pass</small></td>
+                  <td><span class="badge-fail">11 Days 2 Hours!</span><br><small>Mission-prohibitive</small></td>
+                  <td><span class="badge-fail">4 Days 4 Hours</span><br><small>100% Signal loss risk</small></td>
+                  <td><span class="badge-fail">34 Hours 40 Min</span><br><small>Exceeds orbital pass window</small></td>
+                  <td><span class="badge-fail">23 – 80 Hours</span><br><small>Exceeds orbital pass window</small></td>
+                  <td><span class="badge-fail">11 – 110 Hours</span><br><small>Exceeds orbital pass window</small></td>
                 </tr>
                 <tr>
-                  <td><strong>โควต้าข้อมูลต่อวัน (NASA 100–250 MB)</strong></td>
-                  <td class="col-highlight"><span class="badge-win">กินเพียง 0.02% – 1.2%</span><br><small>ไม่เบียดเบียนข้อมูลวิทย์อื่น</small></td>
-                  <td><span class="badge-fail">กินโควต้าเกิน 100%</span><br><small>ยานส่งข้อมูลอื่นไม่ได้ทั้งวัน</small></td>
-                  <td><span class="badge-fail">กินโควต้า 30% – 60%</span><br><small>สิ้นเปลืองสูงมาก</small></td>
-                  <td><span class="badge-mid">กินโควต้า 5% – 15%</span><br><small>ยังพอรับได้</small></td>
-                  <td><span class="badge-mid">กินโควต้า 8% – 25%</span><br><small>ปานกลาง</small></td>
-                  <td><span class="badge-mid">กินโควต้า 5% – 30%</span><br><small>ปานกลาง</small></td>
+                  <td><strong>Daily Telemetry Quota (NASA 100–250 MB)</strong></td>
+                  <td class="col-highlight"><span class="badge-win">Consumes only 0.02% – 1.2%</span><br><small>Zero impact on science data</small></td>
+                  <td><span class="badge-fail">Exceeds 100% daily budget</span><br><small>Halts all other scientific downlink</small></td>
+                  <td><span class="badge-fail">Consumes 30% – 60% budget</span><br><small>Extremely wasteful</small></td>
+                  <td><span class="badge-mid">Consumes 5% – 15% budget</span><br><small>Moderate consumption</small></td>
+                  <td><span class="badge-mid">Consumes 8% – 25% budget</span><br><small>Moderate</small></td>
+                  <td><span class="badge-mid">Consumes 5% – 30% budget</span><br><small>Moderate</small></td>
                 </tr>
                 <tr>
-                  <td><strong>พลังงานแบตเตอรี่ยานอวกาศ</strong></td>
-                  <td class="col-highlight"><span class="val-good">ประหยัดพลังงาน 99.2%</span><br><small>ยิงคลื่นแค่ไม่กี่วินาที</small></td>
-                  <td><span class="val-bad">สูบแบตเตอรี่จนเกลี้ยง</span><br><small>เสี่ยงยานดับถาวรกลางอวกาศ</small></td>
-                  <td><span class="val-bad">กินไฟสูงมาก</span></td>
-                  <td><span class="val-mid">กินไฟปานกลาง</span></td>
-                  <td><span class="val-mid">กินไฟปานกลาง</span></td>
-                  <td><span class="val-mid">กินไฟปานกลาง</span></td>
+                  <td><strong>Spacecraft Battery Burn</strong></td>
+                  <td class="col-highlight"><span class="val-good">99.2% Power Savings</span><br><small>Short radio burst</small></td>
+                  <td><span class="val-bad">Critical battery depletion</span><br><small>High spacecraft failure risk</small></td>
+                  <td><span class="val-bad">Very high power drain</span></td>
+                  <td><span class="val-mid">Moderate power drain</span></td>
+                  <td><span class="val-mid">Moderate power drain</span></td>
+                  <td><span class="val-mid">Moderate power drain</span></td>
                 </tr>
                 <tr>
-                  <td><strong>ความเร็วถอดรหัสบนเว็บ (Web Unpack)</strong></td>
-                  <td class="col-highlight"><span class="val-good">12 มิลลิวินาที (12ms)</span><br><small>แตกตัวใน RAM ทันที</small></td>
-                  <td><span class="val-bad">2,000 – 6,000 ms</span><br><small>เว็บค้าง/FPS ดรอปอย่างหนัก</small></td>
-                  <td><span class="val-mid">250 – 600 ms</span><br><small>ช้ากว่า .py3s 20-50 เท่า</small></td>
-                  <td><span class="val-mid">150 – 400 ms</span><br><small>ช้ากว่า .py3s 12-30 เท่า</small></td>
-                  <td><span class="val-mid">120 – 300 ms</span><br><small>ช้ากว่า .py3s 10-25 เท่า</small></td>
-                  <td><span class="val-mid">100 – 400 ms</span><br><small>ต้องสร้าง BufferGeometry</small></td>
+                  <td><strong>Client Web Unpack Latency</strong></td>
+                  <td class="col-highlight"><span class="val-good">12 Milliseconds (12ms)</span><br><small>Instant in-memory hydration</small></td>
+                  <td><span class="val-bad">2,000 – 6,000 ms</span><br><small>Main thread freeze / FPS drop</small></td>
+                  <td><span class="val-mid">250 – 600 ms</span><br><small>20x–50x slower than .py3s</small></td>
+                  <td><span class="val-mid">150 – 400 ms</span><br><small>12x–30x slower than .py3s</small></td>
+                  <td><span class="val-mid">120 – 300 ms</span><br><small>10x–25x slower than .py3s</small></td>
+                  <td><span class="val-mid">100 – 400 ms</span><br><small>Requires geometry compilation</small></td>
                 </tr>
                 <tr>
-                  <td><strong>ฟิสิกส์การชน 1:1 (Physics Collider)</strong></td>
-                  <td class="col-highlight"><span class="badge-win">มีในตัว (GLB / Convex Hull)</span><br><small>ตรวจการชน 60 FPS ด้วย BVH</small></td>
-                  <td><span class="badge-fail">ไม่มี (ทะลุตัวเปล่า)</span><br><small>เป็นแค่จุดพ่นลอยในอากาศ</small></td>
-                  <td><span class="badge-fail">ไม่มี (ทะลุตัวเปล่า)</span></td>
-                  <td><span class="badge-fail">ไม่มี (ทะลุตัวเปล่า)</span></td>
-                  <td><span class="badge-fail">ไม่มี (ทะลุตัวเปล่า)</span></td>
-                  <td><span class="badge-neutral">มีเฉพาะ Mesh</span><br><small>แต่ไม่มีภาพ 3DGS เสมือนจริง</small></td>
+                  <td><strong>1:1 Physical Mesh Collider</strong></td>
+                  <td class="col-highlight"><span class="badge-win">Embedded (BVH Mesh Collider)</span><br><small>60 FPS BVH Collision Detection</small></td>
+                  <td><span class="badge-fail">None (Ghost cloud)</span><br><small>Pure uncollidable visual fog</small></td>
+                  <td><span class="badge-fail">None (Ghost cloud)</span></td>
+                  <td><span class="badge-fail">None (Ghost cloud)</span></td>
+                  <td><span class="badge-fail">None (Ghost cloud)</span></td>
+                  <td><span class="badge-neutral">Mesh collider only</span><br><small>Lacks photorealistic 3DGS</small></td>
                 </tr>
                 <tr>
-                  <td><strong>การทดสอบอุกกาบาตชน (Impact Test)</strong></td>
-                  <td class="col-highlight"><span class="badge-win">ทำได้จริง 100% (Raycast 0.07ms)</span><br><small>คำนวณจุดปะทะและแรงสะท้อน</small></td>
-                  <td><span class="badge-fail">ทำไม่ได้ (ไม่มีผิวรับแรง)</span></td>
-                  <td><span class="badge-fail">ทำไม่ได้</span></td>
-                  <td><span class="badge-fail">ทำไม่ได้</span></td>
-                  <td><span class="badge-fail">ทำไม่ได้</span></td>
-                  <td><span class="badge-neutral">ทำได้เฉพาะโพลีกอนหยาบ</span></td>
+                  <td><strong>Orbital Impact Test (CME / Debris)</strong></td>
+                  <td class="col-highlight"><span class="badge-win">Supported (0.07ms Raycast BVH)</span><br><small>Instant penetration check</small></td>
+                  <td><span class="badge-fail">Unsupported (No physical surface)</span></td>
+                  <td><span class="badge-fail">Unsupported</span></td>
+                  <td><span class="badge-fail">Unsupported</span></td>
+                  <td><span class="badge-fail">Unsupported</span></td>
+                  <td><span class="badge-neutral">Crude polygon collision only</span></td>
                 </tr>
                 <tr>
-                  <td><strong>ตัวละครเดินเหยียบ/ปีนบันได (WASD Walk)</strong></td>
-                  <td class="col-highlight"><span class="badge-win">รองรับ 100% (Capsule Collision)</span><br><small>ไม่ตกทะลุพื้น ไม่มุดเพดาน</small></td>
-                  <td><span class="badge-fail">ตัวละครตกทะลุลงสู่อวกาศ</span></td>
-                  <td><span class="badge-fail">ตัวละครตกทะลุ</span></td>
-                  <td><span class="badge-fail">ตัวละครตกทะลุ</span></td>
-                  <td><span class="badge-fail">ตัวละครตกทะลุ</span></td>
-                  <td><span class="badge-neutral">รองรับการเดิน</span></td>
+                  <td><strong>Astronaut Capsule Walk / Stair Climb</strong></td>
+                  <td class="col-highlight"><span class="badge-win">100% Solid Capsule Collision</span><br><small>Anti-penetration step-up</small></td>
+                  <td><span class="badge-fail">Character falls through into void</span></td>
+                  <td><span class="badge-fail">Character falls through</span></td>
+                  <td><span class="badge-fail">Character falls through</span></td>
+                  <td><span class="badge-fail">Character falls through</span></td>
+                  <td><span class="badge-neutral">Supported</span></td>
                 </tr>
                 <tr>
-                  <td><strong>พิมพ์ 3D จริงเพื่อการศึกษา STEM (3MF)</strong></td>
-                  <td class="col-highlight"><span class="badge-win">ฝังชิ้นงานตัน Watertight ในตัว</span><br><small>กดปุ่มเดียวส่งพิมพ์ใน 0 วินาที</small></td>
-                  <td><span class="badge-fail">พิมพ์ไม่ได้เด็ดขาด</span><br><small>จุดกระจัดกระจาย ไร้ผิวปิด</small></td>
-                  <td><span class="badge-fail">พิมพ์ไม่ได้</span></td>
-                  <td><span class="badge-fail">พิมพ์ไม่ได้</span></td>
-                  <td><span class="badge-fail">พิมพ์ไม่ได้</span></td>
-                  <td><span class="badge-mid">ต้องแปลง/ซ่อมผิวก่อนพิมพ์</span></td>
+                  <td><strong>Direct STEM 3D Printing (3MF)</strong></td>
+                  <td class="col-highlight"><span class="badge-win">Embedded Watertight Solid</span><br><small>1-Click 0.00s Export Ready</small></td>
+                  <td><span class="badge-fail">Unprintable</span><br><small>Scattered point cloud without manifold hull</small></td>
+                  <td><span class="badge-fail">Unprintable</span></td>
+                  <td><span class="badge-fail">Unprintable</span></td>
+                  <td><span class="badge-fail">Unprintable</span></td>
+                  <td><span class="badge-mid">Requires mesh manifold repair</span></td>
                 </tr>
                 <tr>
-                  <td><strong>ตรวจจับความเสียหายของไฟล์ (Integrity)</strong></td>
-                  <td class="col-highlight"><span class="badge-win">Header 128B + CRC-32 + HMAC</span><br><small>การันตีระดับบิตข้ามอวกาศ</small></td>
-                  <td><span class="badge-fail">ไม่มี Checksum</span></td>
-                  <td><span class="badge-fail">ไม่มี</span></td>
-                  <td><span class="badge-mid">มีแค่ Zip CRC ธรรมดา</span></td>
-                  <td><span class="badge-fail">ไม่มี</span></td>
-                  <td><span class="badge-fail">ไม่มี Container Checksum</span></td>
+                  <td><strong>Data Integrity & Error Detection</strong></td>
+                  <td class="col-highlight"><span class="badge-win">128B Header + CRC-32 Checksum</span><br><small>Bit-level interplanetary validation</small></td>
+                  <td><span class="badge-fail">No built-in checksum</span></td>
+                  <td><span class="badge-fail">None</span></td>
+                  <td><span class="badge-mid">Generic Zip CRC only</span></td>
+                  <td><span class="badge-fail">None</span></td>
+                  <td><span class="badge-fail">No container-level checksum</span></td>
                 </tr>
                 <tr>
-                  <td><strong>มาตรฐานสากล IANA Media Type</strong></td>
-                  <td class="col-highlight"><span class="badge-win">model/vnd.pygrassreal.py3s</span><br><small>จดทะเบียนมาตรฐานทางการ</small></td>
-                  <td><span class="badge-fail">ไม่มี</span></td>
-                  <td><span class="badge-fail">ไม่มี</span></td>
-                  <td><span class="badge-mid">กำลังยื่นขอ</span></td>
-                  <td><span class="badge-fail">ไม่มี</span></td>
+                  <td><strong>IANA Media Type Standard</strong></td>
+                  <td class="col-highlight"><span class="badge-win">model/vnd.pygrassreal.py3s</span><br><small>Official Vendor Tree Registration</small></td>
+                  <td><span class="badge-fail">None</span></td>
+                  <td><span class="badge-fail">None</span></td>
+                  <td><span class="badge-mid">Pending</span></td>
+                  <td><span class="badge-fail">None</span></td>
                   <td><span class="badge-neutral">model/gltf-binary</span></td>
                 </tr>
                 <tr>
-                  <td><strong>ความต้องการ GPU ฝั่งเซิร์ฟเวอร์</strong></td>
-                  <td class="col-highlight"><span class="val-good">Zero Server GPU (0 บาท)</span><br><small>รันบน Static Web/GitHub Pages 100%</small></td>
-                  <td><span class="val-bad">กิน Bandwidth มหาศาล</span></td>
-                  <td><span class="val-mid">ปานกลาง</span></td>
-                  <td><span class="val-mid">ปานกลาง</span></td>
-                  <td><span class="val-mid">ปานกลาง</span></td>
+                  <td><strong>Server GPU Infrastructure Cost</strong></td>
+                  <td class="col-highlight"><span class="val-good">Zero Server GPU ($0 / Static)</span><br><small>100% Client-side GitHub Pages</small></td>
+                  <td><span class="val-bad">Massive Bandwidth & GPU Cost</span></td>
+                  <td><span class="val-mid">Moderate</span></td>
+                  <td><span class="val-mid">Moderate</span></td>
+                  <td><span class="val-mid">Moderate</span></td>
                   <td><span class="val-good">Zero GPU Server</span></td>
                 </tr>
               </tbody>
@@ -828,25 +562,25 @@
         <!-- TAB 2: DEEP SPACE TELEMETRY BOTTLENECK -->
         <div class="bm-tab-content" id="content-deepspace">
           <div class="bm-section-intro">
-            <h3>🌌 ทำไมการส่งโมเดล 3D ข้ามอวกาศลึกถึงเป็น "คอขวดวิกฤต" ของ NASA?</h3>
-            <p>คนทั่วไปมักเข้าใจผิดว่า <em>"แค่ปล่อยให้คอมพิวเตอร์โหลดข้ามวันเดี๋ยวก็เสร็จ"</em> แต่วิศวกรรมอวกาศจริงมีกฎเหล็ก 4 ประการที่ทำให้ฟอร์แมตดั้งเดิม (PLY 100MB+) <strong>"ล้มเหลว 100% ในทางปฏิบัติ"</strong>:</p>
+            <h3>🌌 Why Deep Space 3D Model Transmission is NASA's Critical Bottleneck</h3>
+            <p>A common misconception is that <em>"we can simply wait for computers to download files overnight."</em> In real planetary science, four immutable physics laws make legacy 100MB+ formats <strong>completely impractical for real missions</strong>:</p>
           </div>
 
           <div class="bm-grid-2">
             <div class="bm-card">
               <div class="bm-card-header">
                 <span class="bm-card-num">01</span>
-                <h4>ความเร็วสัญญาณวิทยุต้อยต่ำ (Ultra-Low Bitrate)</h4>
+                <h4>Ultra-Low Bitrate Direct-to-Earth Link</h4>
               </div>
-              <p>ยานสำรวจบนดาวอังคาร (เช่น Mars Perseverance Rover) หากส่งข้อมูลตรงมายังจานรับสัญญาณบนโลก (Direct-to-Earth ผ่าน X-band) จะทำความเร็วได้เพียง <strong>500 – 3,000 บิตต่อวินาที (0.5 – 3 kbps)</strong> เท่านั้น!</p>
+              <p>Planetary rovers on Mars (such as Perseverance) transmitting directly to Earth via X-band antennas achieve sustained speeds of only <strong>500 to 3,000 bits per second (0.5 – 3 kbps)</strong>.</p>
               <div class="bm-stat-box">
                 <div class="stat-item danger">
-                  <span class="stat-label">ไฟล์ PLY ดั้งเดิม (120 MB)</span>
-                  <span class="stat-value">ต้องยิงคลื่นต่อเนื่อง 11 วัน 2 ชม.!</span>
+                  <span class="stat-label">Legacy PLY File (120 MB)</span>
+                  <span class="stat-value">Requires 11 Days 2 Hours continuous broadcast!</span>
                 </div>
                 <div class="stat-item success">
-                  <span class="stat-label">ไฟล์ .py3s Dehydrated Seed (53 KB)</span>
-                  <span class="stat-value">ส่งจบใน 7 นาที (เร็วกว่า 2,260 เท่า!)</span>
+                  <span class="stat-label">.py3s Dehydrated Seed (53 KB)</span>
+                  <span class="stat-value">Downlinks in 7 minutes (2,260x Faster!)</span>
                 </div>
               </div>
             </div>
@@ -854,31 +588,31 @@
             <div class="bm-card">
               <div class="bm-card-header">
                 <span class="bm-card-num">02</span>
-                <h4>หน้าต่างโคจรจำกัด & โควต้าข้อมูลประจำวัน (Pass Windows & Daily Cap)</h4>
+                <h4>Orbital Pass Windows & Daily Telemetry Budget</h4>
               </div>
-              <p>แม้จะใช้ดาวเทียมในวงโคจร (MRO Orbiter) เป็นตัวทวนสัญญาณความเร็วสูง (~2 Mbps) แต่ดาวเทียมจะโคจรผ่านยานแค่วันละ <strong>1–2 รอบ รอบละเพียง 8–15 นาที</strong> เท่านั้น!</p>
-              <p>โควต้าข้อมูลรวมที่ยานได้รับอนุมัติให้ส่งกลับโลกมีจำกัดเพียง <strong>100 – 250 MB ต่อวัน</strong> สำหรับทุกระบบ (ภาพถ่าย, เซนเซอร์สภาพอากาศ, บันทึกระบบไฟ, ข้อมูลนำทาง)</p>
+              <p>Even when using orbiting relay satellites (such as Mars Reconnaissance Orbiter at ~2 Mbps), the orbiter is visible above the horizon for only <strong>1–2 passes per day, lasting 8–15 minutes each</strong>.</p>
+              <p>Total authorized downlink quota per sol is strictly capped at <strong>100 – 250 MB per day</strong> for all onboard systems combined (engineering, meteorological, navcam, and spectroscopy).</p>
               <div class="bm-note warning">
-                ⚠️ หากส่งไฟล์ PLY ไฟล์เดียว (120 MB) จะกินโควต้าของยานไป 50–100% จนภารกิจวิทยาศาสตร์อื่นต้องหยุดชะงักทั้งหมด! แต่ .py3s ใช้โควต้าเพียง <strong>0.02% – 1.2%</strong> เท่านั้น
+                ⚠️ A single 120MB PLY file consumes 50–100% of the entire spacecraft's daily data allocation! In contrast, .py3s consumes merely <strong>0.02% – 1.2%</strong>.
               </div>
             </div>
 
             <div class="bm-card">
               <div class="bm-card-header">
                 <span class="bm-card-num">03</span>
-                <h4>การผลาญพลังงานแบตเตอรี่ของยาน (Power Constraint)</h4>
+                <h4>Spacecraft Power Constraints (Radio Duty Cycle)</h4>
               </div>
-              <p>การเปิดเครื่องส่งวิทยุกำลังสูง (Traveling-Wave Tube Amplifier) ยิงคลื่นทะลุระยะทาง 200 – 400 ล้านกิโลเมตร กินพลังงานไฟฟ้ามหาศาลจากแบตเตอรี่ RTG ของยาน</p>
-              <p>ยานอวกาศไม่สามารถเปิดเครื่องส่งสัญญาณติดต่อกันนาน 11 วันเพื่อส่งไฟล์ 3D ขนาดใหญ่ได้ เพราะจะทำให้ระบบไฟฟ้าล้มเหลวและยานดับกลางอวกาศ การลดขนาดเป็น .py3s ช่วย <strong>ประหยัดพลังงานแบตเตอรี่ได้กว่า 99%</strong></p>
+              <p>Running high-gain radio transmitters (Traveling-Wave Tube Amplifiers) to span 200–400 million kilometers consumes heavy electrical reserves from the rover's RTG nuclear battery.</p>
+              <p>Spacecraft cannot broadcast continuously for 11 days without thermal shutdown and battery failure. The compact .py3s format achieves <strong>over 99% electrical power savings</strong>.</p>
             </div>
 
             <div class="bm-card">
               <div class="bm-card-header">
                 <span class="bm-card-num">04</span>
-                <h4>การแย่งคิวจานรับสัญญาณยักษ์ NASA Deep Space Network (DSN)</h4>
+                <h4>NASA Deep Space Network (DSN) Scheduling Contention</h4>
               </div>
-              <p>จานดาวเทียมยักษ์ขนาด 70 เมตรของ NASA (Goldstone, Madrid, Canberra) ต้องแบ่งเวลาหมุนตามยานอวกาศมากกว่า 40 ภารกิจทั่วระบบสุริยะ (Voyager, James Webb, Europa Clipper, Artemis)</p>
-              <p>ศูนย์ควบคุมการบินอวกาศไม่มีทางยอมอนุมัติให้ยานสำรวจจองจาน DSN นานข้ามวันข้ามคืนเพื่อโหลดไฟล์ 3D จุดพ่นไฟล์เดียว ฟอร์แมต <strong>.py3s</strong> จึงเป็นคำตอบเดียวที่ผ่านเกณฑ์ของ NASA ได้จริง!</p>
+              <p>NASA's 70-meter parabolic dishes (Goldstone, Madrid, Canberra) must time-share coverage across 40+ interplanetary missions simultaneously (Voyager, JWST, Europa Clipper, Artemis).</p>
+              <p>Mission controllers will never authorize days of dedicated DSN dish tracking for a single oversized point cloud. The <strong>.py3s</strong> standard satisfies NASA flight verification guidelines.</p>
             </div>
           </div>
         </div>
@@ -886,16 +620,16 @@
         <!-- TAB 3: DEHYDRATED SEED & 12MS HYDRATION -->
         <div class="bm-tab-content" id="content-hydration">
           <div class="bm-section-intro">
-            <h3>⚡ นวัตกรรม "Dehydrated Seed & Runtime Hydration" ทำงานอย่างไร?</h3>
-            <p>ความลับทางวิศวกรรมที่ทำให้ .py3s <em>"เบาระดับ KB บนแบนด์วิธ แต่เปิดเป็น MB ใน 12 มิลลิวินาที"</em></p>
+            <h3>⚡ How "Dehydrated Seed & Runtime Hydration" Works</h3>
+            <p>The breakthrough engineering enabling .py3s to be <em>"Kilobytes on the radio link, yet Gigabytes in interactive experience within 12 milliseconds."</em></p>
           </div>
 
           <div class="bm-flow-box">
             <div class="flow-step">
               <div class="step-badge">STAGE 1: TRANSMISSION</div>
-              <h4>📡 Dehydrated Seed Mode (บนคลื่นวิทยุ / ดิสก์)</h4>
-              <p class="step-desc">เปิดใช้งานบิตแฟล็ก <code>FLAG_STATE_DEHYDRATED_SEED (0x4000)</code> จัดเก็บเฉพาะค่าสัมประสิทธิ์พารามิเตอร์ (Parametric Coefficients), จุดยึดโครงสร้างหลัก (Structural Anchors) และสีแบบ Quantized ความหนาแน่นสูง</p>
-              <div class="step-size">ขนาดไฟล์: <strong>< 50 KB – 3.2 MB</strong></div>
+              <h4>📡 Dehydrated Seed Mode (On Radio Link & Storage)</h4>
+              <p class="step-desc">Activates flag <code>FLAG_STATE_DEHYDRATED_SEED (0x4000)</code>, encapsulating only foundational parametric coefficients, structural anchors, and quantized spherical harmonic coefficients.</p>
+              <div class="step-size">File Size: <strong>< 50 KB – 3.2 MB</strong></div>
             </div>
 
             <div class="flow-arrow">
@@ -906,27 +640,27 @@
 
             <div class="flow-step highlight">
               <div class="step-badge success">STAGE 2: RUNTIME HYDRATION</div>
-              <h4>🧠 Client-Side Hydration (ใน RAM & VRAM เครื่องผู้ใช้)</h4>
-              <p class="step-desc">เมื่อเบราว์เซอร์เรียก <code>Py3sCodec.unpack()</code> โหมด <code>FLAG_AUTO_HYDRATE_ON_MOUNT (0x8000)</code> จะสั่งให้ Web Worker สังเคราะห์กลุ่มเม็ดหมอก 3DGS หลายแสนจุด พร้อมโครงข่ายฟิสิกส์ 1:1 และโมเดลสั่งพิมพ์ 3D ทรงตันขึ้นมาในหน่วยความจำทันที</p>
-              <div class="step-size">ขนาดในหน่วยความจำ: <strong>35 – 50 MB (65,000 – 485,000 Splats)</strong></div>
+              <h4>🧠 Client-Side Hydration (In Client RAM & VRAM)</h4>
+              <p class="step-desc">When the client executes <code>Py3sCodec.unpack()</code>, mode <code>FLAG_AUTO_HYDRATE_ON_MOUNT (0x8000)</code> commands the Web Worker to hydrate hundreds of thousands of 3DGS splats with 1:1 physics mesh colliders in RAM.</p>
+              <div class="step-size">In-Memory Footprint: <strong>35 – 50 MB (65,000 – 485,000 Splats)</strong></div>
             </div>
           </div>
 
           <div class="bm-grid-3" style="margin-top: 1.25rem;">
             <div class="bm-mini-card">
               <span class="mini-icon">⏱️</span>
-              <h5>เร็วกว่าการกระพริบตา 30 เท่า</h5>
-              <p>มนุษย์กระพริบตาใช้เวลา 100–400ms แต่ .py3s คลายตัวใน <strong>12ms</strong> กรรมการหรือผู้เล่นจึงเปิดเว็บแล้วเข้าเล่นได้ทันทีโดยไม่รู้สึกว่ามีการโหลด</p>
+              <h5>30x Faster Than an Eye Blink</h5>
+              <p>A human eye blink takes 100–400ms. In contrast, .py3s hydrates in <strong>12ms</strong>, providing instantaneous web loading without perceived latency.</p>
             </div>
             <div class="bm-mini-card">
               <span class="mini-icon">🖥️</span>
-              <h5>Zero Server GPU Required</h5>
-              <p>ไม่ต้องเช่า Cloud GPU Server แพง ๆ เครื่องเบราว์เซอร์ของผู้ชมเป็นผู้ประมวลผลเอง 100% ทำให้ระบบโฮสต์บน <strong>GitHub Pages ฟรี</strong> ได้อย่างเสถียร</p>
+              <h5>Zero Server GPU Infrastructure</h5>
+              <p>No expensive cloud GPU instances required. The client browser handles 100% of processing, enabling free static hosting on <strong>GitHub Pages</strong>.</p>
             </div>
             <div class="bm-mini-card">
               <span class="mini-icon">🔒</span>
-              <h5>CRC-32 Bit Integrity</h5>
-              <p>Header 128 ไบต์ พร้อมฟิลด์ <code>ContainerCrc32</code> และ <code>Print3mfCrc32</code> ป้องกันข้อมูลบิดเบี้ยวจากรังสีคอสมิกในอวกาศลึกได้อย่างเด็ดขาด</p>
+              <h5>CRC-32 Bit-Level Integrity</h5>
+              <p>128-byte header with dedicated <code>ContainerCrc32</code> and <code>Print3mfCrc32</code> fields prevents cosmic ray bit-flip corruption in deep space.</p>
             </div>
           </div>
         </div>
@@ -934,41 +668,41 @@
         <!-- TAB 4: 3-IN-1 SPATIAL ARCHITECTURE -->
         <div class="bm-tab-content" id="content-physics">
           <div class="bm-section-intro">
-            <h3>🛡️ ก้าวข้ามขีดจำกัด: จาก "หมอกลวงตา" สู่ "วัตถุที่มีฟิสิกส์และพิมพ์ได้จริง"</h3>
-            <p>3D Gaussian Splatting ทั่วโลกมี Pain Point สำคัญคือ <strong>เป็นเพียงหมอกละอองพิกเซลที่ไม่มีผิวสัมผัส</strong> เดินทะลุได้ ชนไม่ได้ และส่งพิมพ์ 3D ไม่ได้ .py3s จึงผสาน 3 มิติเข้าเป็นหนึ่งเดียว:</p>
+            <h3>🛡️ Beyond Conventional 3DGS: Visual Beauty with Physical Collision and Fabrication</h3>
+            <p>Conventional 3D Gaussian Splatting worldwide suffers from a fatal flaw: <strong>it is merely a non-tangible cloud of pixels</strong> that characters pass through without collision, and cannot be 3D printed. The .py3s format unifies three dimensions into one container:</p>
           </div>
 
           <div class="bm-grid-3">
             <div class="layer-card">
               <div class="layer-badge cyan">LAYER 1: VISUAL</div>
               <h4>✨ Photorealistic 3DGS</h4>
-              <p>แสดงผลความงามระดับภาพถ่ายเสมือนจริง มีแสงสะท้อนสมจริง (Spherical Harmonics) หมุนดูได้ 360 องศาโดยไม่ต้องอบเงา Texture แบบเกมยุคเก่า</p>
+              <p>Renders photorealistic radiance fields with true view-dependent reflections (Spherical Harmonics) in 360 degrees without legacy texture baking.</p>
               <ul class="layer-list">
-                <li>รองรับพอยต์คลาวด์ตั้งแต่ 4k ถึง 480k จุด</li>
-                <li>บีบอัดด้วย SPZ Quantization อัตราส่วน 10:1</li>
-                <li>เรนเดอร์ลื่นไหล 60 FPS บน WebGL</li>
+                <li>Supports 4k to 480k point clouds</li>
+                <li>SPZ Quantization with 10:1 compression ratio</li>
+                <li>Smooth 60 FPS rendering on WebGL</li>
               </ul>
             </div>
 
             <div class="layer-card highlight">
               <div class="layer-badge amber">LAYER 2: PHYSICS & COLLISION</div>
               <h4>🛡️ 1:1 Mesh Collider</h4>
-              <p>โครงข่ายเรขาคณิตการชนที่แนบสนิทกับตัวถังยาน 1:1 เชื่อมต่อกับระบบ Three-Mesh-BVH เพื่อการตรวจจับการชนระดับเสี้ยววินาที</p>
+              <p>Snug-fit 1:1 geometric collision mesh interfaced with Three-Mesh-BVH for sub-millisecond physical collision detection.</p>
               <ul class="layer-list">
-                <li><strong>Debris Impact Test:</strong> ตรวจจับอุกกาบาตชนยานจริงที่ความเร็ว 14+ km/s</li>
-                <li><strong>Astronaut Capsule Walk:</strong> นักบินอวกาศเดินชนตัวถัง ปีนบันได และมี Anti-Penetration ไม่ทะลุฉาก</li>
-                <li><strong>Raycast Accelerated:</strong> ลดเวลาคำนวณจาก 65ms เหลือเพียง <strong>0.07ms</strong></li>
+                <li><strong>Debris Impact Test:</strong> Detects meteoroid strikes at 14+ km/s real-time</li>
+                <li><strong>Astronaut Capsule Walk:</strong> Solid surface walking, stair climbing, anti-penetration</li>
+                <li><strong>Raycast Accelerated:</strong> Reduced compute time from 65ms down to <strong>0.07ms</strong></li>
               </ul>
             </div>
 
             <div class="layer-card">
               <div class="layer-badge green">LAYER 3: MANUFACTURING</div>
               <h4>🖨️ Direct STEM 3D Printing</h4>
-              <p>ฝังแพ็กเกจ 3MF Watertight Solid (ทรงตันผิวปิดสนิท) ไว้ในตัวคอนเทนเนอร์ เพื่อเชื่อมโยงการจำลองในเกมสู่การประดิษฐ์จริง</p>
+              <p>Embeds a watertight solid 3MF package directly inside the container to bridge digital simulation into physical reality.</p>
               <ul class="layer-list">
-                <li>กดปุ่ม <strong>Export for Print 3D</strong> ได้ใน <strong>0 วินาที</strong></li>
-                <li>พร้อมนำเข้าซอฟต์แวร์ Cura, Bambu Studio, PrusaSlicer ได้ทันทีโดยไม่ต้องแก้ Mesh</li>
-                <li>ส่งเสริมการศึกษา STEM ให้เด็กและนักเรียนจับต้องยานอวกาศที่ตนออกแบบได้จริง</li>
+                <li>1-Click <strong>Export for Print 3D</strong> ready in <strong>0.00s</strong></li>
+                <li>Direct import into Cura, Bambu Studio, and PrusaSlicer</li>
+                <li>Empowers STEM education with physical spacecraft models</li>
               </ul>
             </div>
           </div>
@@ -977,14 +711,14 @@
         <!-- TAB 5: DEEP SPACE TRANSMISSION CALCULATOR -->
         <div class="bm-tab-content" id="content-calc">
           <div class="bm-section-intro">
-            <h3>🧮 เครื่องคำนวณจำลองการส่งข้อมูลข้ามอวกาศ (Deep Space Link Calculator)</h3>
-            <p>ทดสอบคำนวณเวลาและผลกระทบของแบนด์วิธเครือข่ายอวกาศลึก เทียบระหว่างไฟล์รูปแบบต่าง ๆ แบบ Real-time:</p>
+            <h3>🧮 Deep Space Telemetry Link Calculator</h3>
+            <p>Real-time simulation calculating transmission times and telemetry bandwidth impacts across interplanetary network profiles:</p>
           </div>
 
           <div class="bm-calc-box">
             <div class="calc-controls">
               <div class="calc-group">
-                <label for="calc-network-select">📡 เลือกช่องทางและสถานการณ์ส่งสัญญาณ:</label>
+                <label for="calc-network-select">📡 Network Channel & Transmission Scenario:</label>
                 <select id="calc-network-select" class="calc-select" onchange="runSpaceTransmissionCalc()">
                   <option value="1">Mars Direct-to-Earth (Perseverance X-Band: 1.0 kbps)</option>
                   <option value="3">Mars Direct-to-Earth Max (Perseverance: 3.0 kbps)</option>
@@ -996,8 +730,9 @@
               </div>
 
               <div class="calc-group">
-                <label for="calc-quota-slider">🔋 เพดานโควต้าข้อมูลต่อวันของยาน: <strong id="calc-quota-val">150 MB / วัน</strong></label>
-                <input type="range" id="calc-quota-slider" min="50" max="300" step="25" value="150" class="calc-slider" oninput="runSpaceTransmissionCalc()" />
+                <label for="calc-quota-slider">🔋 Spacecraft Daily Telemetry Cap: <strong id="calc-quota-val">150 MB / Day</strong></label>
+                <input type="range" id="calc-quota-slider" min="50" max="300" step="25" value="150" class="calc-slider"
+                  oninput="runSpaceTransmissionCalc()" />
               </div>
             </div>
 
@@ -1021,264 +756,13 @@
           <span class="bm-divider">|</span>
           <span>Open-Source Standard (MIT License)</span>
         </div>
-        <button class="bm-close-action" onclick="toggleBenchmarkModal()">ปิดหน้าต่าง [ESC]</button>
+        <button class="bm-close-action" onclick="toggleBenchmarkModal()">Close [ESC]</button>
       </div>
 
     </div>
   </div>
 
-  <!-- Immediate Helper Script for Instant UI Execution -->
-  <script>
-    const STAGE_STORIES = {
-      1: {
-        stageBadge: "STAGE 1 OF 5",
-        clips: "Clip 01 ➡️ 06",
-        constraint: "⚖️ Mass vs Budget",
-        title: "🚀 STAGE 1: LAUNCH PLATFORM & DEHYDRATED SEED",
-        theme: "Mass & Budget Trade-Off (มวลบรรทุก & งบประมาณ)",
-        desc: "ก่อนปล่อยยานขึ้นสู่อวกาศ ทุกกรัมของน้ำหนักและทุกไบต์ของข้อมูลคือต้นทุนมหาศาล ฟอร์แมต .py3s เริ่มต้นด้วยโหมด Dehydrated Seed (0x4000) บันทึกเฉพาะสัมประสิทธิ์พารามิเตอร์และจุดยึดโครงสร้างหลัก ทำให้ไฟล์มีขนาดจิ๋วเพียง 53 KB – 3.2 MB ประหยัดแบนด์วิธกว่า 97%",
-        compareTitle: "📦 ทำไม .py3s เหนือกว่าในด่านฐานปล่อย?",
-        mineLabel: "🌟 .py3s (Dehydrated Seed):",
-        mineVal: "53 KB – 3.2 MB (เบากว่า 97%)",
-        theirsLabel: "❌ Inria PLY ดั้งเดิม:",
-        theirsVal: "120 – 500+ MB (เทอะทะเกินเพดานบรรทุก)",
-        chip1: { lbl: "Payload Size", val: "3.2 MB", cls: "cyan" },
-        chip2: { lbl: "Bandwidth Saved", val: "97.6%", cls: "green" },
-        chip3: { lbl: "PLY Penalty", val: "Heavy (>100MB)", cls: "red" }
-      },
-      2: {
-        stageBadge: "STAGE 2 OF 5",
-        clips: "Clip 02 ➡️ 07",
-        constraint: "⚡ Power vs Science",
-        title: "🛰️ STAGE 2: ORBIT INSERTION & 12ms HYDRATION",
-        theme: "Power Budget & Solar Generation (พลังงาน & ระบบไฟ)",
-        desc: "ยานกางแผงโซลาร์สีทองในวงโคจรต่ำเพื่อเริ่มสร้างพลังงาน เช่นเดียวกับ .py3s ที่ทำงานด้วย Runtime Client Hydration ใน 12 มิลลิวินาที (0x8000) บนเบราว์เซอร์ของผู้ใช้ 100% โดยไม่พึ่งพา Server GPU แม้แต่น้อย กินพลังงานเครื่องต่ำมาก ไม่ทำให้ระบบไฟฟ้าและเฟรมเรตตก",
-        compareTitle: "⚡ ทำไม .py3s เหนือกว่าในด่านวงโคจร?",
-        mineLabel: "🌟 .py3s Web Hydration:",
-        mineVal: "12 ms ใน RAM (Zero GPU Server)",
-        theirsLabel: "❌ PLY / CAD อื่นๆ:",
-        theirsVal: "2,000 – 5,000 ms (หน่วงเครื่อง/FPS ตก)",
-        chip1: { lbl: "Hydrate Time", val: "12 ms", cls: "green" },
-        chip2: { lbl: "Server Cost", val: "$0 (Static)", cls: "cyan" },
-        chip3: { lbl: "Lag Latency", val: "Zero Lag", cls: "green" }
-      },
-      3: {
-        stageBadge: "STAGE 3 OF 5",
-        clips: "Clip 03 ➡️ 08",
-        constraint: "☄️ DONKI CME & Debris",
-        title: "🛡️ STAGE 3: SOLAR PLASMA & 1:1 PHYSICS COLLIDER",
-        theme: "NASA DONKI Space Weather Hazard (พายุสุริยะ & ขยะอวกาศ)",
-        desc: "เมื่อเกิดพายุสุริยะ (CME) และขยะอวกาศพุ่งชนเกราะสนามพลัง วงการ 3D Gaussian Splatting ทั่วโลกมีจุดตายคือเป็นเพียง 'หมอกลวงตาที่ไม่มีผิวสัมผัส เดินทะลุได้ ชนไม่ได้' แต่ .py3s ฝัง 1:1 Mesh Collider ในตัว สามารถทำ Debris Impact Test ตรวจจุดชนใน 0.07ms และมีระบบ Anti-Penetration ป้องกันไม่ให้เดินทะลุ",
-        compareTitle: "🛡️ ทำไม .py3s เหนือกว่าในด่านเกราะสนามพลัง?",
-        mineLabel: "🌟 .py3s Dual-Layer:",
-        mineVal: "1:1 Mesh Collider + Raycast 0.07ms",
-        theirsLabel: "❌ 3DGS ทั่วโลก (Inria/SPZ):",
-        theirsVal: "ไม่มีฟิสิกส์ ทะลุตัวเปล่า ชนไม่ได้",
-        chip1: { lbl: "Collider Query", val: "0.07 ms (BVH)", cls: "green" },
-        chip2: { lbl: "Impact Test", val: "60 FPS Real-time", cls: "cyan" },
-        chip3: { lbl: "Capsule Walk", val: "100% Solid", cls: "green" }
-      },
-      4: {
-        stageBadge: "STAGE 4 OF 5",
-        clips: "Clip 04 ➡️ 09",
-        constraint: "📡 DSN 1 kbps Bandwidth",
-        title: "📡 STAGE 4: INTERPLANETARY TELEMETRY & DSN",
-        theme: "Deep Space Radio Bottleneck (วิกฤตแบนด์วิธอวกาศลึก)",
-        desc: "ยานส่งลำแสงเลเซอร์สื่อสารข้ามระยะทาง 400 ล้านกิโลเมตรกลับสู่โลก การส่งตรงจากดาวอังคาร (Direct-to-Earth) มีความเร็วแค่ 0.5–3 kbps และโควต้าวันละ 100–250 MB เท่านั้น ไฟล์ PLY 120MB ต้องยิงคลื่น 11 วันเต็มจนยานแบตหมด แต่ .py3s (Seed) ส่งจบใน 40 วินาที – 7 นาที ประหยัดแบตเตอรี่ 99% และกินโควต้าไม่ถึง 1.2%",
-        compareTitle: "🌌 ทำไม .py3s เหนือกว่าในด่านอวกาศลึก?",
-        mineLabel: "🌟 .py3s Deep Space Link:",
-        mineVal: "40s – 7 นาที (กินโควต้า <1.2%)",
-        theirsLabel: "❌ PLY ดั้งเดิม (120 MB):",
-        theirsVal: "11 วัน 2 ชั่วโมง! (ยานแบตหมด)",
-        chip1: { lbl: "Transfer Time", val: "7 Min (Seed 40s)", cls: "green" },
-        chip2: { lbl: "Battery Burn", val: "-99.2% Burn", cls: "cyan" },
-        chip3: { lbl: "Daily Cap Used", val: "< 1.2% Total", cls: "green" }
-      },
-      5: {
-        stageBadge: "STAGE 5 OF 5",
-        clips: "Clip 05 ➡️ 10",
-        constraint: "🏆 Victory: Rank S",
-        title: "🔴 STAGE 5: MARS TOUCHDOWN & STEM 3D PRINTING",
-        theme: "Mission Accomplished Rank S & Physical Fabrication",
-        desc: "ยานลงจอดเหนือหุบเหวดาวอังคารสำเร็จด้วยไอพ่นชะลอความเร็ว 4 จุดอย่างสง่างาม ฟอร์แมต .py3s ไม่เพียงจำลองในจอ แต่ยังฝังโมเดลทรงตัน Watertight Solid (3MF) ในตัว กดปุ่มเดียวส่งออกไป Print 3D จริงบนเครื่องพิมพ์สามมิติในโรงเรียนได้ทันทีใน 0 วินาที พร้อมมาตรฐานสากล IANA (model/vnd.pygrassreal.py3s) และ CRC-32 Checksum",
-        compareTitle: "🖨️ ทำไม .py3s เหนือกว่าในด่านลงจอดและสั่งพิมพ์?",
-        mineLabel: "🌟 .py3s 3-in-1 Container:",
-        mineVal: "ฝัง 3MF ทรงตัน กดพิมพ์ใน 0s + IANA",
-        theirsLabel: "❌ 3DGS ทั่วโลก:",
-        theirsVal: "เป็นจุดฟุ้ง สั่งพิมพ์ 3D ไม่ได้เด็ดขาด",
-        chip1: { lbl: "3D Print Ready", val: "0.00s Export", cls: "green" },
-        chip2: { lbl: "IANA Standard", val: "Approved", cls: "cyan" },
-        chip3: { lbl: "Integrity", val: "CRC-32 Verified", cls: "green" }
-      }
-    };
-
-    let currentStageId = 1;
-    function updateStageStory(stageId) {
-      if (!STAGE_STORIES[stageId] || stageId === currentStageId) return;
-      currentStageId = stageId;
-      const data = STAGE_STORIES[stageId];
-
-      const badge = document.getElementById('stg-badge');
-      const clips = document.getElementById('stg-clips');
-      const constraint = document.getElementById('stg-constraint');
-      const title = document.getElementById('stg-title');
-      const theme = document.getElementById('stg-theme');
-      const desc = document.getElementById('stg-desc');
-
-      const cmpTitle = document.getElementById('cmp-title');
-      const mineLabel = document.getElementById('cmp-mine-label');
-      const mineVal = document.getElementById('cmp-mine-val');
-      const theirsLabel = document.getElementById('cmp-theirs-label');
-      const theirsVal = document.getElementById('cmp-theirs-val');
-
-      const chip1Lbl = document.getElementById('chip-1-lbl');
-      const chip1Val = document.getElementById('chip-1-val');
-      const chip2Lbl = document.getElementById('chip-2-lbl');
-      const chip2Val = document.getElementById('chip-2-val');
-      const chip3Lbl = document.getElementById('chip-3-lbl');
-      const chip3Val = document.getElementById('chip-3-val');
-
-
-      if (badge) badge.innerText = data.stageBadge;
-      if (clips) clips.innerText = data.clips;
-      if (constraint) constraint.innerText = data.constraint;
-      if (title) title.innerText = data.title;
-      if (theme) theme.innerText = data.theme;
-      if (desc) desc.innerText = data.desc;
-
-      if (cmpTitle) cmpTitle.innerText = data.compareTitle;
-      if (mineLabel) mineLabel.innerText = data.mineLabel;
-      if (mineVal) mineVal.innerText = data.mineVal;
-      if (theirsLabel) theirsLabel.innerText = data.theirsLabel;
-      if (theirsVal) theirsVal.innerText = data.theirsVal;
-
-      if (chip1Lbl) chip1Lbl.innerText = data.chip1.lbl;
-      if (chip1Val) { chip1Val.innerText = data.chip1.val; chip1Val.className = 'chip-val ' + data.chip1.cls; }
-      if (chip2Lbl) chip2Lbl.innerText = data.chip2.lbl;
-      if (chip2Val) { chip2Val.innerText = data.chip2.val; chip2Val.className = 'chip-val ' + data.chip2.cls; }
-      if (chip3Lbl) chip3Lbl.innerText = data.chip3.lbl;
-      if (chip3Val) { chip3Val.innerText = data.chip3.val; chip3Val.className = 'chip-val ' + data.chip3.cls; }
-    }
-    window.updateStageStory = updateStageStory;
-
-    function toggleBenchmarkModal() {
-      const modal = document.getElementById('benchmark-modal');
-      if (!modal) return;
-      const isActive = modal.classList.contains('active');
-      if (isActive) {
-        modal.classList.remove('active');
-        document.body.style.overflow = '';
-      } else {
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-        runSpaceTransmissionCalc();
-      }
-    }
-
-    function switchBenchmarkTab(tabId) {
-      document.querySelectorAll('.bm-tab-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.id === 'bm-tab-' + tabId);
-      });
-      document.querySelectorAll('.bm-tab-content').forEach(content => {
-        content.classList.toggle('active', content.id === 'content-' + tabId);
-      });
-      if (tabId === 'calc') {
-        runSpaceTransmissionCalc();
-      }
-    }
-
-    function handleBackdropClick(e) {
-      if (e.target && e.target.id === 'benchmark-modal') {
-        toggleBenchmarkModal();
-      }
-    }
-
-    function runSpaceTransmissionCalc() {
-      const selectNet = document.getElementById('calc-network-select');
-      const sliderQuota = document.getElementById('calc-quota-slider');
-      const quotaVal = document.getElementById('calc-quota-val');
-      const container = document.getElementById('calc-results-container');
-      const summaryBanner = document.getElementById('calc-summary-banner');
-
-      if (!selectNet || !sliderQuota || !container) return;
-
-      const kbps = parseFloat(selectNet.value);
-      const dailyQuotaMB = parseFloat(sliderQuota.value);
-      if (quotaVal) quotaVal.innerText = dailyQuotaMB + ' MB / วัน';
-
-      const formats = [
-        { name: "PyGrassReal .py3s (Seed Mode)", sizeMB: 0.051, isWinner: true, features: "Visual 3DGS + 1:1 Physics + 3D Print", type: "Dehydrated Seed" },
-        { name: "PyGrassReal .py3s (Full Model)", sizeMB: 3.2, isWinner: true, features: "Complete Dual-Layer 3DGS + Collider", type: "Full Container" },
-        { name: "Niantic Compressed Splat (.spz)", sizeMB: 15.0, isWinner: false, features: "Visual Splats Only (No Physics, No Print)", type: "Compressed Point Cloud" },
-        { name: "Vanilla 3DGS Splat (.splat)", sizeMB: 48.0, isWinner: false, features: "Visual Splats Only (No Physics)", type: "Raw Binary" },
-        { name: "Standard CAD Mesh (.glb)", sizeMB: 28.0, isWinner: false, features: "Mesh Only (No Photorealistic 3DGS)", type: "Triangular Mesh" },
-        { name: "Inria Original 3DGS (.ply)", sizeMB: 135.0, isWinner: false, features: "Uncompressed Point Cloud Dump", type: "Raw Float Table" }
-      ];
-
-      let cardsHtml = '';
-      formats.forEach(fmt => {
-        const sizeKB = fmt.sizeMB * 1024;
-        const totalBits = sizeKB * 8192;
-        const totalSeconds = totalBits / (kbps * 1000);
-        const quotaPercent = (fmt.sizeMB / dailyQuotaMB) * 100;
-
-        let timeFormatted = '';
-        if (totalSeconds < 60) timeFormatted = totalSeconds.toFixed(1) + ' วินาที';
-        else if (totalSeconds < 3600) timeFormatted = (totalSeconds / 60).toFixed(1) + ' นาที';
-        else if (totalSeconds < 86400) timeFormatted = (totalSeconds / 3600).toFixed(1) + ' ชั่วโมง';
-        else timeFormatted = (totalSeconds / 86400).toFixed(1) + ' วัน!';
-
-        const isExceeded = quotaPercent > 100;
-        const isDangerous = totalSeconds > 3600 * 4 || quotaPercent > 40;
-
-        cardsHtml += '<div class="calc-card ' + (fmt.isWinner ? 'winner-card' : '') + ' ' + (isExceeded ? 'exceeded-card' : '') + '">' +
-          '<div class="calc-card-top">' +
-            '<span class="calc-card-title">' + fmt.name + '</span>' +
-            '<span class="calc-card-badge ' + (fmt.isWinner ? 'badge-win' : (isExceeded ? 'badge-fail' : 'badge-mid')) + '">' +
-              (fmt.isWinner ? 'MISSION READY 🚀' : (isExceeded ? 'EXCEEDS QUOTA ❌' : 'USABLE ⚠️')) +
-            '</span>' +
-          '</div>' +
-          '<div class="calc-card-size">ขนาด: <strong>' + (fmt.sizeMB < 1 ? (fmt.sizeMB * 1024).toFixed(0) + ' KB' : fmt.sizeMB.toFixed(1) + ' MB') + '</strong> (' + fmt.type + ')</div>' +
-          '<div class="calc-metrics">' +
-            '<div class="metric-row">' +
-              '<span>⏱️ เวลาส่งข้อมูล:</span>' +
-              '<strong class="' + (fmt.isWinner ? 'val-good' : (isDangerous ? 'val-bad' : 'val-mid')) + '">' + timeFormatted + '</strong>' +
-            '</div>' +
-            '<div class="metric-row">' +
-              '<span>📊 กินโควต้าต่อวัน (' + dailyQuotaMB + 'MB):</span>' +
-              '<strong class="' + (quotaPercent < 5 ? 'val-good' : (quotaPercent > 50 ? 'val-bad' : 'val-mid')) + '">' + quotaPercent.toFixed(1) + '%</strong>' +
-            '</div>' +
-            '<div class="metric-row">' +
-              '<span>🛡️ เลเยอร์ที่ได้:</span>' +
-              '<small style="color: var(--text-muted);">' + fmt.features + '</small>' +
-            '</div>' +
-          '</div>' +
-        '</div>';
-      });
-
-      container.innerHTML = cardsHtml;
-
-      if (summaryBanner) {
-        if (kbps <= 3) {
-          summaryBanner.innerHTML = '<strong>🏆 ผลสรุปภารกิจอวกาศลึก (Direct-to-Earth):</strong> ฟอร์แมต <strong>.py3s (Seed)</strong> ส่งถึงโลกได้ในเวลาเพียง <strong>7 นาที</strong> ในขณะที่ไฟล์ PLY ดั้งเดิมต้องใช้เวลานานถึง <strong>11 วัน!</strong> (.py3s เร็วกว่าถึง 2,260 เท่า และไม่เสี่ยงทำให้แบตเตอรี่ยานหมด)';
-        } else {
-          summaryBanner.innerHTML = '<strong>🏆 ผลสรุปการส่งผ่านวงโคจร (Orbiter Relay / High-Speed):</strong> <strong>.py3s</strong> ใช้เวลาส่งเพียงเสี้ยววินาที และกินโควต้าข้อมูลต่อวันไม่ถึง <strong>1.5%</strong> เหลือพื้นที่ให้ยานส่งข้อมูลภาพถ่ายและการทดลองทางวิทยาศาสตร์ได้เต็มกำลัง 100%!';
-        }
-      }
-    }
-
-    window.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
-        const modal = document.getElementById('benchmark-modal');
-        if (modal && modal.classList.contains('active')) toggleBenchmarkModal();
-      }
-    });
-
-    document.addEventListener('DOMContentLoaded', function() {
-      runSpaceTransmissionCalc();
-      if (window.updateStageStory) window.updateStageStory(1);
-    });
-  </script>
 
 </body>
+
 </html>

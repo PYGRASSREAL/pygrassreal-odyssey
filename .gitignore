@@ -3,3 +3,5 @@ dist/
 .DS_Store
 *.local
 assets/raw_videos/
+scratch/
+*.log

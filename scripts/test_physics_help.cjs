@@ -1,0 +1,63 @@
+const { chromium } = require('playwright');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+
+(async () => {
+  const browser = await chromium.launch({ channel: 'chrome', headless: true });
+  try {
+    const page = await browser.newPage({ viewport: { width: 1892, height: 1000 } });
+    const errors = [];
+    page.on('pageerror', e => errors.push(e.message));
+    await page.goto(process.env.ODYSSEY_URL || 'http://127.0.0.1:4183/');
+    await page.waitForFunction(() => window.placedInstances?.length > 0 && document.getElementById('btn-physics-help'));
+    const button = page.locator('#btn-physics-help'), dialog = page.locator('#physics-help-dialog');
+    assert.equal(await button.isVisible(), false, 'Help is only shown in 3D');
+    await page.evaluate(() => window.jumpToTimeline(.95));
+    await button.waitFor({ state: 'visible' });
+    await page.waitForTimeout(750);
+    const layout = await page.evaluate(() => {
+      const help = document.getElementById('btn-physics-help').getBoundingClientRect();
+      const panel = document.getElementById('v3d-layer-panel').getBoundingClientRect();
+      const nav = document.querySelector('.top-nav').getBoundingClientRect();
+      return { gap: panel.left - help.right, top: help.top, panelTop: panel.top, navBottom: nav.bottom };
+    });
+    assert.ok(layout.gap >= 10 && layout.gap <= 16, 'Help sits just left of the outliner as requested');
+    assert.ok(layout.top >= layout.navBottom && Math.abs(layout.top - layout.panelTop) < 15);
+    fs.mkdirSync(path.join(__dirname, '../scratch'), { recursive: true });
+    await page.screenshot({ path: path.join(__dirname, '../scratch/physics-help-button.png') });
+    await page.keyboard.down('w');
+    await button.click(); await dialog.waitFor({ state: 'visible' });
+    assert.equal(await page.evaluate(() => window.astroPos && document.getElementById('object-physics-menu').hidden), true);
+    const controls = await page.evaluate(async () => ({ ...(await import('/js/astronaut.js')).keyState }));
+    assert.ok(Object.values(controls).every(value => value === false), 'Opening help releases movement');
+    await page.keyboard.up('w');
+    const expected = await page.evaluate(async () => (await import('/js/instancePhysics.js')).PHYSICS_MODES.map(([id]) => id));
+    assert.deepEqual(await page.locator('[data-help-mode]').evaluateAll(cards => cards.map(card => card.dataset.helpMode)), expected);
+    assert.ok((await dialog.innerText()).includes('Collider'));
+    assert.ok((await dialog.innerText()).includes('Heatmap'));
+    await page.keyboard.press('e'); await page.keyboard.press('w'); await page.keyboard.press('s');
+    assert.equal(await page.locator('#object-physics-menu').isVisible(), false, 'Scene shortcuts are isolated while reading help');
+    await page.keyboard.press('Shift+Tab');
+    assert.equal(await page.evaluate(() => document.getElementById('physics-help-dialog').contains(document.activeElement)), true, 'Focus stays inside the modal');
+    await page.screenshot({ path: path.join(__dirname, '../scratch/physics-help-dialog.png') });
+    await page.keyboard.press('q'); await dialog.waitFor({ state: 'hidden' });
+    assert.equal(await button.evaluate(el => el === document.activeElement), true);
+    await button.click(); await page.locator('#physics-help-close').click();
+    await dialog.waitFor({ state: 'hidden' });
+    await button.click(); await page.keyboard.press('Escape'); await dialog.waitFor({ state: 'hidden' });
+    await button.click(); await page.mouse.click(8, 8); await dialog.waitFor({ state: 'hidden' });
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.waitForTimeout(300); await button.click();
+    const mobile = await dialog.boundingBox();
+    assert.ok(mobile.x >= 0 && mobile.y >= 0 && mobile.x + mobile.width <= 390 && mobile.y + mobile.height <= 844);
+    await page.locator('.physics-help-content').evaluate(el => { el.scrollTop = el.scrollHeight; });
+    await page.screenshot({ path: path.join(__dirname, '../scratch/physics-help-mobile.png') });
+    await page.keyboard.press('q');
+    await button.click(); await page.evaluate(() => window.jumpToTimeline(.1));
+    await dialog.waitFor({ state: 'hidden' }); assert.equal(await button.isVisible(), false);
+    assert.equal(await page.evaluate(() => document.documentElement.style.overflow), '');
+    assert.deepEqual(errors, []);
+    console.log('PASS help placement, all 10 mode explanations, glossary, keyboard isolation, focus, close methods, mobile and phase cleanup');
+  } finally { await browser.close(); }
+})().catch(e => { console.error(e); process.exitCode = 1; });
